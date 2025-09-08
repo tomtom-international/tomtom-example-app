@@ -1,0 +1,37 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = 120
+tab_width = 4
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+ktlint_ignore_back_ticked_identifier = true
+ktlint_standard = enabled
+
+# Ignore for Composable/Implementation: Function name should start with a lowercase letter
+# (except factory methods) and use camel case
+ktlint_function_naming_ignore_when_annotated_with = Composable, Implementation
+
+ktlint_function_signature_body_expression_wrapping = default
+ktlint_standard_chain-method-continuation = disabled
+ktlint_standard_class-signature = disabled
+ktlint_standard_condition-wrapping = disabled
+ktlint_standard_function-expression-body = disabled
+ktlint_standard_multiline-expression-wrapping = disabled
+
+# Don't allow any wildcard imports
+ij_kotlin_packages_to_use_import_on_demand = unset
+
+# Prevent wildcard imports
+ij_kotlin_name_count_to_use_star_import = 99
+ij_kotlin_name_count_to_use_star_import_for_members = 99
+
+[*.{proto,cpp,hpp,cmake}]
+indent_size = 2

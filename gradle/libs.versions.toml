@@ -1,0 +1,71 @@
+#
+# © 2025 TomTom NV. All rights reserved.
+#
+# This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+# used for internal evaluation purposes or commercial use strictly subject to separate
+# license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+# to use this software in accordance with the terms of your license agreement. If you are
+# not the licensee, you are not authorized to use this software in any manner and should
+# immediately return or destroy it.
+#
+
+[versions]
+
+androidGradlePlugin                           = "8.12.1"
+googleAndroidMaterial                         = "1.12.0"
+androidxActivity                              = "1.10.1"
+androidxCompose                               = "1.8.3"
+androidxComposeBom                            = "2025.07.00"
+androidxCore                                  = "1.16.0"
+androidxDatastore                             = "1.1.7"
+androidxLifecycle                             = "2.8.7"
+androidxNavigationCompose                     = "2.8.9"
+detekt                                        = "1.23.8"
+junit                                         = "4.13.2"
+kotlin                                        = "1.8.22"
+kotlinCompilerExtensionVersion                = "1.4.8"
+kotlinxCoroutines                             = "1.7.3"
+kotlinxSerialization                          = "1.5.1"
+ktlint                                        = "13.0.0"
+ktlintExt                                     = "1.6.0"
+mockk                                         = "1.13.17"
+tomtomNavsdk                                  = "2.0.0-rc02"
+
+[libraries]
+
+androidxActivity-compose                      = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidxCompose-bom                           = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidxComposeMaterial3                      = { group = "androidx.compose.material3", name = "material3" }
+androidxComposeUi                             = { group = "androidx.compose.ui", name = "ui", version.ref = "androidxCompose" }
+androidxComposeUi-tooling                     = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "androidxCompose" }
+androidxComposeUi-toolingPreview              = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "androidxCompose" }
+androidxComposeUi-testManifest                = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "androidxCompose" }
+androidxCore-ktx                              = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidxDatastore-preferences                 = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
+androidxNavigation-compose                    = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigationCompose" }
+androidxLifecycle-viewmodelCompose            = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
+googleAndroidMaterial                         = { group = "com.google.android.material", name = "material", version.ref = "googleAndroidMaterial" }
+mockk                                         = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlin-reflect                                = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlinx-coroutinesTest                        = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-serializationJson                     = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+junit                                         = { group = "junit", name = "junit", version.ref = "junit" }
+
+tomtomEntrypoint                              = { group = "com.tomtom.sdk.entrypoint", name = "entrypoint", version.ref = "tomtomNavsdk" }
+tomtomLocation-providerMapMatched             = { group = "com.tomtom.sdk.location", name = "provider-map-matched", version.ref = "tomtomNavsdk" }
+tomtomLocation-providerSimulation             = { group = "com.tomtom.sdk.location", name = "provider-simulation", version.ref = "tomtomNavsdk" }
+tomtomLocation-tracesLogger                   = { group = "com.tomtom.sdk.location", name = "traces-logger", version.ref = "tomtomNavsdk" }
+tomtomMaps-mapDisplayStandard                 = { group = "com.tomtom.sdk.maps", name = "map-display-standard", version.ref = "tomtomNavsdk" }
+tomtomMaps-mapDisplayComposeCommon            = { group = "com.tomtom.sdk.maps", name = "map-display-compose-common", version.ref = "tomtomNavsdk" }
+tomtomMaps-mapDataStore                       = { group = "com.tomtom.sdk.maps", name = "map-data-store", version.ref = "tomtomNavsdk" }
+tomtomMapsVis-navigationCompose               = { group = "com.tomtom.sdk.maps.visualization", name = "navigation-compose", version.ref = "tomtomNavsdk" }
+tomtomMapsVis-routingCompose                  = { group = "com.tomtom.sdk.maps.visualization", name = "routing-compose", version.ref = "tomtomNavsdk" }
+tomtomTraffic-client                          = { group = "com.tomtom.sdk.traffic", name = "traffic-client", version.ref = "tomtomNavsdk" }
+
+[plugins]
+
+android-application                           = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android                                = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization                          = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+style-detekt                                  = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+style-ktlint                                  = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
