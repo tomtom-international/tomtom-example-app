@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+
+<resources>
+    <string name="app_name">TomTom Navigation SDK Example</string>
+
+    <string name="arrival_button_finish">Finish</string>
+
+    <string name="common_content_description_arrival_time">Arrival time</string>
+    <string name="common_content_description_center_on_user">Center</string>
+    <string name="common_content_description_clear_search">Clear Search</string>
+    <string name="common_content_description_close">Close</string>
+    <string name="common_content_description_settings">Settings</string>
+    <string name="common_content_description_toggle_2D_3D">Toggle 2D/3D</string>
+    <string name="common_error_location_permission_denied">Location permission must be enabled. The app will not function without it.</string>
+    <string name="common_error_message">Error message</string>
+    <string name="common_format_two_words_with_space">%1$s %2$s</string>
+    <string name="common_speed_unit_kph">km/h</string>
+    <string name="common_speed_unit_mph">mph</string>
+
+    <string name="demo_examples_subtitle">Map, Routing and Search examples</string>
+    <string name="demo_examples_title">Demo examples</string>
+    <string name="demo_route_planning_label_avoids">Route avoids:</string>
+    <string name="demo_route_planning_label_eco">Eco</string>
+    <string name="demo_route_planning_label_fastest">Fastest</string>
+    <string name="demo_route_planning_label_ferries">Ferries</string>
+    <string name="demo_route_planning_label_motorways">Motorways</string>
+    <string name="demo_route_planning_label_shortest">Shortest</string>
+    <string name="demo_route_planning_label_toll_roads">Toll roads</string>
+    <string name="demo_route_planning_label_types">Route types:</string>
+    <string name="demo_route_planning_subtitle">Plan a route with multiple alternatives, filter by route type, or avoid motorways, tolls, and ferries</string>
+    <string name="demo_route_planning_title">Route planning</string>
+    <string name="demo_routing_subtitle">Routing features</string>
+    <string name="demo_routing_title">Routing</string>
+    <string name="demo_search_autocomplete_subtitle">Search using suggested options for POIs, Categories or Brands</string>
+    <string name="demo_search_autocomplete_title">Search with Autocomplete options</string>
+    <string name="demo_search_ev_button_reset_filters">Reset all</string>
+    <string name="demo_search_ev_content_description_bolt">Power</string>
+    <string name="demo_search_ev_content_description_category_arrow">Show filter options</string>
+    <string name="demo_search_ev_content_description_category_icon">Category icon</string>
+    <string name="demo_search_ev_content_description_charge_points_arrow">Show Charge Points details</string>
+    <string name="demo_search_ev_content_description_nearby_poi_arrow">Show POIs details</string>
+    <string name="demo_search_ev_format_charge_points_available">%1$s/%2$s available</string>
+    <string name="demo_search_ev_format_power_in_kw">%1$s kW</string>
+    <string name="demo_search_ev_label_access_type_option_company">Company</string>
+    <string name="demo_search_ev_label_access_type_option_private">Private</string>
+    <string name="demo_search_ev_label_access_type_option_public">Public</string>
+    <string name="demo_search_ev_label_access_type_option_restricted">Restricted</string>
+    <string name="demo_search_ev_label_charge_points">Charge Points</string>
+    <string name="demo_search_ev_label_charger">EV Charger</string>
+    <string name="demo_search_ev_label_charging_speed_option_12_49kw">12 – 49 kW</string>
+    <string name="demo_search_ev_label_charging_speed_option_150kw_plus">150 kW+</string>
+    <string name="demo_search_ev_label_charging_speed_option_50kw_plus">50 kW+</string>
+    <string name="demo_search_ev_label_charging_speed_option_lt_11kw">&lt; 11 kW</string>
+    <string name="demo_search_ev_label_connector_type_option_chademo">CHAdeMO</string>
+    <string name="demo_search_ev_label_connector_type_option_china_part2">China Part 2 connector (GB/T 20234.2–2015)</string>
+    <string name="demo_search_ev_label_connector_type_option_china_part3">China Part 3 connector (GB/T 20234.3–2015)</string>
+    <string name="demo_search_ev_label_connector_type_option_standard_household">Standard household plug</string>
+    <string name="demo_search_ev_label_connector_type_option_tesla">Tesla Supercharger</string>
+    <string name="demo_search_ev_label_connector_type_option_type1">Type 1 (IEC 62196–2)</string>
+    <string name="demo_search_ev_label_connector_type_option_type1_combo">Type 1 based combo (IEC 62196–3)</string>
+    <string name="demo_search_ev_label_connector_type_option_type2">Type 2 (IEC 62196–2)</string>
+    <string name="demo_search_ev_label_connector_type_option_type2_cable">Type 2 – Cable attached (IEC 62196–2)</string>
+    <string name="demo_search_ev_label_connector_type_option_type2_combo">Type 2 based combo (IEC 62196–3)</string>
+    <string name="demo_search_ev_label_connector_type_option_type3">Type 3 (IEC 62196–2)</string>
+    <string name="demo_search_ev_label_connector_type_option_unknown">Unknown connector</string>
+    <string name="demo_search_ev_label_nearby_poi">Nearby POIs</string>
+    <string name="demo_search_ev_label_state_option_available">Available</string>
+    <string name="demo_search_ev_label_state_option_occupied">Occupied</string>
+    <string name="demo_search_ev_label_state_option_out_of_service">Out of service</string>
+    <string name="demo_search_ev_label_state_option_reserved">Reserved</string>
+    <string name="demo_search_ev_label_unknown_access">Unknown Access</string>
+    <string name="demo_search_ev_label_unknown_poi">Unknown POI</string>
+    <string name="demo_search_ev_subtitle">Search and filter EV stations around the user</string>
+    <string name="demo_search_ev_subtitle_bottom_panel">Near you</string>
+    <string name="demo_search_ev_title">EV search</string>
+    <string name="demo_search_ev_title_access_type_category">Access type</string>
+    <string name="demo_search_ev_title_bottom_panel">Charging stations</string>
+    <string name="demo_search_ev_title_bottom_panel_expanded">Filters</string>
+    <string name="demo_search_ev_title_charging_speed_category">Charging speed</string>
+    <string name="demo_search_ev_title_connector_type_category">Connector type</string>
+    <string name="demo_search_ev_title_state_category">State</string>
+    <string name="demo_search_poi_along_route_subtitle">Search for points of interest along the planned route</string>
+    <string name="demo_search_poi_along_route_subtitle_bottom_panel">Search for restaurants, hotels, and more along your route</string>
+    <string name="demo_search_poi_along_route_title">Search POIs along the route</string>
+    <string name="demo_search_poi_along_route_title_bottom_panel">Add stops to your route</string>
+    <string name="demo_search_poi_in_area_subtitle">Search for restaurants, hotels, and more in a given area around a selected point</string>
+    <string name="demo_search_poi_in_area_title">Search POIs in a given area</string>
+    <string name="demo_search_subtitle">Search features</string>
+    <string name="demo_search_title">Search</string>
+
+    <string name="guidance_button_exit">Exit</string>
+    <string name="guidance_content_description_next_instruction_panel_poi">Next Panel Instruction</string>
+
+    <string name="horizon_card_icon">HorizonCard Icon</string>
+    <string name="horizon_card_delay_icon">HorizonCard Delay Icon</string>
+    <string name="horizon_label_safety_location_card_speed_camera_description">Speed Camera</string>
+    <string name="horizon_label_safety_location_card_redlight_description">Red Light Camera</string>
+    <string name="horizon_label_traffic_card_description">Traffic</string>
+    <string name="horizon_label_traffic_card_description_without_distance">In Traffic Jam</string>
+    <string name="horizon_label_traffic_delay_under_a_minute">&lt;1 min</string>
+    <string name="horizon_label_traffic_delay_minutes">%d min</string>
+
+    <string name="horizon_label_traffic_delay_unknown">Unknown delay</string>
+
+    <string name="main_telemetry_dialog_label">Do you want to send Telemetry data?</string>
+    <string name="main_telemetry_dialog_button">Confirm</string>
+
+    <string name="navigation_error_routing_failed">Routing failed</string>
+
+    <string name="navsdk_application_subtitle">A simple turn-by-turn application</string>
+    <string name="navsdk_application_title">Navigation SDK Application</string>
+
+    <string name="poifocus_button_route">Route</string>
+
+    <string name="route_preview_button_drive">Drive</string>
+
+    <string name="search_content_description_cafe_poi">Cafe</string>
+    <string name="search_content_description_gas_station_poi">Gas station</string>
+    <string name="search_content_description_hotel_poi">Hotel</string>
+    <string name="search_content_description_park_poi">Park</string>
+    <string name="search_content_description_parking_poi">Parking garage</string>
+    <string name="search_content_description_public_amenity_poi">Public amenity</string>
+    <string name="search_content_description_reset">Reset Search</string>
+    <string name="search_content_description_restaurant_poi">Restaurant</string>
+    <string name="search_content_description_search">Search</string>
+    <string name="search_content_description_search_result">Location</string>
+    <string name="search_content_description_shop_poi">Shop</string>
+    <string name="search_error_empty_results">No results for this input</string>
+    <string name="search_error_failed">Search failed</string>
+    <string name="search_error_message">Error</string>
+
+    <string name="settings_content_description_back">Button to navigate back out of settings</string>
+    <string name="settings_label_navsdk_version">Navigation SDK Version</string>
+    <string name="settings_label_telemetry_consent">Telemetry consent level</string>
+    <string name="settings_label_telemetry_consent_off">Off</string>
+    <string name="settings_label_telemetry_consent_location_only">Location only</string>
+    <string name="settings_label_telemetry_consent_on">On</string>
+    <string name="settings_title">Settings</string>
+</resources>

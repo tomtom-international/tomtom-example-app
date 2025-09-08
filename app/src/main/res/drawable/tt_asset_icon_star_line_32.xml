@@ -1,0 +1,26 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M9.762,28C9.442,27.999 9.131,27.897 8.872,27.71C8.394,27.366 8.15,26.782 8.242,26.2L9.362,19.46L4.472,14.69C4.05,14.282 3.895,13.67 4.072,13.11C4.265,12.571 4.744,12.185 5.312,12.11L12.082,11.11L15.082,4.96C15.317,4.395 15.86,4.02 16.472,4C17.051,4.025 17.576,4.346 17.862,4.85L20.872,11L27.642,11.95C28.211,12.046 28.678,12.452 28.853,13.002C29.028,13.552 28.881,14.153 28.472,14.56L23.602,19.36L24.792,26.1C24.896,26.679 24.659,27.266 24.182,27.61C23.711,27.962 23.079,28.009 22.562,27.73L16.492,24.58L10.472,27.8C10.254,27.922 10.011,27.99 9.762,28V28ZM6.472,13.89L10.902,18.16C11.262,18.518 11.429,19.028 11.352,19.53L10.352,25.59L15.782,22.7C16.23,22.465 16.764,22.465 17.212,22.7L22.682,25.53L21.602,19.47C21.518,18.972 21.683,18.465 22.042,18.11L26.472,13.79L20.382,12.94C19.879,12.873 19.443,12.557 19.222,12.1L16.472,6.6L13.782,12.13C13.559,12.583 13.13,12.899 12.632,12.98L6.472,13.89Z"
+      android:fillColor="#ffffff"
+      android:fillType="evenOdd"/>
+</vector>

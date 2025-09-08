@@ -1,0 +1,35 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<resources>
+    <!-- Certificate digests for AAOS host validation (SHA-256) -->
+    <!-- These must be kept by ProGuard/R8 for production builds -->
+    <string-array name="host_gearhead_digests" translatable="false">
+        <item>fdb00c43dbde8b51cb312aa81d3b5fa17713adb94b28f598d77f8eb89daceedf</item>
+        <item>70811a3eacfd2e83e18da9bfede52df16ce91f2e69a44d21f18ab66991130771</item>
+        <item>1975b2f17177bc89a5dff31f9e64a6cae281a53dc1d1d59b1d147fe1c82afa00</item>
+    </string-array>
+
+    <string-array name="host_templates_digests" translatable="false">
+        <item>c241ffbc8e287c4e9a4ad19632ba1b1351ad361d5177b7d7b29859bd2b7fc631</item>
+        <item>dd66deaf312d8daec7adbe85a218ecc8c64f3b152f9b5998d5b29300c2623f61</item>
+        <item>50e603d333c6049a37bd751375d08f3bd0abebd33facd30bd17b64b89658b421</item>
+    </string-array>
+
+    <!-- Host package names for AAOS host validation -->
+    <string name="com_google_android_projection_gearhead">com.google.android.projection.gearhead</string>
+    <string name="com_google_android_apps_automotive_templates_host">com.google.android.apps.automotive.templates.host</string>
+</resources>

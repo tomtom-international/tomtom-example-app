@@ -1,0 +1,32 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+  <path
+      android:pathData="M12.488,47.845C12.801,48.158 13.225,48.333 13.667,48.333C14.109,48.333 14.533,48.158 14.845,47.845C15.158,47.533 15.333,47.109 15.333,46.667V17.333C15.333,16.891 15.158,16.467 14.845,16.155C14.533,15.842 14.109,15.667 13.667,15.667C13.225,15.667 12.801,15.842 12.488,16.155C12.176,16.467 12,16.891 12,17.333V46.667C12,47.109 12.176,47.533 12.488,47.845ZM49.155,47.845C49.467,48.158 49.891,48.333 50.333,48.333C50.775,48.333 51.199,48.158 51.512,47.845C51.824,47.533 52,47.109 52,46.667V17.333C52,16.891 51.824,16.467 51.512,16.155C51.199,15.842 50.775,15.667 50.333,15.667C49.891,15.667 49.467,15.842 49.155,16.155C48.842,16.467 48.667,16.891 48.667,17.333V46.667C48.667,47.109 48.842,47.533 49.155,47.845ZM26,22.667H22V26.667H18V30.667H22V26.667H26V30.667H30V26.667H34V30.667H38V26.667H42V30.667H46V26.667H42V22.667H46V18.667H42V22.667H38V18.667H34V22.667H30V18.667H26V22.667ZM26,22.667H30V26.667H26V22.667ZM34,22.667V26.667H38V22.667H34Z"
+      android:strokeAlpha="0.6"
+      android:fillColor="#ffffff"
+      android:fillType="evenOdd"
+      android:fillAlpha="0.6"/>
+  <path
+      android:pathData="M22,18.667H18V22.667H22V26.667H18V30.667H22V26.667H26V30.667H30V26.667H34V30.667H38V26.667H42V30.667H46V26.667H42V22.667H46V18.667H42V22.667H38V18.667H34V22.667H30V18.667H26V22.667H22V18.667ZM26,22.667H30V26.667H26V22.667ZM34,22.667V26.667H38V22.667H34Z"
+      android:fillColor="#ffffff"
+      android:fillType="evenOdd"/>
+</vector>

@@ -1,0 +1,28 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M3,24C2.44,24 2,23.541 2,22.956V9.044C2,8.46 2.44,8 3,8C3.56,8 4,8.46 4,9.044V18H14V12C14,10.895 14.895,10 16,10H20.048C23.581,10 26.695,12.317 27.71,15.701L28,16.667V13.06C28,12.466 28.44,12 29,12C29.56,12 30,12.466 30,13.06V22.961C30,23.534 29.56,24 29,24C28.44,24 28,23.534 28,22.94V20H4V22.976C4,23.541 3.56,24 3,24Z"
+      android:fillColor="#ffffff"/>
+  <path
+      android:pathData="M9,16C10.657,16 12,14.657 12,13C12,11.343 10.657,10 9,10C7.343,10 6,11.343 6,13C6,14.657 7.343,16 9,16Z"
+      android:fillColor="#ffffff"/>
+</vector>

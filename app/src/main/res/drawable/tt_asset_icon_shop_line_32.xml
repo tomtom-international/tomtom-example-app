@@ -1,0 +1,32 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M12,15C12.552,15 13,14.552 13,14C13,13.448 12.552,13 12,13C11.448,13 11,13.448 11,14C11,14.552 11.448,15 12,15Z"
+      android:fillColor="#ffffff"/>
+  <path
+      android:pathData="M20,15C20.552,15 21,14.552 21,14C21,13.448 20.552,13 20,13C19.448,13 19,13.448 19,14C19,14.552 19.448,15 20,15Z"
+      android:fillColor="#ffffff"/>
+  <path
+      android:pathData="M22.1,10C23.1,10 24,10.8 24.1,11.9L25,27C25,27.2 24.9,27.5 24.7,27.7C24.5,27.9 24.3,28 24,28H8C7.7,28 7.5,27.9 7.3,27.6C7.1,27.4 7,27.2 7,26.9L7.9,11.9C8,10.8 8.9,10 9.9,10H11V8C11,5.4 13.5,4 16,4C18.5,4 21,5.4 21,8V10H22.1ZM16,6C15,6 13,6.4 13,8V10H19V8C19,6.4 17,6 16,6ZM9.9,12L9.1,26H23L22.1,12H9.9Z"
+      android:fillColor="#ffffff"
+      android:fillType="evenOdd"/>
+</vector>
