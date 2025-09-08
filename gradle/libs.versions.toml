@@ -1,0 +1,77 @@
+# Copyright 2026 TomTom International BV.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[versions]
+
+tomtomNavsdk = "2.1.2"
+
+androidGradlePlugin                           = "8.12.2"
+googleAndroidMaterial                         = "1.13.0"
+androidxActivity                              = "1.10.1"
+androidxAppcompat                             = "1.7.1"
+androidxCarApp                                = "1.7.0"
+androidxCompose                               = "1.8.3"
+androidxComposeBom                            = "2025.07.00"
+androidxCore                                  = "1.16.0"
+androidxDatastore                             = "1.1.7"
+androidxNavigationCompose                     = "2.8.9"
+junit                                         = "4.13.2"
+kotlin                                        = "1.8.22"
+kotlinCompilerExtensionVersion                = "1.4.8"
+kotlinxCoroutines                             = "1.7.3"
+kotlinxSerialization                          = "1.5.1"
+ktlint                                        = "13.1.0"
+ktlintExt                                     = "1.7.1"
+mockk                                         = "1.13.17"
+
+[libraries]
+
+androidxActivity-compose                      = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidxAppcompat                             = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppcompat" }
+androidxCar-app                               = { group = "androidx.car.app", name = "app", version.ref = "androidxCarApp" }
+androidxCar-appAutomotive                     = { group = "androidx.car.app", name = "app-automotive", version.ref = "androidxCarApp" }
+androidxCar-appTesting                        = { group = "androidx.car.app", name = "app-testing", version.ref = "androidxCarApp" }
+androidxCompose-bom                           = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
+androidxComposeMaterial3                      = { group = "androidx.compose.material3", name = "material3" }
+androidxComposeUi                             = { group = "androidx.compose.ui", name = "ui", version.ref = "androidxCompose" }
+androidxComposeUi-tooling                     = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "androidxCompose" }
+androidxComposeUi-toolingPreview              = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "androidxCompose" }
+androidxComposeUi-testManifest                = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "androidxCompose" }
+androidxCore-ktx                              = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidxDatastore-preferences                 = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
+androidxNavigation-compose                    = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigationCompose" }
+googleAndroidMaterial                         = { group = "com.google.android.material", name = "material", version.ref = "googleAndroidMaterial" }
+mockk                                         = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlin-reflect                                = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlinx-coroutinesTest                        = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-serializationJson                     = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+junit                                         = { group = "junit", name = "junit", version.ref = "junit" }
+
+tomtomSdk-init                                      = { group = "com.tomtom.sdk", name = "init", version.ref = "tomtomNavsdk" }
+tomtomSdkCommon-configuration                       = { group = "com.tomtom.sdk.common", name = "configuration", version.ref = "tomtomNavsdk" }
+tomtomSdkLocation-provider-default                  = { group = "com.tomtom.sdk.location", name = "provider-default", version.ref = "tomtomNavsdk" }
+tomtomSdkMaps-mapDisplayComposePremium              = { group = "com.tomtom.sdk.maps", name = "map-display-compose-premium", version.ref = "tomtomNavsdk" }
+tomtomSdkMaps-mapDisplayComposeStandard             = { group = "com.tomtom.sdk.maps", name = "map-display-compose-standard", version.ref = "tomtomNavsdk" }
+tomtomSdkMapsVisualization-navigationCompose        = { group = "com.tomtom.sdk.maps.visualization", name = "navigation-compose", version.ref = "tomtomNavsdk" }
+tomtomSdkRouting-routePlanner                       = { group = "com.tomtom.sdk.routing", name = "route-planner", version.ref = "tomtomNavsdk" }
+tomtomSdkSearch-reverseGeocoder                     = { group = "com.tomtom.sdk.search", name = "reverse-geocoder", version.ref = "tomtomNavsdk" }
+tomtomSdkSearch-search                              = { group = "com.tomtom.sdk.search", name = "search", version.ref = "tomtomNavsdk" }
+
+[plugins]
+
+android-application                                 = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android                                      = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm                                          = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization                                = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+style-ktlint                                        = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
