@@ -21,7 +21,4 @@ limitations under the License.
     <issue id="AndroidGradlePluginVersion" severity="ignore" />
     <issue id="OldTargetApi" severity="ignore" />
     <issue id="VectorPath" severity="ignore" />
-    <issue id="RestrictedApi">
-        <ignore path="src/dev" />
-    </issue>
 </lint>

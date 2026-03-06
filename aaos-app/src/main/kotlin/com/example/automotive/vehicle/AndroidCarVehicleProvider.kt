@@ -30,7 +30,6 @@ import com.tomtom.sdk.vehicle.Vehicle
  * and maps it to TomTom Vehicle model.
  */
 class AndroidCarVehicleProvider(private val context: Context) {
-    @Suppress("detekt:TooGenericExceptionCaught")
     fun getVehicle(): Vehicle? {
         if (!hasPermission(CAR_INFO_PERMISSION) || !hasPermission(CAR_ENERGY_PERMISSION)) {
             Log.i(TAG, "Permissions missing: INFO=$CAR_INFO_PERMISSION, ENERGY=$CAR_ENERGY_PERMISSION")
@@ -55,8 +54,14 @@ class AndroidCarVehicleProvider(private val context: Context) {
                     null
                 }
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to obtain vehicle info from Car API", e)
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Permission denied while accessing Car API", e)
+            null
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Car service not available or disconnected", e)
+            null
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "Invalid property requested from Car API", e)
             null
         }
     }

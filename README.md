@@ -17,3 +17,18 @@ This repository contains example applications demonstrating the usage of TomTom'
 
 - [Android example app](app/README.md): A fully functional Android example app with Demos to showcase the usage of the Navigation SDK.
 - [AAOS example app](aaos-app/README.md): An Android Automotive app highlighting various features of the Navigation SDK that uses data from the vehicle.
+
+## Before Starting
+
+Make sure you have configured your TomTom API Key in the project!
+
+Get your TomTom API key from [my.tomtom.com](https://my.tomtom.com) by selecting the *Maps and Navigation SDK for Android* in the Product catalog.
+
+Store the TomTom API key to a project property in your
+`gradle.properties` file. Replace `api_key_placeholder` with the actual TomTom API key:
+
+```
+tomtomApiKey=api_key_placeholder
+```
+
+You are now ready to build and run the examples!

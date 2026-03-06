@@ -9,12 +9,12 @@ not the licensee, you are not authorized to use this software in any manner and 
 immediately return or destroy it.
 -->
 
-# TomTom Android Automotive Example App
+# TomTom Maps and Navigation SDK Example for Automotive OS
 
 ## Introduction
 
-The TomTom Android Automotive Example App is an open-source demonstration application created to illustrate the
-practical usage of the Navigation SDK in Android Automotive OS (AAOS) environments. It serves as a hands-on reference
+The TomTom Maps and Navigation SDK Example for Automotive OS is an open-source demonstration application created to illustrate the
+practical usage of the SDK in Android Automotive OS (AAOS) environments. It serves as a hands-on reference
 for developers, enabling them to explore how to integrate and use the powerful features of the SDK in their own AAOS
 projects.
 
@@ -22,7 +22,7 @@ projects.
 
 Before diving into the app's functionality, you'll need to build and run it on your Automotive emulator:
 
-1. Open the application directory in Android Studio.
+1. Open the root directory in Android Studio.
 2. Sync the project and build it using the Android Studio interface.
 3. Select the `aaos-app` configuration and run it on an Automotive emulator **without Google Play**.
    > **Note:** If you run the app on an emulator with Google Play, the app will be blocked in Driving mode. This is

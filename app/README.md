@@ -13,7 +13,7 @@ immediately return or destroy it.
 
 ## Introduction
 
-The TomTom Example App is a fully functional demonstration application created to illustrate the practical usage of the Navigation SDK.
+The TomTom Example App is a fully functional demonstration application created to illustrate the practical usage of the Maps and Navigation SDK.
 It serves as a hands-on reference for developers, enabling them to explore how to integrate and use the powerful
 features of the SDK in their own projects. Following Android Compose’s best practices and developed in Kotlin, the app
 highlights modern development paradigms and efficient ways to build navigation-centric applications.
@@ -30,6 +30,6 @@ highlights modern development paradigms and efficient ways to build navigation-c
 
 Before diving into the app's functionality, you'll need to build and run it on your device or emulator:
 
-1. Open the application directory in Android Studio.
+1. Open the root directory in Android Studio.
 2. Sync the project and build it using the Android Studio interface.
 3. Select the `app` configuration and run it on your device or emulator.
