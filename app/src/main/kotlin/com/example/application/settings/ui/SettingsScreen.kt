@@ -34,6 +34,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.BuildConfig
 import com.example.R
 import com.example.application.settings.data.SettingsRepository
 
@@ -87,6 +88,7 @@ private fun SettingsList(
     settingsUiState: SettingsUiState.Enabled,
     onTelemetryConsentLevelChange: (Int) -> Unit,
 ) {
+
     TelemetryConsentLevelSelector(
         selectedIndex = settingsUiState.telemetryConsentLevel,
         onValueChange = onTelemetryConsentLevelChange,

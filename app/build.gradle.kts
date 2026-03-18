@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
