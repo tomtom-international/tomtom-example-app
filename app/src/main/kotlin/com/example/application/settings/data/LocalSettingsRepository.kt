@@ -18,6 +18,7 @@ package com.example.application.settings.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import com.example.application.settings.data.model.Settings
@@ -39,5 +40,6 @@ class LocalSettingsRepository(private val localDataSource: DataStore<Preferences
 
     private companion object {
         val TELEMETRY_CONSENT_LEVEL_KEY = intPreferencesKey("telemetry_consent_level")
+
     }
 }

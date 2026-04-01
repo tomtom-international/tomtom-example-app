@@ -42,7 +42,7 @@ android {
         versionName = "1.0"
 
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
 
         // Only 64-bit architectures are supported in TomTom Navigation SDK.
         ndk.abiFilters += listOf("arm64-v8a", "x86_64")
