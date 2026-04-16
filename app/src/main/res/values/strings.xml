@@ -17,7 +17,7 @@ limitations under the License.
 
 
 <resources>
-    <string name="app_name">TomTom Maps and Navigation SDK Example</string>
+    <string name="app_name">TomTom Navigation SDK Example</string>
 
     <string name="arrival_button_finish">Finish</string>
 
@@ -124,7 +124,7 @@ limitations under the License.
     <string name="navigation_error_routing_failed">Routing failed</string>
 
     <string name="navsdk_application_subtitle">A simple turn-by-turn application</string>
-    <string name="navsdk_application_title">Maps and Navigation SDK Application</string>
+    <string name="navsdk_application_title">Navigation SDK Application</string>
 
     <string name="poifocus_button_route">Route</string>
 

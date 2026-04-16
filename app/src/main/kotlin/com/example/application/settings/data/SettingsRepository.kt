@@ -24,7 +24,6 @@ interface SettingsRepository {
     val settings: Flow<Settings>
 
     suspend fun updateTelemetryConsentLevel(value: Int)
-
 }
 
 fun Int.toUserConsent(): UserConsent = when (this) {

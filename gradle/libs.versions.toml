@@ -14,7 +14,7 @@
 
 [versions]
 
-tomtomNavsdk = "2.2.0"
+tomtomNavsdk = "2.1.4"
 
 androidGradlePlugin                           = "8.12.2"
 googleAndroidMaterial                         = "1.13.0"
@@ -31,7 +31,7 @@ kotlin                                        = "1.8.22"
 kotlinCompilerExtensionVersion                = "1.4.8"
 kotlinxCoroutines                             = "1.7.3"
 kotlinxSerialization                          = "1.5.1"
-ktlint                                        = "14.0.1"
+ktlint                                        = "13.1.0"
 ktlintExt                                     = "1.7.1"
 mockk                                         = "1.13.17"
 

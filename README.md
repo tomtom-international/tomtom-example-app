@@ -11,12 +11,12 @@ immediately return or destroy it.
 
 # TomTom Examples
 
-This repository contains example applications demonstrating the usage of TomTom's Maps and Navigation SDK for Android.
+This repository contains example applications demonstrating the usage of TomTom's Navigation SDK for Android.
 
 ## Available Examples
 
-- [Android example app](app/README.md): A fully functional Android example app with Demos to showcase the usage of the Maps and Navigation SDK.
-- [AAOS example app](aaos-app/README.md): An Android Automotive app highlighting various features of the Maps and Navigation SDK that uses data from the vehicle.
+- [Android example app](app/README.md): A fully functional Android example app with Demos to showcase the usage of the Navigation SDK.
+- [AAOS example app](aaos-app/README.md): An Android Automotive app highlighting various features of the Navigation SDK that uses data from the vehicle.
 
 ## Before Starting
 
