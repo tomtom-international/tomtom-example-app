@@ -33,9 +33,7 @@ class NavigationApplication : Application() {
             buildSdkConfiguration(
                 context = this,
                 apiKey = BuildConfig.TOMTOM_API_KEY,
-                coreConfiguration = {
-                    telemetryUserConsent = { UserConsent.TelemetryOff }
-                },
+                telemetryUserConsent = { UserConsent.TelemetryOff },
             ),
         )
     }

@@ -16,6 +16,7 @@ limitations under the License.
 
 package com.example
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -46,11 +47,15 @@ import com.example.demo.DemoActivity
 import com.example.demo.DemoListScreen
 import com.example.demo.routing.RoutingListScreen
 import com.example.demo.search.SearchListScreen
+import com.tomtom.sdk.common.configuration.annotations.ExperimentalEmptyRootNdsApi
 import com.tomtom.sdk.common.configuration.buildSdkConfiguration
+import com.tomtom.sdk.common.configuration.featuretoggle.EmptyRootNdsFeature
 import com.tomtom.sdk.common.measures.UnitSystem
+import com.tomtom.sdk.featuretoggle.FeatureToggleController
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.navigation.UnitSystemType
 import com.tomtom.sdk.telemetry.UserConsent
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.util.Locale
@@ -151,10 +156,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private suspend fun initializeTomTomSdk(telemetryConsent: suspend () -> UserConsent) {
+
         val sdkConfiguration =
-            buildSdkConfiguration(context = application, apiKey = BuildConfig.TOMTOM_API_KEY, coreConfiguration = {
-                telemetryUserConsent = telemetryConsent
-            })
+            buildSdkConfiguration(
+                context = application,
+                apiKey = BuildConfig.TOMTOM_API_KEY,
+                telemetryUserConsent = telemetryConsent,
+            )
 
         TomTomSdk.initialize(context = application, sdkConfiguration = sdkConfiguration)
 
