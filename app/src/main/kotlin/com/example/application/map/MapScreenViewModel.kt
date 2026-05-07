@@ -99,7 +99,6 @@ class MapScreenViewModel(
     private val onCheckLocationPermission: () -> Boolean,
     private val textToSpeechEngine: TextToSpeechEngine,
 ) : ViewModel() {
-
     private val _mapDisplayInfrastructure = MutableStateFlow(
         MapDisplayInfrastructure(
             sdkContext = sdkContext,

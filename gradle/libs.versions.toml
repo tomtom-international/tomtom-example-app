@@ -14,7 +14,7 @@
 
 [versions]
 
-tomtomNavsdk = "2.2.0"
+tomtomNavsdk = "2.2.1"
 
 androidGradlePlugin                           = "8.12.2"
 googleAndroidMaterial                         = "1.13.0"
