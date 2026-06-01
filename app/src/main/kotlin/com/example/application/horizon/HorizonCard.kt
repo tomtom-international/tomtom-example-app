@@ -36,12 +36,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.application.horizon.element.Hazard
 import com.example.application.horizon.element.SafetyLocation
 import com.example.application.horizon.element.Traffic
 import com.example.application.horizon.element.UpcomingHorizonElements.HorizonElement
 import com.example.application.horizon.element.delayText
 import com.tomtom.quantity.Distance
+import com.tomtom.sdk.hazards.model.HazardCategory
+import com.tomtom.sdk.hazards.model.HazardId
+import com.tomtom.sdk.hazards.model.HazardLocation
+import com.tomtom.sdk.hazards.model.HazardSeverity
+import com.tomtom.sdk.hazards.model.HazardType
 import com.tomtom.sdk.location.GeoPoint
+import com.tomtom.sdk.navigation.horizon.elements.hazard.HazardElement
 import com.tomtom.sdk.navigation.horizon.elements.safetylocation.SafetyLocationElement
 import com.tomtom.sdk.navigation.horizon.elements.traffic.TrafficElement
 import com.tomtom.sdk.safetylocations.model.SafetyLocationId
@@ -49,6 +56,7 @@ import com.tomtom.sdk.safetylocations.model.SafetyLocationType
 import com.tomtom.sdk.traffic.common.CoreTrafficEvent
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+import com.tomtom.sdk.hazards.model.Hazard as SdkHazard
 
 @Composable
 fun HorizonCard(
@@ -210,4 +218,30 @@ fun SafetyLocationRedLightHorizonCardPreview() {
     )
     requireNotNull(mockSafetyLocationElement)
     HorizonCard(horizonElement = mockSafetyLocationElement, isBottomCard = true)
+}
+
+@Suppress("detekt:MagicNumber")
+@PreviewLightDark
+@Composable
+fun HazardHorizonCardPreview() {
+    val mockHazardElement = Hazard.Accident(
+        distance = Distance.meters(1000.0),
+        element = HazardElement(
+            id = 0,
+            pathId = 0,
+            startOffset = Distance.meters(800.0),
+            endOffset = Distance.meters(1200.0),
+            hazard = SdkHazard(
+                id = HazardId("0"),
+                type = HazardType.Accident,
+                category = HazardCategory.Traffic,
+                severity = HazardSeverity.Major,
+                detailedInformation = null,
+                location = HazardLocation.Spot(GeoPoint(0.0, 0.0), null),
+                version = 1,
+                lastUpdated = null,
+            ),
+        ),
+    )
+    HorizonCard(horizonElement = mockHazardElement, isBottomCard = true)
 }

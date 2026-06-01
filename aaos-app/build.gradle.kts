@@ -60,6 +60,7 @@ android {
                 "proguard-rules.pro",
             )
         }
+
     }
 
     composeOptions {
@@ -97,7 +98,7 @@ android {
 dependencies {
 
     implementation(libs.tomtomSdk.init)
-    implementation(libs.tomtomSdkMapsVisualization.navigationCompose)
+    implementation(libs.tomtomSdkMapsVisualization.visualizationCompose)
     implementation(libs.tomtomSdkMaps.mapDisplayComposeStandard)
 
     implementation(libs.androidxCore.ktx)

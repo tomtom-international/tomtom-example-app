@@ -95,6 +95,7 @@ private fun HorizonElementsTopPanel(stateHolder: FreeDrivingStateHolder) {
         val elements = listOfNotNull(
             upcomingHorizonElements.trafficElement,
             upcomingHorizonElements.safetyLocationElement,
+            upcomingHorizonElements.hazardElement,
         ).sortedBy { it.distance }
         if (elements.isNotEmpty()) {
             Column(

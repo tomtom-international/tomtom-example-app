@@ -124,7 +124,7 @@ dependencies {
     implementation(libs.tomtomSdkCommon.configuration)
     implementation(libs.tomtomSdkLocation.provider.default)
     implementation(libs.tomtomSdkMaps.mapDisplayComposeStandard)
-    implementation(libs.tomtomSdkMapsVisualization.navigationCompose)
+    implementation(libs.tomtomSdkMapsVisualization.visualizationCompose)
     implementation(libs.tomtomSdkRouting.routePlanner)
     implementation(libs.tomtomSdkSearch.reverseGeocoder)
     implementation(libs.tomtomSdkSearch.search)

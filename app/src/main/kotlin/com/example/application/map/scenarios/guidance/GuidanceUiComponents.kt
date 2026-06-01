@@ -134,8 +134,9 @@ private fun TopPanel(stateHolder: GuidanceStateHolder) {
                             .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
                             .background(nextInstructionPanelBackground)
 
-                    horizonElements?.trafficElement != null ||
-                        horizonElements?.safetyLocationElement != null ->
+                    horizonElements?.hazardElement != null ||
+                        horizonElements?.safetyLocationElement != null ||
+                        horizonElements?.trafficElement != null ->
                         Modifier
                             .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
                             .background(MaterialTheme.colorScheme.surface)
@@ -160,7 +161,8 @@ private fun TopPanel(stateHolder: GuidanceStateHolder) {
             }
         }
         horizonElements?.let { horizonElements ->
-            val element = horizonElements.safetyLocationElement
+            val element = horizonElements.hazardElement
+                ?: horizonElements.safetyLocationElement
                 ?: horizonElements.trafficElement
             element?.let {
                 HorizonCard(

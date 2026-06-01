@@ -24,6 +24,12 @@ val TOMTOM_AMSTERDAM_OFFICE = GeoPoint(latitude = 52.3772449, longitude = 4.9097
 
 val ROTTERDAM = GeoPoint(51.921464, 4.481214)
 
+val HAGUE = GeoPoint(52.078663, 4.288788)
+
+val UTRECHT = GeoPoint(52.091458, 5.11518)
+
+val DORDRECHT = GeoPoint(51.813298, 4.690093)
+
 val LONDON = GeoPoint(51.5074, 0.1278)
 
 val PARIS = GeoPoint(48.8566, 2.3522)

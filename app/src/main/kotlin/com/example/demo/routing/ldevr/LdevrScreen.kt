@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package com.example.demo.routing.routeplanning
+package com.example.demo.routing.ldevr
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,17 +49,16 @@ import com.example.application.common.extension.formattedArrivalTime
 import com.example.application.common.extension.formattedDistance
 import com.example.application.common.extension.formattedDuration
 import com.example.application.common.ui.FixedHeightBottomSheet
-import com.example.application.common.ui.TextCheckBox
 import com.example.application.common.ui.TextRadioButton
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.map.model.MapScreenUiState.ErrorState.RoutingError
 import com.example.demo.DemoMap
 import com.example.demo.DemoViewModel
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ON_SET_IS_LOADING_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ROUTE_PLANNER_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ROUTE_PLANNING_FAILURE_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ROUTE_PLANNING_SUCCESS_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.SELECT_ROUTE_KEY
+import com.example.demo.routing.ldevr.LdevrViewModel.Companion.ON_SET_IS_LOADING_KEY
+import com.example.demo.routing.ldevr.LdevrViewModel.Companion.ROUTE_PLANNER_KEY
+import com.example.demo.routing.ldevr.LdevrViewModel.Companion.ROUTE_PLANNING_FAILURE_KEY
+import com.example.demo.routing.ldevr.LdevrViewModel.Companion.ROUTE_PLANNING_SUCCESS_KEY
+import com.example.demo.routing.ldevr.LdevrViewModel.Companion.SELECT_ROUTE_KEY
 import com.example.demo.ui.LoadingOverlay
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.createRoutePlanner
@@ -68,19 +67,17 @@ import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
 import com.tomtom.sdk.map.display.style.StyleMode
 import com.tomtom.sdk.map.display.visualization.navigation.compose.NavigationVisualization
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.options.calculation.RouteType
-import kotlinx.coroutines.flow.StateFlow
+import com.tomtom.sdk.routing.route.Route
 
 /**
- * Basic route planning demo screen.
- * Lets users request routes, view alternatives and select a route amongst them.
+ * Long Distance EV Routing demo screen.
  */
 @Composable
-fun RoutePlanningScreen(
+fun LdevrScreen(
     demoViewModel: DemoViewModel,
     modifier: Modifier = Modifier,
-    viewModel: RoutePlanningViewModel = viewModel(
-        factory = RoutePlanningViewModel.Factory,
+    viewModel: LdevrViewModel = viewModel(
+        factory = LdevrViewModel.Factory,
         extras = MutableCreationExtras().apply {
             set(ROUTE_PLANNER_KEY, TomTomSdk.createRoutePlanner())
             set(ON_SET_IS_LOADING_KEY) { isLoading: Boolean -> demoViewModel.setIsLoading(isLoading) }
@@ -99,6 +96,7 @@ fun RoutePlanningScreen(
     val mapDisplayInfrastructure by demoViewModel.mapDisplayInfrastructure.collectAsStateWithLifecycle()
     val navigationInfrastructure by demoViewModel.navigationInfrastructure.collectAsStateWithLifecycle()
     val selectedRoute by demoViewModel.selectedRoute.collectAsStateWithLifecycle()
+    val evCarRange by viewModel.evCarRange.collectAsStateWithLifecycle()
 
     val initialCameraOptions = InitialCameraOptions.LocationBased(position = TOMTOM_AMSTERDAM_OFFICE)
 
@@ -128,20 +126,10 @@ fun RoutePlanningScreen(
 
         selectedRoute?.let { route ->
             BottomPanel(
-                eta = route.formattedArrivalTime(),
-                routeTypeFlow = viewModel.routeType,
-                onRouteTypeChange = { routeType ->
-                    viewModel.setRouteType(routeType as RouteType)
-                },
-                avoidMotorwaysFlow = viewModel.avoidMotorways,
-                avoidTollsFlow = viewModel.avoidTolls,
-                avoidFerriesFlow = viewModel.avoidFerries,
-                onMotorwaysChange = { viewModel.setAvoidMotorways(it) },
-                onTollsChange = { viewModel.setAvoidTolls(it) },
-                onFerriesChange = { viewModel.setAvoidFerries(it) },
+                route = route,
+                evCarRange = evCarRange,
+                onEvCarRangeChange = { viewModel.setEvCarRange(it) },
                 isDeviceInLandscape = isDeviceInLandscape,
-                remainingDistance = route.formattedDistance(),
-                remainingDuration = route.formattedDuration(),
                 onSafeAreaBottomPaddingUpdate = { bottomPadding ->
                     demoViewModel.updateSafeAreaBottomPadding(bottomPadding)
                 },
@@ -152,22 +140,14 @@ fun RoutePlanningScreen(
 
 @Composable
 private fun BottomPanel(
-    eta: String,
-    routeTypeFlow: StateFlow<RouteType>,
-    onRouteTypeChange: (Any) -> Unit,
-    avoidMotorwaysFlow: StateFlow<Boolean>,
-    avoidTollsFlow: StateFlow<Boolean>,
-    avoidFerriesFlow: StateFlow<Boolean>,
-    onMotorwaysChange: (Boolean) -> Unit,
-    onTollsChange: (Boolean) -> Unit,
-    onFerriesChange: (Boolean) -> Unit,
+    route: Route,
+    evCarRange: EvCarRange,
+    onEvCarRangeChange: (EvCarRange) -> Unit,
     isDeviceInLandscape: Boolean,
     modifier: Modifier = Modifier,
-    remainingDistance: String? = null,
-    remainingDuration: String? = null,
     onSafeAreaBottomPaddingUpdate: (Int) -> Unit,
 ) {
-    val sheetPeekHeight = remember { 270.dp }
+    val sheetPeekHeight = remember { 192.dp }
     val localDensity = LocalDensity.current
     LaunchedEffect(Unit) {
         if (isDeviceInLandscape) {
@@ -193,7 +173,7 @@ private fun BottomPanel(
                         .padding(4.dp),
                 )
                 Text(
-                    text = eta,
+                    text = route.formattedArrivalTime(),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -202,12 +182,12 @@ private fun BottomPanel(
 
             Row(modifier = Modifier.padding(start = 8.dp)) {
                 Text(
-                    text = remainingDistance ?: "",
+                    text = route.formattedDistance(),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary,
                     maxLines = 1,
                 )
-                if (remainingDistance != null && remainingDuration != null) {
+                if (route.formattedDuration() != null) {
                     VerticalDivider(
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -217,112 +197,76 @@ private fun BottomPanel(
                     )
                 }
                 Text(
-                    text = remainingDuration ?: "",
+                    text = route.formattedDuration() ?: "",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.secondary,
                     maxLines = 1,
                 )
+
+                VerticalDivider(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .height(MaterialTheme.typography.titleMedium.fontSize.value.dp)
+                        .padding(start = 4.dp, end = 4.dp),
+                    thickness = 2.dp,
+                )
+
+                val stops = if (route.legs.size - 1 > 0) {
+                    route.legs.size - 1
+                } else {
+                    0
+                }
+
+                Text(
+                    text = stringResource(R.string.demo_route_ldevr_stops, stops),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
             }
 
-            val routeType by routeTypeFlow.collectAsStateWithLifecycle()
-            RouteTypeRow(
-                routeType = routeType,
-                onRouteTypeChange = onRouteTypeChange,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-            )
-
-            val avoidMotorways by avoidMotorwaysFlow.collectAsStateWithLifecycle()
-            val avoidTolls by avoidTollsFlow.collectAsStateWithLifecycle()
-            val avoidFerries by avoidFerriesFlow.collectAsStateWithLifecycle()
-            AvoidsRow(
-                avoidMotorways = avoidMotorways,
-                avoidTolls = avoidTolls,
-                avoidFerries = avoidFerries,
-                onMotorwaysChange = onMotorwaysChange,
-                onTollsChange = onTollsChange,
-                onFerriesChange = onFerriesChange,
+            EvRangeCarRow(
+                evCarRange = evCarRange,
+                onEvCarRangeChange = onEvCarRangeChange,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
 
 @Composable
-private fun RouteTypeRow(
-    routeType: RouteType,
-    onRouteTypeChange: (Any) -> Unit,
+private fun EvRangeCarRow(
+    evCarRange: EvCarRange,
+    onEvCarRangeChange: (EvCarRange) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = stringResource(id = R.string.demo_route_planning_label_types),
+        text = stringResource(id = R.string.demo_route_ldevr_range_label),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 16.dp),
+        modifier = modifier.padding(top = 16.dp, bottom = 8.dp),
     )
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextRadioButton(
-            key = RouteType.Fast,
-            stringResource(R.string.demo_route_planning_label_fastest),
-            routeType == RouteType.Fast,
-            onOptionSelected = onRouteTypeChange,
+            key = EvCarRange.Short,
+            stringResource(R.string.demo_route_ldevr_range_short),
+            evCarRange == EvCarRange.Short,
+            onOptionSelected = { onEvCarRangeChange(it as EvCarRange) },
         )
         TextRadioButton(
-            key = RouteType.Short,
-            stringResource(R.string.demo_route_planning_label_shortest),
-            routeType == RouteType.Short,
-            onOptionSelected = onRouteTypeChange,
+            key = EvCarRange.Medium,
+            stringResource(R.string.demo_route_ldevr_range_medium),
+            evCarRange == EvCarRange.Medium,
+            onOptionSelected = { onEvCarRangeChange(it as EvCarRange) },
         )
         TextRadioButton(
-            key = RouteType.Efficient,
-            stringResource(R.string.demo_route_planning_label_eco),
-            routeType == RouteType.Efficient,
-            onOptionSelected = onRouteTypeChange,
-        )
-    }
-}
-
-@Composable
-private fun AvoidsRow(
-    avoidMotorways: Boolean,
-    avoidTolls: Boolean,
-    avoidFerries: Boolean,
-    onMotorwaysChange: (Boolean) -> Unit,
-    onTollsChange: (Boolean) -> Unit,
-    onFerriesChange: (Boolean) -> Unit,
-) {
-    Text(
-        text = stringResource(id = R.string.demo_route_planning_label_avoids),
-        fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(top = 16.dp),
-    )
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TextCheckBox(
-            text = stringResource(R.string.demo_route_planning_label_motorways),
-            checked = avoidMotorways,
-            onCheckedChange = onMotorwaysChange,
-        )
-
-        TextCheckBox(
-            text = stringResource(R.string.demo_route_planning_label_toll_roads),
-            checked = avoidTolls,
-            onCheckedChange = onTollsChange,
-        )
-
-        TextCheckBox(
-            text = stringResource(R.string.demo_route_planning_label_ferries),
-            checked = avoidFerries,
-            onCheckedChange = onFerriesChange,
+            key = EvCarRange.Large,
+            stringResource(R.string.demo_route_ldevr_range_large),
+            evCarRange == EvCarRange.Large,
+            onOptionSelected = { onEvCarRangeChange(it as EvCarRange) },
         )
     }
 }

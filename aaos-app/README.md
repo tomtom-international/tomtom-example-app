@@ -34,8 +34,3 @@ Before diving into the app's functionality, you'll need to build and run it on y
     - Search for `Nominal battery capacity for EV`.
     - For example, enter a value between `20000` and `75000`. You can adjust this value to see how it changes the number
       of EV stations displayed along your route.
-
-### Beta APIs
-
-This project uses some APIs that are still in beta. For more information about beta APIs and guidance on their usage,
-please [contact us](https://www.tomtom.com/contact-sales/?source_app=open_source_app).

@@ -17,6 +17,7 @@ limitations under the License.
 package com.example.application.horizon
 
 import android.util.Log
+import com.example.application.horizon.element.Hazard
 import com.example.application.horizon.element.SafetyLocation
 import com.example.application.horizon.element.Traffic
 import com.example.application.horizon.element.UpcomingHorizonElements
@@ -26,6 +27,8 @@ import com.tomtom.sdk.navigation.horizon.HorizonOptions
 import com.tomtom.sdk.navigation.horizon.HorizonPosition
 import com.tomtom.sdk.navigation.horizon.HorizonSnapshot
 import com.tomtom.sdk.navigation.horizon.elements.HorizonElement
+import com.tomtom.sdk.navigation.horizon.elements.hazard.HazardElement
+import com.tomtom.sdk.navigation.horizon.elements.hazard.HazardElementType
 import com.tomtom.sdk.navigation.horizon.elements.safetylocation.SafetyLocationElement
 import com.tomtom.sdk.navigation.horizon.elements.safetylocation.SafetyLocationElementType
 import com.tomtom.sdk.navigation.horizon.elements.traffic.TrafficElement
@@ -39,6 +42,7 @@ class DefaultHorizonUpdatedListener(
 ) : HorizonUpdatedListener {
     private var latestSafetyLocationElement: SafetyLocationElement? = null
     private var latestTrafficElement: TrafficElement? = null
+    private var latestHazardElement: HazardElement? = null
     private var latestHorizonPosition: HorizonPosition? = null
     private var latestSnapshot: HorizonSnapshot? = null
 
@@ -62,10 +66,18 @@ class DefaultHorizonUpdatedListener(
                 )
             }
 
+            val hazard = latestHazardElement?.let {
+                Hazard.create(
+                    distance = calculateDistanceIfPossible(snapshot, it),
+                    element = it,
+                )
+            }
+
             onHorizonElementsUpdated(
                 UpcomingHorizonElements(
                     trafficElement = traffic,
                     safetyLocationElement = safety,
+                    hazardElement = hazard,
                 ),
             )
         }
@@ -84,6 +96,10 @@ class DefaultHorizonUpdatedListener(
             ?.getElements(SafetyLocationElementType)
             ?.firstOrNull() as? SafetyLocationElement
 
+        latestHazardElement = snapshot.paths.firstOrNull()
+            ?.getElements(HazardElementType)
+            ?.firstOrNull() as? HazardElement
+
         val traffic = latestTrafficElement?.let { trafficElement ->
             Traffic(
                 distance = calculateDistanceIfPossible(snapshot, trafficElement),
@@ -98,10 +114,18 @@ class DefaultHorizonUpdatedListener(
             )
         }
 
+        val hazard = latestHazardElement?.let { hazardElement ->
+            Hazard.create(
+                distance = calculateDistanceIfPossible(snapshot, hazardElement),
+                element = hazardElement,
+            )
+        }
+
         onHorizonElementsUpdated(
             UpcomingHorizonElements(
                 trafficElement = traffic,
                 safetyLocationElement = safetyLocation,
+                hazardElement = hazard,
             ),
         )
     }

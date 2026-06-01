@@ -69,6 +69,7 @@ import com.tomtom.sdk.navigation.guidance.InstructionPhase
 import com.tomtom.sdk.navigation.guidance.LaneGuidance
 import com.tomtom.sdk.navigation.guidance.instruction.GuidanceInstruction
 import com.tomtom.sdk.navigation.horizon.buildHorizonOptions
+import com.tomtom.sdk.navigation.horizon.elements.hazard.HazardElementType
 import com.tomtom.sdk.navigation.horizon.elements.safetylocation.SafetyLocationElementType
 import com.tomtom.sdk.navigation.horizon.elements.traffic.TrafficElementType
 import com.tomtom.sdk.navigation.locationcontext.LocationContext
@@ -426,6 +427,7 @@ class MapScreenViewModel(
         navigation.addHorizonUpdatedListener(
             options = buildHorizonOptions(
                 elementTypes = listOf(
+                    HazardElementType,
                     TrafficElementType,
                     SafetyLocationElementType,
                 ),
@@ -474,6 +476,7 @@ class MapScreenViewModel(
         navigation.addHorizonUpdatedListener(
             options = buildHorizonOptions(
                 elementTypes = listOf(
+                    HazardElementType,
                     TrafficElementType,
                     SafetyLocationElementType,
                 ),

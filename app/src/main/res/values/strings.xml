@@ -35,6 +35,13 @@ limitations under the License.
 
     <string name="demo_examples_subtitle">Map, Routing and Search examples</string>
     <string name="demo_examples_title">Demo examples</string>
+    <string name="demo_route_ldevr_range_label">Select EV car profile by battery capacity:</string>
+    <string name="demo_route_ldevr_range_large">High</string>
+    <string name="demo_route_ldevr_range_medium">Medium</string>
+    <string name="demo_route_ldevr_range_short">Low</string>
+    <string name="demo_route_ldevr_stops">Stops: %1$d</string>
+    <string name="demo_route_ldevr_subtitle">Plan a route for different EV configurations</string>
+    <string name="demo_route_ldevr_title">Long Distance EV Routing</string>
     <string name="demo_route_planning_label_avoids">Route avoids:</string>
     <string name="demo_route_planning_label_eco">Eco</string>
     <string name="demo_route_planning_label_fastest">Fastest</string>
@@ -47,6 +54,12 @@ limitations under the License.
     <string name="demo_route_planning_title">Route planning</string>
     <string name="demo_routing_subtitle">Routing features</string>
     <string name="demo_routing_title">Routing</string>
+    <string name="demo_routing_waypoints_title">Routing with waypoints</string>
+    <string name="demo_routing_waypoints_subtitle">Plan a route with waypoints</string>
+    <string name="demo_routing_waypoints_label_waypoints">Add/Remove waypoints:</string>
+    <string name="demo_routing_waypoints_label_waypoints_hague">Hague</string>
+    <string name="demo_routing_waypoints_label_waypoints_utrecht">Utrecht</string>
+    <string name="demo_routing_waypoints_label_waypoints_dordrecht">Dordrecht</string>
     <string name="demo_search_autocomplete_subtitle">Search using suggested options for POIs, Categories or Brands</string>
     <string name="demo_search_autocomplete_title">Search with Autocomplete options</string>
     <string name="demo_search_ev_button_reset_filters">Reset all</string>
@@ -109,6 +122,15 @@ limitations under the License.
 
     <string name="horizon_card_icon">HorizonCard Icon</string>
     <string name="horizon_card_delay_icon">HorizonCard Delay Icon</string>
+    <string name="horizon_label_hazard_card_generic_description">Generic Hazard</string>
+    <string name="horizon_label_hazard_card_bad_road_description">Bad Road Conditions</string>
+    <string name="horizon_label_hazard_card_accident_description">Accident</string>
+    <string name="horizon_label_hazard_card_slippery_road_description">Slippery Road</string>
+    <string name="horizon_label_hazard_card_reduced_visibility_description">Reduced Visibility</string>
+    <string name="horizon_label_hazard_card_broken_down_vehicle_description">Broken Down Vehicle</string>
+    <string name="horizon_label_hazard_card_objects_on_road_description">Objects on Road</string>
+    <string name="horizon_label_hazard_card_wrong_way_driver_description">Wrong Way Driver</string>
+    <string name="horizon_label_hazard_card_strong_wind_description">Strong Wind</string>
     <string name="horizon_label_safety_location_card_speed_camera_description">Speed Camera</string>
     <string name="horizon_label_safety_location_card_redlight_description">Red Light Camera</string>
     <string name="horizon_label_traffic_card_description">Traffic</string>

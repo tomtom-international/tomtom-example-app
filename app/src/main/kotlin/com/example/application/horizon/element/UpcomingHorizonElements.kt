@@ -24,6 +24,7 @@ import com.tomtom.quantity.Distance
 data class UpcomingHorizonElements(
     val trafficElement: Traffic? = null,
     val safetyLocationElement: SafetyLocation? = null,
+    val hazardElement: Hazard? = null,
 ) {
     sealed class HorizonElement(open val distance: Distance?) {
         @get:DrawableRes

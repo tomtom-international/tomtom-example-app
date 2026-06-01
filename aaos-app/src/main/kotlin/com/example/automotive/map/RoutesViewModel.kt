@@ -30,7 +30,6 @@ import com.tomtom.sdk.routing.RoutePlanningCallback
 import com.tomtom.sdk.routing.RoutePlanningResponse
 import com.tomtom.sdk.routing.RoutingFailure
 import com.tomtom.sdk.routing.buildEvRoutePlanningOptions
-import com.tomtom.sdk.routing.common.BetaEvRoutePlanningOptionsApi
 import com.tomtom.sdk.routing.options.ChargingOptions
 import com.tomtom.sdk.routing.options.Itinerary
 import com.tomtom.sdk.routing.route.Route
@@ -129,8 +128,6 @@ class RoutesViewModel(
         currentRequestCallback = null
     }
 
-    @Suppress("detekt:OptInAnnotationDetected")
-    @OptIn(BetaEvRoutePlanningOptionsApi::class)
     private fun buildSampleEvRouteOptions() = buildEvRoutePlanningOptions(
         Itinerary(TOMTOM_AMSTERDAM_OFFICE, PARIS),
         chargingOptions = ChargingOptions(

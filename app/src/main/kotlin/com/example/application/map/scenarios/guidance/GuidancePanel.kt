@@ -72,7 +72,7 @@ fun GuidancePanel(
         header = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.chequered_flag_24px),
+                    imageVector = ImageVector.vectorResource(R.drawable.tt_asset_graphic_finish_64),
                     contentDescription = stringResource(id = R.string.common_content_description_arrival_time),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier

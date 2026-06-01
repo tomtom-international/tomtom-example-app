@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package com.example.demo.routing.routeplanning
+package com.example.demo.routing.routingwithwaypoints
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,16 +50,14 @@ import com.example.application.common.extension.formattedDistance
 import com.example.application.common.extension.formattedDuration
 import com.example.application.common.ui.FixedHeightBottomSheet
 import com.example.application.common.ui.TextCheckBox
-import com.example.application.common.ui.TextRadioButton
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.map.model.MapScreenUiState.ErrorState.RoutingError
 import com.example.demo.DemoMap
 import com.example.demo.DemoViewModel
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ON_SET_IS_LOADING_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ROUTE_PLANNER_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ROUTE_PLANNING_FAILURE_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.ROUTE_PLANNING_SUCCESS_KEY
-import com.example.demo.routing.routeplanning.RoutePlanningViewModel.Companion.SELECT_ROUTE_KEY
+import com.example.demo.routing.routingwithwaypoints.RoutingWithWaypointsViewModel.Companion.ON_SET_IS_LOADING_KEY
+import com.example.demo.routing.routingwithwaypoints.RoutingWithWaypointsViewModel.Companion.ROUTE_PLANNER_KEY
+import com.example.demo.routing.routingwithwaypoints.RoutingWithWaypointsViewModel.Companion.ROUTE_PLANNING_FAILURE_KEY
+import com.example.demo.routing.routingwithwaypoints.RoutingWithWaypointsViewModel.Companion.ROUTE_PLANNING_SUCCESS_KEY
 import com.example.demo.ui.LoadingOverlay
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.createRoutePlanner
@@ -68,19 +66,14 @@ import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
 import com.tomtom.sdk.map.display.style.StyleMode
 import com.tomtom.sdk.map.display.visualization.navigation.compose.NavigationVisualization
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.options.calculation.RouteType
 import kotlinx.coroutines.flow.StateFlow
 
-/**
- * Basic route planning demo screen.
- * Lets users request routes, view alternatives and select a route amongst them.
- */
 @Composable
-fun RoutePlanningScreen(
+fun RoutingWithWaypointsScreen(
     demoViewModel: DemoViewModel,
     modifier: Modifier = Modifier,
-    viewModel: RoutePlanningViewModel = viewModel(
-        factory = RoutePlanningViewModel.Factory,
+    viewModel: RoutingWithWaypointsViewModel = viewModel(
+        factory = RoutingWithWaypointsViewModel.Factory,
         extras = MutableCreationExtras().apply {
             set(ROUTE_PLANNER_KEY, TomTomSdk.createRoutePlanner())
             set(ON_SET_IS_LOADING_KEY) { isLoading: Boolean -> demoViewModel.setIsLoading(isLoading) }
@@ -90,7 +83,6 @@ fun RoutePlanningScreen(
             set(ROUTE_PLANNING_FAILURE_KEY) { _: RoutingFailure ->
                 demoViewModel.updateErrorState { RoutingError }
             }
-            set(SELECT_ROUTE_KEY) { routeId -> demoViewModel.selectRoute(routeId) }
         },
     ),
 ) {
@@ -116,7 +108,6 @@ fun RoutePlanningScreen(
         ) {
             NavigationVisualization(
                 infrastructure = navigationInfrastructure,
-                onRouteClick = { viewModel.onRouteClick(it) },
             )
         }
 
@@ -129,16 +120,12 @@ fun RoutePlanningScreen(
         selectedRoute?.let { route ->
             BottomPanel(
                 eta = route.formattedArrivalTime(),
-                routeTypeFlow = viewModel.routeType,
-                onRouteTypeChange = { routeType ->
-                    viewModel.setRouteType(routeType as RouteType)
-                },
-                avoidMotorwaysFlow = viewModel.avoidMotorways,
-                avoidTollsFlow = viewModel.avoidTolls,
-                avoidFerriesFlow = viewModel.avoidFerries,
-                onMotorwaysChange = { viewModel.setAvoidMotorways(it) },
-                onTollsChange = { viewModel.setAvoidTolls(it) },
-                onFerriesChange = { viewModel.setAvoidFerries(it) },
+                isHagueSelectedFlow = viewModel.isHagueSelected,
+                isUtrechtSelectedFlow = viewModel.isUtrechtSelected,
+                isDordrechtSelectedFlow = viewModel.isDordrechtSelected,
+                onHagueChange = { viewModel.setHagueSelected(it) },
+                onUtrechtChange = { viewModel.setUtrechtSelected(it) },
+                onDordrechtChange = { viewModel.setDordrechtSelected(it) },
                 isDeviceInLandscape = isDeviceInLandscape,
                 remainingDistance = route.formattedDistance(),
                 remainingDuration = route.formattedDuration(),
@@ -153,21 +140,19 @@ fun RoutePlanningScreen(
 @Composable
 private fun BottomPanel(
     eta: String,
-    routeTypeFlow: StateFlow<RouteType>,
-    onRouteTypeChange: (Any) -> Unit,
-    avoidMotorwaysFlow: StateFlow<Boolean>,
-    avoidTollsFlow: StateFlow<Boolean>,
-    avoidFerriesFlow: StateFlow<Boolean>,
-    onMotorwaysChange: (Boolean) -> Unit,
-    onTollsChange: (Boolean) -> Unit,
-    onFerriesChange: (Boolean) -> Unit,
+    isHagueSelectedFlow: StateFlow<Boolean>,
+    isUtrechtSelectedFlow: StateFlow<Boolean>,
+    isDordrechtSelectedFlow: StateFlow<Boolean>,
+    onHagueChange: (Boolean) -> Unit,
+    onUtrechtChange: (Boolean) -> Unit,
+    onDordrechtChange: (Boolean) -> Unit,
     isDeviceInLandscape: Boolean,
     modifier: Modifier = Modifier,
     remainingDistance: String? = null,
     remainingDuration: String? = null,
     onSafeAreaBottomPaddingUpdate: (Int) -> Unit,
 ) {
-    val sheetPeekHeight = remember { 270.dp }
+    val sheetPeekHeight = remember { 192.dp }
     val localDensity = LocalDensity.current
     LaunchedEffect(Unit) {
         if (isDeviceInLandscape) {
@@ -224,79 +209,33 @@ private fun BottomPanel(
                 )
             }
 
-            val routeType by routeTypeFlow.collectAsStateWithLifecycle()
-            RouteTypeRow(
-                routeType = routeType,
-                onRouteTypeChange = onRouteTypeChange,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-            )
+            val isHagueSelected by isHagueSelectedFlow.collectAsStateWithLifecycle()
+            val isUtrechtSelected by isUtrechtSelectedFlow.collectAsStateWithLifecycle()
+            val isDordrechtSelected by isDordrechtSelectedFlow.collectAsStateWithLifecycle()
 
-            val avoidMotorways by avoidMotorwaysFlow.collectAsStateWithLifecycle()
-            val avoidTolls by avoidTollsFlow.collectAsStateWithLifecycle()
-            val avoidFerries by avoidFerriesFlow.collectAsStateWithLifecycle()
-            AvoidsRow(
-                avoidMotorways = avoidMotorways,
-                avoidTolls = avoidTolls,
-                avoidFerries = avoidFerries,
-                onMotorwaysChange = onMotorwaysChange,
-                onTollsChange = onTollsChange,
-                onFerriesChange = onFerriesChange,
+            WaypointsRow(
+                isHagueSelected = isHagueSelected,
+                isUtrechtSelected = isUtrechtSelected,
+                isDordrechtSelected = isDordrechtSelected,
+                onHagueChange = onHagueChange,
+                onUtrechtChange = onUtrechtChange,
+                onDordrechtChange = onDordrechtChange,
             )
         }
     }
 }
 
 @Composable
-private fun RouteTypeRow(
-    routeType: RouteType,
-    onRouteTypeChange: (Any) -> Unit,
-    modifier: Modifier = Modifier,
+private fun WaypointsRow(
+    isHagueSelected: Boolean,
+    isUtrechtSelected: Boolean,
+    isDordrechtSelected: Boolean,
+    onHagueChange: (Boolean) -> Unit,
+    onUtrechtChange: (Boolean) -> Unit,
+    onDordrechtChange: (Boolean) -> Unit,
 ) {
     Text(
-        text = stringResource(id = R.string.demo_route_planning_label_types),
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 16.dp),
-    )
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TextRadioButton(
-            key = RouteType.Fast,
-            stringResource(R.string.demo_route_planning_label_fastest),
-            routeType == RouteType.Fast,
-            onOptionSelected = onRouteTypeChange,
-        )
-        TextRadioButton(
-            key = RouteType.Short,
-            stringResource(R.string.demo_route_planning_label_shortest),
-            routeType == RouteType.Short,
-            onOptionSelected = onRouteTypeChange,
-        )
-        TextRadioButton(
-            key = RouteType.Efficient,
-            stringResource(R.string.demo_route_planning_label_eco),
-            routeType == RouteType.Efficient,
-            onOptionSelected = onRouteTypeChange,
-        )
-    }
-}
-
-@Composable
-private fun AvoidsRow(
-    avoidMotorways: Boolean,
-    avoidTolls: Boolean,
-    avoidFerries: Boolean,
-    onMotorwaysChange: (Boolean) -> Unit,
-    onTollsChange: (Boolean) -> Unit,
-    onFerriesChange: (Boolean) -> Unit,
-) {
-    Text(
-        text = stringResource(id = R.string.demo_route_planning_label_avoids),
+        text = stringResource(id = R.string.demo_routing_waypoints_label_waypoints),
         fontWeight = FontWeight.Bold,
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(top = 16.dp),
@@ -304,25 +243,25 @@ private fun AvoidsRow(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextCheckBox(
-            text = stringResource(R.string.demo_route_planning_label_motorways),
-            checked = avoidMotorways,
-            onCheckedChange = onMotorwaysChange,
+            text = stringResource(id = R.string.demo_routing_waypoints_label_waypoints_hague),
+            checked = isHagueSelected,
+            onCheckedChange = onHagueChange,
         )
 
         TextCheckBox(
-            text = stringResource(R.string.demo_route_planning_label_toll_roads),
-            checked = avoidTolls,
-            onCheckedChange = onTollsChange,
+            text = stringResource(id = R.string.demo_routing_waypoints_label_waypoints_utrecht),
+            checked = isUtrechtSelected,
+            onCheckedChange = onUtrechtChange,
         )
 
         TextCheckBox(
-            text = stringResource(R.string.demo_route_planning_label_ferries),
-            checked = avoidFerries,
-            onCheckedChange = onFerriesChange,
+            text = stringResource(id = R.string.demo_routing_waypoints_label_waypoints_dordrecht),
+            checked = isDordrechtSelected,
+            onCheckedChange = onDordrechtChange,
         )
     }
 }

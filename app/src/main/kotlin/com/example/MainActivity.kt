@@ -185,6 +185,9 @@ sealed interface Destination {
         object RoutePlanningDestination : ChildActivityDestination(DemoActivity::class.java.name)
 
         @Serializable
+        object RoutingWithWaypointsDestination : ChildActivityDestination(DemoActivity::class.java.name)
+
+        @Serializable
         object LdevrDestination : ChildActivityDestination(DemoActivity::class.java.name)
 
         @Serializable

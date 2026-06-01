@@ -40,15 +40,19 @@ import com.example.Destination
 import com.example.Destination.ChildActivityDestination
 import com.example.Destination.ChildActivityDestination.AutocompleteDestination
 import com.example.Destination.ChildActivityDestination.EvSearchDestination
+import com.example.Destination.ChildActivityDestination.LdevrDestination
 import com.example.Destination.ChildActivityDestination.PoiAlongRouteDestination
 import com.example.Destination.ChildActivityDestination.PoiSearchAreaDestination
 import com.example.Destination.ChildActivityDestination.RoutePlanningDestination
+import com.example.Destination.ChildActivityDestination.RoutingWithWaypointsDestination
 import com.example.MainActivity.Companion.DESTINATION_KEY
 import com.example.application.common.MARKERS_ZOOM_PADDING_DP
 import com.example.application.common.ui.ErrorSnackbarHost
 import com.example.application.common.ui.safeAreaStartPadding
 import com.example.application.ui.theme.NavSdkExampleTheme
+import com.example.demo.routing.ldevr.LdevrScreen
 import com.example.demo.routing.routeplanning.RoutePlanningScreen
+import com.example.demo.routing.routingwithwaypoints.RoutingWithWaypointsScreen
 import com.example.demo.search.area.PoiSearchAreaScreen
 import com.example.demo.search.autocomplete.AutocompleteScreen
 import com.example.demo.search.ev.EvSearchScreen
@@ -105,7 +109,9 @@ private fun DemoScreen(
     Box(modifier = Modifier.padding(innerPadding)) {
         when (destination) {
             is RoutePlanningDestination -> RoutePlanningScreen(demoViewModel = demoViewModel)
+            is RoutingWithWaypointsDestination -> RoutingWithWaypointsScreen(demoViewModel = demoViewModel)
             is EvSearchDestination -> EvSearchScreen(demoViewModel = demoViewModel)
+            is LdevrDestination -> LdevrScreen(demoViewModel = demoViewModel)
             is PoiAlongRouteDestination -> PoiAlongRouteScreen(demoViewModel = demoViewModel)
             is AutocompleteDestination -> AutocompleteScreen(demoViewModel = demoViewModel)
             is PoiSearchAreaDestination -> PoiSearchAreaScreen(demoViewModel = demoViewModel)
