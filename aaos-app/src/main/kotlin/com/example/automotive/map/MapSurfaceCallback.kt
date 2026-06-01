@@ -127,6 +127,8 @@ class MapSurfaceCallback(
         focusY: Float,
         scaleFactor: Float,
     ) {
+        if (scaleFactor <= 0f) return
+
         cameraController.syncWithMapState()
 
         val zoomDelta = CameraCoordinateCalculator.scaleFactorToZoomDelta(
@@ -134,7 +136,9 @@ class MapSurfaceCallback(
             sensitivity = DEFAULT_GESTURE_SENSITIVITY,
         )
 
-        cameraController.applyZoomDelta(zoomDelta, animate = true)
+        if (zoomDelta.isFinite()) {
+            cameraController.applyZoomDelta(zoomDelta, animate = true)
+        }
     }
 
     private fun SurfaceContainer.isValid(): Boolean = surface != null && width > 0 && height > 0
