@@ -170,7 +170,7 @@ class MapScreenViewModel(
         _mapScreenUiState.update {
             it.copy(
                 scenario = Scenario.DESTINATION_ARRIVAL,
-                destinationMarker = mapScreenUiState.value.placeDetails?.place?.coordinate,
+                markerCoordinates = mapScreenUiState.value.placeDetails?.place?.coordinate,
             )
         }
     }
@@ -192,7 +192,7 @@ class MapScreenViewModel(
             announcement: GuidanceAnnouncement,
             shouldPlay: Boolean,
         ) {
-            Log.d(TAG, "Announcement: $announcement")
+            Log.d(TAG, "Guidance announcement: $announcement")
 
             if (shouldPlay) {
                 textToSpeechEngine.playMessage(
@@ -248,6 +248,9 @@ class MapScreenViewModel(
             is MapScreenAction.ShowPoiCategorySearchResultFocus -> showPoiCategoryFocus(action.poiResults)
             is MapScreenAction.ShowSearchResultFocus -> showPoiFocus(action.placeDetails)
             is MapScreenAction.ShowPoiFocus -> getPoiData(action.geoPoint) { showPoiFocus(it) }
+            is MapScreenAction.ShowRenderedPoiInfo -> getPoiData(action.geoPoint) {
+                showPoiFocus(it, markerPosition = action.geoPoint, renderedPoiName = action.poiName)
+            }
             is MapScreenAction.CleanRoutePreview -> cleanRoutePreview(action.onClearRoutes)
 
             is MapScreenAction.ToggleBottomSheet -> toggleBottomSheet(isExpanded = action.isExpanded)
@@ -307,7 +310,7 @@ class MapScreenViewModel(
             it.copy(
                 scenario = HOME,
                 isInteractiveMode = false,
-                destinationMarker = null,
+                markerCoordinates = null,
                 placeDetails = null,
             )
         }
@@ -394,15 +397,23 @@ class MapScreenViewModel(
     }
 
     // Update the map state so that the camera focuses on the selected place
-    private fun showPoiFocus(placeDetails: PlaceDetails) {
+    private fun showPoiFocus(
+        placeDetails: PlaceDetails,
+        markerPosition: GeoPoint? = null,
+        renderedPoiName: String? = null,
+    ) {
         stopFreeDriving()
         stopFreeDrivingJob()
-
+        val resolvedPlaceDetails = if (renderedPoiName != null) {
+            placeDetails.copy(renderedPoiName = renderedPoiName)
+        } else {
+            placeDetails
+        }
         _mapScreenUiState.update {
             it.copy(
                 scenario = POI_FOCUS,
-                placeDetails = placeDetails,
-                destinationMarker = placeDetails.place.coordinate,
+                placeDetails = resolvedPlaceDetails,
+                markerCoordinates = markerPosition ?: placeDetails.place.coordinate,
             )
         }
         recenterMap()

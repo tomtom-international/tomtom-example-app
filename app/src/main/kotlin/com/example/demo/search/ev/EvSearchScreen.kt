@@ -32,12 +32,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.R
 import com.example.application.common.CAMERA_OPTIONS_DEFAULT_TILT
 import com.example.application.common.CAMERA_OPTIONS_POI_FOCUS_ZOOM
 import com.example.application.common.TOMTOM_AMSTERDAM_OFFICE
 import com.example.application.common.ui.CloseButton
-import com.example.application.common.ui.getPinMarkerProperties
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.map.model.MapScreenUiState.ErrorState.SearchError
 import com.example.application.search.SearchResultItemContent
@@ -52,10 +50,7 @@ import com.example.demo.DemoViewModel
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.createSearch
 import com.tomtom.sdk.map.display.camera.InitialCameraOptions
-import com.tomtom.sdk.map.display.compose.model.MarkerData
-import com.tomtom.sdk.map.display.compose.nodes.Marker
 import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
-import com.tomtom.sdk.map.display.compose.state.rememberMarkerState
 import com.tomtom.sdk.map.display.style.StyleMode
 import com.tomtom.sdk.search.common.error.SearchFailure
 
@@ -120,14 +115,10 @@ fun EvSearchScreen(
             disableGestures = true,
             onMapReady = { viewModel.performEvSearch() },
         ) {
-            searchResults.forEach { searchResult ->
-                Marker(
-                    data = MarkerData(geoPoint = searchResult.placeDetails.place.coordinate),
-                    properties = getPinMarkerProperties(R.drawable.tt_asset_icon_evcharger_fill_32),
-                    state = rememberMarkerState(),
-                    onClick = { onSearchResultClick(searchResult) },
-                )
-            }
+            PlacesEvSearch(
+                searchResults = searchResults,
+                onSearchResultClick = onSearchResultClick,
+            )
         }
 
         if (showBottomPanel) {

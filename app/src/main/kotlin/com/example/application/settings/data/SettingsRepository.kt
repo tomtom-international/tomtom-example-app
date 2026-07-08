@@ -27,8 +27,8 @@ interface SettingsRepository {
 }
 
 fun Int.toUserConsent(): UserConsent = when (this) {
-    -1 -> UserConsent.TelemetryOff
-    0 -> UserConsent.LocationOnly
-    1 -> UserConsent.TelemetryOn
+    0 -> UserConsent.TelemetryOff
+    1 -> UserConsent.LocationOnly
+    2 -> UserConsent.TelemetryOn
     else -> UserConsent.TelemetryOff
 }

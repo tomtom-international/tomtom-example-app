@@ -44,7 +44,6 @@ import com.example.application.common.TOMTOM_AMSTERDAM_OFFICE
 import com.example.application.common.extension.toPx
 import com.example.application.common.ui.FixedHeightBottomSheet
 import com.example.application.common.ui.PoiIconButton
-import com.example.application.common.ui.getPinMarkerProperties
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.map.model.MapScreenUiState.ErrorState.SearchError
 import com.example.application.search.poiOptions
@@ -58,10 +57,7 @@ import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.createSearch
 import com.tomtom.sdk.location.poi.StandardCategoryId
 import com.tomtom.sdk.map.display.camera.InitialCameraOptions
-import com.tomtom.sdk.map.display.compose.model.MarkerData
-import com.tomtom.sdk.map.display.compose.nodes.Marker
 import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
-import com.tomtom.sdk.map.display.compose.state.rememberMarkerState
 import com.tomtom.sdk.map.display.style.StyleMode
 import com.tomtom.sdk.map.display.visualization.navigation.compose.NavigationVisualization
 import com.tomtom.sdk.search.common.error.SearchFailure
@@ -110,13 +106,7 @@ fun PoiSearchAreaScreen(
             disableGestures = true,
         ) {
             NavigationVisualization(infrastructure = navigationInfrastructure)
-            searchResults.forEach { searchResult ->
-                Marker(
-                    data = MarkerData(geoPoint = searchResult.placeDetails.place.coordinate),
-                    properties = getPinMarkerProperties(searchResult.iconId),
-                    state = rememberMarkerState(),
-                )
-            }
+            PlacesPoiSearchArea(searchResults = searchResults)
         }
 
         LaunchedEffect(Unit) {

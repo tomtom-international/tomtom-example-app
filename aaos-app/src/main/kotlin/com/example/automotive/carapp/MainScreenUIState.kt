@@ -19,10 +19,16 @@ package com.example.automotive.carapp
 /**
  * UI state for the main screen.
  *
+ * @param sdkInitialized Whether the TomTom SDK has finished initializing
+ * @param initializationError SDK initialization error message, null if no error
+ * @param permissionsGranted Whether required runtime permissions have been granted
  * @param isLoading Whether route planning is in progress
  * @param hasRoutes Whether routes are currently available
  */
 data class MainScreenUIState(
+    val sdkInitialized: Boolean = false,
+    val initializationError: String? = null,
+    val permissionsGranted: Boolean = false,
     val isLoading: Boolean = false,
     val hasRoutes: Boolean = false,
 )

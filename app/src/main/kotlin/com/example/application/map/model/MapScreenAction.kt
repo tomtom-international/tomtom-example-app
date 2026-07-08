@@ -49,6 +49,8 @@ sealed interface MapScreenAction {
 
     data class ShowPoiFocus(val geoPoint: GeoPoint) : MapScreenAction
 
+    data class ShowRenderedPoiInfo(val geoPoint: GeoPoint, val poiName: String? = null) : MapScreenAction
+
     data class ShowSearchFailure(val searchFailure: SearchFailure) : MapScreenAction
 
     data class CleanRoutePreview(val onClearRoutes: () -> Unit) : MapScreenAction

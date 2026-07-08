@@ -20,37 +20,75 @@ import android.content.Intent
 import android.util.Log
 import androidx.car.app.AppManager
 import androidx.car.app.Screen
+import androidx.car.app.ScreenManager
 import androidx.car.app.Session
+import androidx.car.app.model.MessageTemplate
+import androidx.car.app.model.Template
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
+import com.example.automotive.R
 import com.example.automotive.map.MapSurfaceCallback
 import com.example.automotive.map.RoutesViewModel
+import com.example.automotive.settings.data.model.ConsentLevel
 import com.example.automotive.vehicle.VehicleRepository
+import com.tomtom.sdk.init.TomTomSdk
+import com.tomtom.sdk.init.createRoutePlanner
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
- * AAOS Session that manages the navigation screen, map surface, and ViewModels.
- * Implements lifecycle owners to support Compose integration in the map presentation.
+ * AAOS Session managing navigation screen and ViewModels.
+ *
+ * @param sdkInitialized StateFlow indicating SDK initialization status
+ * @param initializationError StateFlow containing SDK initialization error, null if no error
+ * @param consentRequired StateFlow tracking consent state:
+ *   null  = DataStore read still in progress,
+ *   true  = consent required (first launch),
+ *   false = consent already stored
+ * @param onConsentSelected Callback invoked when the user selects a telemetry consent level
  */
-class CarNavigationSession : Session(), SavedStateRegistryOwner, ViewModelStoreOwner {
+class CarNavigationSession(
+    val sdkInitialized: StateFlow<Boolean>,
+    val initializationError: StateFlow<String?>,
+    val consentRequired: StateFlow<Boolean?>,
+    val onConsentSelected: (ConsentLevel) -> Unit,
+) : Session(), SavedStateRegistryOwner, ViewModelStoreOwner, DefaultLifecycleObserver {
     private val appManager: AppManager by lazy { carContext.getCarService(AppManager::class.java) }
     private var surfaceCallbackRegistered = false
 
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private val _viewModelStore = ViewModelStore()
 
+    /**
+     * View model for EV route planning.
+     * The RoutePlanner instance is always injected via setRoutePlanner() after SDK initialization,
+     * so it is always constructed with null and never relies on sdkInitialized.value at init time.
+     */
     private val routesViewModel: RoutesViewModel by lazy {
-        val factory = viewModelFactory {
-            initializer {
-                RoutesViewModel(vehicleRepository = VehicleRepository(carContext))
-            }
-        }
-        ViewModelProvider(this, factory)[RoutesViewModel::class.java]
+        ViewModelProvider(
+            this,
+            viewModelFactory {
+                initializer {
+                    RoutesViewModel(
+                        routePlanner = null,
+                        vehicleRepository = VehicleRepository(carContext),
+                        sdkInitialized = sdkInitialized,
+                        initializationError = initializationError,
+                    )
+                }
+            },
+        )[RoutesViewModel::class.java]
     }
 
     override val savedStateRegistry: SavedStateRegistry
@@ -61,14 +99,66 @@ class CarNavigationSession : Session(), SavedStateRegistryOwner, ViewModelStoreO
 
     init {
         savedStateRegistryController.performRestore(null)
+        lifecycle.addObserver(this)
+
+        lifecycleScope.launch {
+            val required = consentRequired.filterNotNull().first()
+            val screenManager = carContext.getCarService(ScreenManager::class.java)
+            if (required) {
+                screenManager.push(
+                    TelemetryConsentScreen(carContext) { level ->
+                        onConsentSelected(level)
+                        screenManager.push(buildMainScreen())
+                    },
+                )
+            } else {
+                screenManager.push(buildMainScreen())
+            }
+        }
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        if (surfaceCallbackRegistered) return
+        lifecycleScope.launch {
+            // Wait until the SDK is truly initialized (first { it } skips any false emissions).
+            sdkInitialized.first { it }
+            if (!surfaceCallbackRegistered) {
+                Log.d(TAG, "SDK became ready, setting route planner and registering surface callback")
+                routesViewModel.setRoutePlanner(TomTomSdk.createRoutePlanner())
+                ensureSurfaceCallback(routesViewModel)
+            }
+        }
     }
 
     override fun onCreateScreen(intent: Intent): Screen {
-        ensureSurfaceCallback()
-        return MainScreen(carContext, routesViewModel)
+        return when (consentRequired.value) {
+            null -> buildLoadingScreen()
+            true -> TelemetryConsentScreen(carContext) { level ->
+                onConsentSelected(level)
+                carContext.getCarService(ScreenManager::class.java).push(buildMainScreen())
+            }
+            false -> buildMainScreen()
+        }
     }
 
-    private fun ensureSurfaceCallback() {
+    private fun buildLoadingScreen(): Screen = object : Screen(carContext) {
+        override fun onGetTemplate(): Template =
+            MessageTemplate.Builder(carContext.getString(R.string.sdk_initializing))
+                .setLoading(true)
+                .build()
+    }
+
+    private fun buildMainScreen(): MainScreen {
+        if (sdkInitialized.value) {
+            ensureSurfaceCallback(routesViewModel)
+        }
+        return MainScreen(
+            carContext = carContext,
+            routesViewModel = routesViewModel,
+        )
+    }
+
+    private fun ensureSurfaceCallback(viewModel: RoutesViewModel) {
         if (!surfaceCallbackRegistered) {
             appManager.setSurfaceCallback(
                 MapSurfaceCallback(
@@ -76,7 +166,7 @@ class CarNavigationSession : Session(), SavedStateRegistryOwner, ViewModelStoreO
                     lifecycleOwner = this,
                     savedStateRegistryOwner = this,
                     viewModelStoreOwner = this,
-                    routesViewModel = routesViewModel,
+                    routesViewModel = viewModel,
                 ),
             )
             surfaceCallbackRegistered = true

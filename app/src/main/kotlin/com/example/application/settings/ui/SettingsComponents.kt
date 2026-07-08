@@ -65,9 +65,9 @@ fun TelemetryConsentLevelSelector(
                 stringResource(R.string.settings_label_telemetry_consent_location_only),
                 stringResource(R.string.settings_label_telemetry_consent_on),
             ),
-            selectedIndex = it + 1,
+            selectedIndex = it,
             onValueSelected = { newValue ->
-                if (newValue != selectedIndex + 1) {
+                if (newValue != it) {
                     onValueChange(newValue)
                 }
             },

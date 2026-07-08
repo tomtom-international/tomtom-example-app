@@ -29,9 +29,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.application.common.MARKERS_ZOOM_PADDING_DP
+import com.example.application.common.TestTags
 import com.example.application.common.ui.ErrorSnackbarHost
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.common.ui.safeAreaStartPadding
@@ -219,7 +223,11 @@ fun MapScreenContent(
         top = localDensity.run { mapScreenUiState.safeAreaTopPadding.toDp() },
     )
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .semantics { testTagsAsResourceId = true }
+            .testTag(TestTags.MAP_SCREEN),
+    ) {
         MapView(
             mapEnvironment = mapEnvironment,
             mapScreenUiState = mapScreenUiState,

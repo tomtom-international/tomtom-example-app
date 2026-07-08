@@ -24,34 +24,43 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.DeploymentMode.ONLINE_FIRST
+import com.example.DeploymentMode.ONLINE_ONLY
 import com.example.Destination.ChildActivityDestination
-import com.example.Destination.DemoListScreenDestination
+import com.example.Destination.DeploymentModeDestination
 import com.example.Destination.HomeScreenDestination
-import com.example.Destination.RoutingListScreenDestination
-import com.example.Destination.SearchListScreenDestination
-import com.example.application.NavigationActivity
+import com.example.Destination.PrivacyDestination
+import com.example.MainViewModel.Companion.KEYSTORE_ASSET_PATH
+import com.example.MainViewModel.Companion.MAP_ASSET_PATH
 import com.example.application.common.ISO3_GBR
 import com.example.application.common.ISO3_USA
+import com.example.application.map.OnboardMapAssetsExtractor
 import com.example.application.settings.data.LocalSettingsRepository
 import com.example.application.ui.theme.NavSdkExampleTheme
-import com.example.demo.DemoActivity
-import com.example.demo.DemoListScreen
-import com.example.demo.routing.RoutingListScreen
-import com.example.demo.search.SearchListScreen
+import com.example.demo.getDemoDestinations
+import com.example.onboarding.DeploymentModeScreen
+import com.example.onboarding.MapExtractionFailedDialog
+import com.example.onboarding.PrivacyScreen
+import com.example.onboarding.SplashContent
+import com.tomtom.sdk.annotations.BetaSdkInitializationApi
 import com.tomtom.sdk.common.configuration.buildSdkConfiguration
 import com.tomtom.sdk.common.measures.UnitSystem
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.navigation.UnitSystemType
 import com.tomtom.sdk.telemetry.UserConsent
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.util.Locale
 
@@ -70,7 +79,9 @@ class MainActivity : ComponentActivity() {
             factory = MainViewModel.Factory,
             extras = MutableCreationExtras().apply {
                 set(MainViewModel.SETTINGS_REPOSITORY_KEY, settingsRepository)
+                set(MainViewModel.APP_FILES_DIR_KEY, application.filesDir)
                 set(MainViewModel.ON_TOMTOM_SDK_INITIALIZE_KEY, ::initializeTomTomSdk)
+                set(MainViewModel.ON_EXTRACT_MAP_ASSETS_KEY, ::extractMapAssets)
             },
         )[MainViewModel::class]
     }
@@ -80,83 +91,158 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val navController = rememberNavController()
-            val navigateToDestination = remember {
-                { destination: Destination ->
-                    when (destination) {
-                        is ChildActivityDestination -> {
-                            val intent = Intent(
-                                this@MainActivity,
-                                Class.forName(destination.activityClassName),
-                            )
-                            intent.putExtras(
-                                Bundle().also {
-                                    it.putString(
-                                        DESTINATION_KEY,
-                                        Json.encodeToString(
-                                            ChildActivityDestination.serializer(),
-                                            destination,
-                                        ),
-                                    )
-                                },
-                            )
-                            startActivity(intent)
-                        }
-
-                        else -> {
-                            navController.navigate(route = destination)
-                        }
-                    }
-                }
-            }
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
             NavSdkExampleTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val innerPaddingModifier = remember { Modifier.padding(innerPadding) }
-
-                    NavHost(navController = navController, startDestination = HomeScreenDestination) {
-                        composable<HomeScreenDestination> {
-                            MainScreen(
-                                viewModel = viewModel,
-                                onNavigateToDestination = { navigateToDestination(it) },
-                                onExitApp = { finish() },
-                                modifier = innerPaddingModifier,
-                            )
-                        }
-
-                        composable<DemoListScreenDestination> {
-                            DemoListScreen(
-                                onNavigateToDestination = { navigateToDestination(it) },
-                                modifier = innerPaddingModifier,
-                            )
-                        }
-
-                        composable<RoutingListScreenDestination> {
-                            RoutingListScreen(
-                                onNavigateToDestination = { navigateToDestination(it) },
-                                modifier = innerPaddingModifier,
-                            )
-                        }
-
-                        composable<SearchListScreenDestination> {
-                            SearchListScreen(
-                                onNavigateToDestination = { navigateToDestination(it) },
-                                modifier = innerPaddingModifier,
-                            )
-                        }
-                    }
+                    MainActivityContent(
+                        uiState = uiState,
+                        modifier = Modifier.padding(innerPadding),
+                    )
                 }
             }
         }
     }
 
-    private suspend fun initializeTomTomSdk(telemetryConsent: suspend () -> UserConsent) {
-        val sdkConfiguration =
-            buildSdkConfiguration(
+    @Composable
+    private fun MainActivityContent(
+        uiState: MainUiState,
+        modifier: Modifier = Modifier,
+    ) {
+        when (uiState.mapExtractionState) {
+            MapExtractionState.InProgress -> {
+                SplashContent(modifier = modifier)
+            }
+
+            MapExtractionState.Failed -> {
+                SplashContent(modifier = modifier)
+                MapExtractionFailedDialog(onMapExtractionFailed = ::finish)
+            }
+
+            MapExtractionState.Completed -> {
+                MainNavigationHost(
+                    persistedConsentLevel = uiState.persistedConsentLevel,
+                    modifier = modifier,
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun MainNavigationHost(
+        persistedConsentLevel: Int?,
+        modifier: Modifier = Modifier,
+    ) {
+        val navController = rememberNavController()
+        val startDestination = remember { startDestinationFor(persistedConsentLevel) }
+        val navigateToDestination = remember(navController) {
+            { destination: Destination ->
+                when (destination) {
+                    is ChildActivityDestination -> openChildActivity(destination)
+                    else -> navController.navigate(route = destination)
+                }
+            }
+        }
+
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+        ) {
+            addMainDestinations(
+                navController = navController,
+                navigateToDestination = navigateToDestination,
+                modifier = modifier,
+            )
+        }
+    }
+
+    private fun NavGraphBuilder.addMainDestinations(
+        navController: NavController,
+        navigateToDestination: (Destination) -> Unit,
+        modifier: Modifier,
+    ) {
+        composable<PrivacyDestination> {
+            PrivacyScreen(
+                viewModel = viewModel,
+                onConsentPersisted = {
+                    navController.navigate(DeploymentModeDestination) {
+                        popUpTo(PrivacyDestination) { inclusive = true }
+                    }
+                },
+                modifier = modifier,
+            )
+        }
+
+        composable<DeploymentModeDestination> {
+            DeploymentModeScreen(
+                viewModel = viewModel,
+                onSdkInitializationComplete = {
+                    navController.navigate(HomeScreenDestination) {
+                        popUpTo(DeploymentModeDestination) { inclusive = true }
+                    }
+                },
+                onSdkInitializationFailed = ::finish,
+                modifier = modifier,
+            )
+        }
+
+        composable<HomeScreenDestination> {
+            MainScreen(
+                onNavigateToDestination = navigateToDestination,
+                modifier = modifier,
+            )
+        }
+
+        getDemoDestinations(navigateToDestination, modifier)
+    }
+
+    private fun startDestinationFor(persistedConsentLevel: Int?): Destination = if (persistedConsentLevel == null) {
+        PrivacyDestination
+    } else {
+        DeploymentModeDestination
+    }
+
+    private fun openChildActivity(destination: ChildActivityDestination) {
+        val intent = Intent(
+            this,
+            Class.forName(destination.activityClassName),
+        )
+        intent.putExtras(
+            Bundle().also {
+                it.putString(
+                    DESTINATION_KEY,
+                    Json.encodeToString(
+                        ChildActivityDestination.serializer(),
+                        destination,
+                    ),
+                )
+            },
+        )
+        startActivity(intent)
+    }
+
+    @OptIn(BetaSdkInitializationApi::class)
+    private suspend fun initializeTomTomSdk(
+        deploymentMode: DeploymentMode,
+        telemetryConsent: suspend () -> UserConsent,
+    ) {
+        val sdkConfiguration = when (deploymentMode) {
+            ONLINE_ONLY -> buildSdkConfiguration(
                 context = application,
                 apiKey = BuildConfig.TOMTOM_API_KEY,
                 telemetryUserConsent = telemetryConsent,
             )
+
+            ONLINE_FIRST -> buildSdkConfiguration(
+                context = application,
+                apiKey = BuildConfig.TOMTOM_API_KEY,
+                regionStorePath = viewModel.mapDir,
+                telemetryUserConsent = telemetryConsent,
+                regionStoreConfiguration = {
+                    keyStorePath = viewModel.ndsKeyStorePath
+                },
+            )
+        }
 
         TomTomSdk.initialize(context = application, sdkConfiguration = sdkConfiguration)
 
@@ -169,49 +255,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun extractMapAssets() = OnboardMapAssetsExtractor.extractMapAssets(
+        context = application,
+        config = OnboardMapAssetsExtractor.MapAssetsConfig(
+            targetMapDir = viewModel.mapDir,
+            targetKeystorePath = viewModel.ndsKeyStorePath,
+            mapAsset = MAP_ASSET_PATH,
+            keyStoreAsset = KEYSTORE_ASSET_PATH,
+        ),
+        forceExtraction = false,
+    )
+
     companion object {
         const val DESTINATION_KEY = "destination_key"
     }
-}
-
-@Serializable
-sealed interface Destination {
-    @Serializable
-    sealed class ChildActivityDestination(val activityClassName: String) : Destination {
-        @Serializable
-        object NavigationActivityDestination : ChildActivityDestination(NavigationActivity::class.java.name)
-
-        @Serializable
-        object RoutePlanningDestination : ChildActivityDestination(DemoActivity::class.java.name)
-
-        @Serializable
-        object RoutingWithWaypointsDestination : ChildActivityDestination(DemoActivity::class.java.name)
-
-        @Serializable
-        object LdevrDestination : ChildActivityDestination(DemoActivity::class.java.name)
-
-        @Serializable
-        object EvSearchDestination : ChildActivityDestination(DemoActivity::class.java.name)
-
-        @Serializable
-        object PoiAlongRouteDestination : ChildActivityDestination(DemoActivity::class.java.name)
-
-        @Serializable
-        object AutocompleteDestination : ChildActivityDestination(DemoActivity::class.java.name)
-
-        @Serializable
-        object PoiSearchAreaDestination : ChildActivityDestination(DemoActivity::class.java.name)
-    }
-
-    @Serializable
-    object HomeScreenDestination : Destination
-
-    @Serializable
-    object DemoListScreenDestination : Destination
-
-    @Serializable
-    object RoutingListScreenDestination : Destination
-
-    @Serializable
-    object SearchListScreenDestination : Destination
 }

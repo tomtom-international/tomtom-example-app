@@ -52,8 +52,8 @@ class SettingsViewModel(
 
     fun updateTelemetryConsentLevel(index: Int) {
         viewModelScope.launch {
-            settingsRepository.updateTelemetryConsentLevel(index - 1)
-            Telemetry.setConsent((index - 1).toUserConsent())
+            settingsRepository.updateTelemetryConsentLevel(index)
+            Telemetry.setConsent(index.toUserConsent())
         }
     }
 

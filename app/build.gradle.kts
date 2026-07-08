@@ -128,11 +128,8 @@ dependencies {
     implementation(libs.tomtomSdkRouting.routePlanner)
     implementation(libs.tomtomSdkSearch.reverseGeocoder)
     implementation(libs.tomtomSdkSearch.search)
+    implementation(libs.tomtomSdkDatamanagementNds.sampleMap)
 
     debugImplementation(libs.androidxComposeUi.testManifest)
     debugImplementation(libs.androidxComposeUi.tooling)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.kotlinx.coroutinesTest)
 }

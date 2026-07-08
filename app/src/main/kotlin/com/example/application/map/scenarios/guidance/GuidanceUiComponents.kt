@@ -197,7 +197,7 @@ data class ManeuverDrawable(
     val shouldInvert: Boolean,
 )
 
-@Suppress("CyclomaticComplexMethod")
+@Suppress("detekt:CyclomaticComplexMethod")
 private fun ManeuverType.drawable(): ManeuverDrawable = when (this) {
     STRAIGHT -> ManeuverDrawable(R.drawable.tt_asset_graphic_continue_64, false)
     TURN_LEFT -> ManeuverDrawable(R.drawable.tt_asset_graphic_turn_64, false)

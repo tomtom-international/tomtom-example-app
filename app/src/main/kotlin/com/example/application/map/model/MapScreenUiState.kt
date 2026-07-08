@@ -37,7 +37,7 @@ data class MapScreenUiState(
     val destinationDetails: PlaceDetails? = null,
     val placeDetails: PlaceDetails? = null,
     val poiPlaces: List<PlaceDetails> = emptyList(),
-    val destinationMarker: GeoPoint? = null,
+    val markerCoordinates: GeoPoint? = null,
     val safeAreaTopPadding: Int = 0,
     val safeAreaBottomPadding: Int = 0,
 ) {
@@ -45,6 +45,8 @@ data class MapScreenUiState(
         object SearchError : ErrorState()
 
         object RoutingError : ErrorState()
+
+        object MapManagementError : ErrorState()
     }
 
     fun isDrivingScenario(): Boolean = scenario == GUIDANCE || scenario == FREE_DRIVING

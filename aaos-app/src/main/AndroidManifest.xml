@@ -38,7 +38,6 @@ limitations under the License.
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name=".NavigationApplication"
         android:allowBackup="true"
         android:appCategory="maps"
         android:icon="@drawable/tomtom_logo_small"

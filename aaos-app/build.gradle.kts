@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -36,10 +34,11 @@ android {
 
     defaultConfig {
         applicationId = applicationNamespace
-        minSdk = 29
-        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        minSdk = 29
+        targetSdk = 35
 
         // Only 64-bit architectures are supported in TomTom Navigation SDK.
         ndk.abiFilters += listOf("arm64-v8a", "x86_64")
@@ -60,7 +59,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-
     }
 
     composeOptions {
@@ -100,7 +98,9 @@ dependencies {
     implementation(libs.tomtomSdk.init)
     implementation(libs.tomtomSdkMapsVisualization.visualizationCompose)
     implementation(libs.tomtomSdkMaps.mapDisplayComposeStandard)
+    implementation(libs.tomtomSdkDatamanagementNds.sampleMap)
 
+    implementation(libs.androidxDatastore.preferences)
     implementation(libs.androidxCore.ktx)
     implementation(libs.androidxAppcompat)
     implementation(libs.androidxCar.app)
@@ -108,9 +108,4 @@ dependencies {
     implementation(libs.androidxComposeMaterial3)
     implementation(libs.androidxComposeUi)
     implementation(platform(libs.androidxCompose.bom))
-    testImplementation(libs.androidxCar.appTesting)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.kotlinx.coroutinesTest)
 }
-

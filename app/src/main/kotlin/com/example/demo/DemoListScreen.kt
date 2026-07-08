@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.Destination
+import com.example.Destination.MapListScreenDestination
 import com.example.Destination.RoutingListScreenDestination
 import com.example.Destination.SearchListScreenDestination
 import com.example.DestinationCard
@@ -36,6 +37,14 @@ fun DemoListScreen(
     modifier: Modifier = Modifier,
 ) {
     PaddedLazyColumn(modifier = modifier) {
+        item {
+            DestinationCard(
+                onClick = { onNavigateToDestination(MapListScreenDestination) },
+                title = stringResource(R.string.demo_map_title),
+                subtitle = stringResource(R.string.demo_map_subtitle),
+            )
+        }
+
         item {
             DestinationCard(
                 onClick = { onNavigateToDestination(RoutingListScreenDestination) },

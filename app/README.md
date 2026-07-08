@@ -25,6 +25,7 @@ highlights modern development paradigms and efficient ways to build navigation-c
 - Online/offline **map rendering** with custom styles
 - Powerful **search** (POI, autocomplete, along‑route, area)
 - Isolated **demos** for each feature
+  - **Map management**: This demo requires extended permissions only available on production api keys. [Contact Sales](https://www.tomtom.com/contact-sales?source_app=developerportal&source_product=tomtom-sdk-for-android) to get started.
 
 ### Compile and Run It
 

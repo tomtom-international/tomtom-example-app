@@ -57,6 +57,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.application.common.BOTTOMSHEET_PADDING_TOP
 import com.example.application.common.SEARCH_BOTTOMSHEET_PEEK_HEIGHT
+import com.example.application.common.TestTags
 import com.example.application.common.ui.BottomSheet
 import com.example.application.common.ui.CustomIconButton
 import com.example.application.common.ui.fillMaxWidthByOrientation
@@ -194,6 +196,7 @@ private fun EvSearchBottomSheetCollapsedHeader(
             imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_filter_line_32),
             modifier = Modifier.padding(end = 16.dp),
             onIconClick = onFilterIconClick,
+            testTag = TestTags.EV_FILTER_ICON_BUTTON,
         )
     }
 }
@@ -212,6 +215,7 @@ private fun EvSearchBottomSheetExpandedHeader(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             modifier = Modifier.padding(start = 16.dp),
             onIconClick = onBackArrowClick,
+            testTag = TestTags.EV_FILTER_BACK_BUTTON,
         )
         Text(
             text = stringResource(R.string.demo_search_ev_title_bottom_panel_expanded),
@@ -224,6 +228,7 @@ private fun EvSearchBottomSheetExpandedHeader(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier
+                .testTag(TestTags.EV_RESET_FILTERS_BUTTON)
                 .clickable { onResetClick() }
                 .padding(end = 24.dp),
         )
@@ -250,6 +255,7 @@ private fun EvFilterCategoryRow(
         evFilterCategories.forEach { (_, it) ->
             EvFilterCategory(
                 imageVector = ImageVector.vectorResource(id = it.imageVector),
+                filterDescription = stringResource(it.filterDescription),
                 isCategorySelected = it == categorySelected,
                 isCategoryActive = it.isCategoryActive(activeFilters),
                 onEvFilterCategoryClick = { onEvFilterCategoryClick(it) },
@@ -262,6 +268,7 @@ private fun EvFilterCategoryRow(
 @Composable
 private fun EvFilterCategory(
     imageVector: ImageVector,
+    filterDescription: String,
     isCategorySelected: Boolean,
     isCategoryActive: Boolean,
     onEvFilterCategoryClick: () -> Unit,
@@ -277,6 +284,7 @@ private fun EvFilterCategory(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .testTag(TestTags.evFilterCategory(filterDescription))
             .clip(shape = RoundedCornerShape(5.dp))
             .clickable { onEvFilterCategoryClick() }
             .border(
@@ -373,6 +381,7 @@ private fun EvFilterOption(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .testTag(TestTags.evFilterOption(optionDescription))
             .padding(8.dp)
             .shadow(elevation = 6.dp, shape = RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
@@ -501,9 +510,10 @@ private fun EvFilterCategoryRowCategorySelectedPreview() {
 private fun EvFilterCategoryPreview() {
     NavSdkExampleTheme {
         EvFilterCategory(
+            imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_chargeslow_fill_32),
+            filterDescription = "Charging Speed",
             isCategorySelected = false,
             isCategoryActive = false,
-            imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_chargeslow_fill_32),
             onEvFilterCategoryClick = { },
         )
     }
@@ -514,9 +524,10 @@ private fun EvFilterCategoryPreview() {
 private fun EvFilterCategoryActivePreview() {
     NavSdkExampleTheme {
         EvFilterCategory(
+            imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_chargeslow_fill_32),
+            filterDescription = "Charging Speed",
             isCategorySelected = false,
             isCategoryActive = true,
-            imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_chargeslow_fill_32),
             onEvFilterCategoryClick = { },
         )
     }
@@ -527,9 +538,10 @@ private fun EvFilterCategoryActivePreview() {
 private fun EvFilterCategorySelectedPreview() {
     NavSdkExampleTheme {
         EvFilterCategory(
+            imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_chargeslow_fill_32),
+            filterDescription = "Charging Speed",
             isCategorySelected = true,
             isCategoryActive = true,
-            imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_chargeslow_fill_32),
             onEvFilterCategoryClick = { },
         )
     }

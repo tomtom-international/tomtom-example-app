@@ -35,12 +35,14 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.example.Destination
 import com.example.Destination.ChildActivityDestination
 import com.example.Destination.ChildActivityDestination.AutocompleteDestination
 import com.example.Destination.ChildActivityDestination.EvSearchDestination
-import com.example.Destination.ChildActivityDestination.LdevrDestination
+import com.example.Destination.ChildActivityDestination.ManualMapManagementDestination
 import com.example.Destination.ChildActivityDestination.PoiAlongRouteDestination
 import com.example.Destination.ChildActivityDestination.PoiSearchAreaDestination
 import com.example.Destination.ChildActivityDestination.RoutePlanningDestination
@@ -50,7 +52,7 @@ import com.example.application.common.MARKERS_ZOOM_PADDING_DP
 import com.example.application.common.ui.ErrorSnackbarHost
 import com.example.application.common.ui.safeAreaStartPadding
 import com.example.application.ui.theme.NavSdkExampleTheme
-import com.example.demo.routing.ldevr.LdevrScreen
+import com.example.demo.map.manualmapmanagement.ManualMapManagementScreen
 import com.example.demo.routing.routeplanning.RoutePlanningScreen
 import com.example.demo.routing.routingwithwaypoints.RoutingWithWaypointsScreen
 import com.example.demo.search.area.PoiSearchAreaScreen
@@ -106,15 +108,15 @@ private fun DemoScreen(
     destination: Destination?,
     innerPadding: PaddingValues,
 ) {
-    Box(modifier = Modifier.padding(innerPadding)) {
+    Box(modifier = Modifier.padding(innerPadding).semantics { testTagsAsResourceId = true }) {
         when (destination) {
             is RoutePlanningDestination -> RoutePlanningScreen(demoViewModel = demoViewModel)
             is RoutingWithWaypointsDestination -> RoutingWithWaypointsScreen(demoViewModel = demoViewModel)
             is EvSearchDestination -> EvSearchScreen(demoViewModel = demoViewModel)
-            is LdevrDestination -> LdevrScreen(demoViewModel = demoViewModel)
             is PoiAlongRouteDestination -> PoiAlongRouteScreen(demoViewModel = demoViewModel)
             is AutocompleteDestination -> AutocompleteScreen(demoViewModel = demoViewModel)
             is PoiSearchAreaDestination -> PoiSearchAreaScreen(demoViewModel = demoViewModel)
+            is ManualMapManagementDestination -> ManualMapManagementScreen(demoViewModel = demoViewModel)
             else -> {}
         }
 

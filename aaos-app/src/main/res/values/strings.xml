@@ -21,4 +21,10 @@ limitations under the License.
     <string name="action_clear_route">Clear</string>
     <string name="permissions_required_message">This app requires Car and Location permissions to function.</string>
     <string name="action_grant_permissions">Grant Permissions</string>
+    <string name="sdk_initializing">Initializing…</string>
+    <string name="sdk_initialization_error">Failed to initialize TomTom SDK: %1$s</string>
+    <string name="main_telemetry_dialog_label">Do you want to send Telemetry data?</string>
+    <string name="settings_label_telemetry_consent_off">Off</string>
+    <string name="settings_label_telemetry_consent_location_only">Location only</string>
+    <string name="settings_label_telemetry_consent_on">On</string>
 </resources>

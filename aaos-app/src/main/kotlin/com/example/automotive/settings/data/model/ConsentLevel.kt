@@ -14,27 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package com.example.automotive
+package com.example.automotive.settings.data.model
 
-import android.app.Application
-import com.tomtom.sdk.common.configuration.buildSdkConfiguration
-import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.telemetry.UserConsent
 
 /**
- * Application class that initializes the TomTom SDK for AAOS navigation.
+ * Type-safe representation of the user's telemetry consent choice.
+ * [storageKey] is the integer persisted in DataStore for backward compatibility.
  */
-class NavigationApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
+enum class ConsentLevel(val storageKey: Int) {
+    OFF(0),
+    LOCATION_ONLY(1),
+    ON(2),
+    ;
 
-        TomTomSdk.initialize(
-            this,
-            buildSdkConfiguration(
-                context = this,
-                apiKey = BuildConfig.TOMTOM_API_KEY,
-                telemetryUserConsent = { UserConsent.TelemetryOff },
-            ),
-        )
+    fun toUserConsent(): UserConsent = when (this) {
+        OFF -> UserConsent.TelemetryOff
+        LOCATION_ONLY -> UserConsent.LocationOnly
+        ON -> UserConsent.TelemetryOn
+    }
+
+    companion object {
+        fun fromStorageKey(key: Int): ConsentLevel = values().firstOrNull { it.storageKey == key } ?: OFF
     }
 }

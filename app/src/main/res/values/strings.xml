@@ -28,6 +28,28 @@ limitations under the License.
     <string name="common_content_description_settings">Settings</string>
     <string name="common_content_description_toggle_2D_3D">Toggle 2D/3D</string>
     <string name="common_error_location_permission_denied">Location permission must be enabled. The app will not function without it.</string>
+    <string name="demo_manual_map_management_cancel_button">Cancel operation</string>
+    <string name="demo_manual_map_management_contact_sales">Contact Sales</string>
+    <string name="demo_manual_map_management_delete_button">Delete map</string>
+    <string name="demo_manual_map_management_download_button">Download a map</string>
+    <string name="demo_manual_map_management_downloading">Downloading map</string>
+    <string name="demo_manual_map_management_error_text">There was an issue while downloading the map. Restart the download</string>
+    <string name="demo_manual_map_management_evaluation_get_started">to get started.</string>
+    <string name="demo_manual_map_management_evaluation_note">This demo requires extended permissions only available on production api keys.</string>
+    <string name="demo_manual_map_management_not_available_online_only">This demo is not available in Online Only mode.</string>
+    <string name="demo_manual_map_management_not_installed_text">Press the button to download the map</string>
+
+    <string name="demo_manual_map_management_operation_error">Map management operation failed.</string>
+    <string name="demo_manual_map_management_partially_installed_text">Map partially downloaded. Press the button to finish the download</string>
+    <string name="demo_manual_map_management_progress_text">%1$d%%</string>
+    <string name="demo_manual_map_management_region_installed_size_text">Installed size: %1$s Mb</string>
+    <string name="demo_manual_map_management_region_update_size_text">Update size: %1$s Mb</string>
+    <string name="demo_manual_map_management_removing">Removing map</string>
+    <string name="demo_manual_map_management_subtitle">Download and remove maps manually.</string>
+    <string name="demo_manual_map_management_success_download">Map successfully downloaded</string>
+    <string name="demo_manual_map_management_title">Map management - Beta</string>
+    <string name="demo_map_subtitle">Map features</string>
+    <string name="demo_map_title">Map</string>
     <string name="common_error_message">Error message</string>
     <string name="common_format_two_words_with_space">%1$s %2$s</string>
     <string name="common_speed_unit_kph">km/h</string>
@@ -140,8 +162,25 @@ limitations under the License.
 
     <string name="horizon_label_traffic_delay_unknown">Unknown delay</string>
 
-    <string name="main_telemetry_dialog_label">Do you want to send Telemetry data?</string>
-    <string name="main_telemetry_dialog_button">Confirm</string>
+    <string name="onboarding_error_install_map_title">Asset installation failed</string>
+    <string name="onboarding_error_install_map_message">There was an error installing assets to the disk. The app will now close.</string>
+    <string name="onboarding_error_install_map_button_close">Close</string>
+
+    <string name="onboarding_error_sdk_init_title">Initialization failed</string>
+    <string name="onboarding_error_sdk_init_message">The SDK could not be initialized. The app will now close.</string>
+    <string name="onboarding_error_sdk_init_button_close">Close</string>
+
+    <string name="onboarding_deployment_mode_title">Deployment mode</string>
+    <string name="onboarding_deployment_mode_description">Before proceeding to the examples, please select your preferred deployment type.</string>
+    <string name="onboarding_deployment_mode_button_online_only">Online only</string>
+    <string name="onboarding_deployment_mode_button_offline_fallback">Online first with an offline fallback</string>
+
+    <string name="onboarding_privacy_title">Privacy</string>
+    <string name="onboarding_privacy_description">Live services require location data. For the complete demo experience, telemetry consent needs to be set to Location only or higher.</string>
+    <string name="onboarding_privacy_option_no_telemetry">No telemetry</string>
+    <string name="onboarding_privacy_option_location_only">Location only</string>
+    <string name="onboarding_privacy_option_full_telemetry">Full telemetry</string>
+    <string name="onboarding_privacy_button_proceed">Proceed</string>
 
     <string name="navigation_error_routing_failed">Routing failed</string>
 

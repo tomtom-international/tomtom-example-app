@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.R
 import com.example.application.map.model.MapScreenUiState.ErrorState
+import com.example.application.map.model.MapScreenUiState.ErrorState.MapManagementError
 import com.example.application.map.model.MapScreenUiState.ErrorState.RoutingError
 import com.example.application.map.model.MapScreenUiState.ErrorState.SearchError
 import com.example.application.ui.theme.NavSdkExampleTheme
@@ -95,6 +96,7 @@ private fun ErrorStateListener(
         val message = when (error) {
             is SearchError -> stringResource(R.string.search_error_failed)
             is RoutingError -> stringResource(R.string.navigation_error_routing_failed)
+            is MapManagementError -> stringResource(R.string.demo_manual_map_management_operation_error)
         }
         LaunchedEffect(error) {
             snackbarHostState.showSnackbar(message)

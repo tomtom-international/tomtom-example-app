@@ -63,13 +63,13 @@ fun BoxScope.PoiFocusUiComponents(stateHolder: PoiFocusStateHolder) {
         stateHolder.onSafeAreaTopPaddingUpdate(0)
     }
 
-    LaunchedEffect(stateHolder.placeDetails) {
+    LaunchedEffect(stateHolder.markerPosition ?: stateHolder.placeDetails) {
         stateHolder.onAnimateCamera(
             CameraOptions(
                 zoom = MapScreenUiState.POI_CAMERA_ZOOM,
                 tilt = MapScreenUiState.DEFAULT_TILT,
                 rotation = MapScreenUiState.DEFAULT_ROTATION,
-                position = stateHolder.placeDetails?.place?.coordinate,
+                position = stateHolder.markerPosition ?: stateHolder.placeDetails?.place?.coordinate,
             ),
         )
     }
@@ -127,9 +127,11 @@ private fun PoiFocusPanel(
         modifier = modifier
             .onGloballyPositioned { onSafeAreaBottomPaddingUpdate(if (isDeviceInLandscape) 0 else it.size.height) },
         header = {
-            if (placeDetails?.place?.address != null) {
+            if (placeDetails != null) {
                 Text(
-                    text = placeDetails.name,
+                    text = placeDetails.renderedPoiName ?: placeDetails.name,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -137,14 +139,19 @@ private fun PoiFocusPanel(
             }
         },
         subheader = {
-            if (placeDetails?.place?.address != null) {
-                Text(
-                    text = placeDetails.locationDetails,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+            if (placeDetails != null) {
+                val subheaderText = placeDetails.renderedPoiName?.let {
+                    placeDetails.place.address?.freeformAddress
+                } ?: placeDetails.locationDetails
+                if (subheaderText.isNotEmpty()) {
+                    Text(
+                        text = subheaderText,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         },
         body = {

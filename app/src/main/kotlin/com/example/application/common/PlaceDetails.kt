@@ -19,7 +19,6 @@ package com.example.application.common
 import com.tomtom.quantity.Power
 import com.tomtom.sdk.location.Address
 import com.tomtom.sdk.location.Place
-import com.tomtom.sdk.location.poi.Poi
 import com.tomtom.sdk.location.poi.StandardCategoryId
 import com.tomtom.sdk.location.poi.ev.AccessType
 import com.tomtom.sdk.location.poi.ev.Status
@@ -29,6 +28,7 @@ data class PlaceDetails(
     val place: Place,
     val accessType: AccessType? = null,
     val nearbyPoiCategories: Set<StandardCategoryId> = emptySet(),
+    val renderedPoiName: String? = null,
 )
 
 val PlaceDetails.locationDetails: String
@@ -36,7 +36,7 @@ val PlaceDetails.locationDetails: String
         ?: this.place.address.locationDetails.trim()
 
 val PlaceDetails.name: String
-    get() = this.place.details?.names?.first() ?: this.place.address.locationName
+    get() = this.place.details?.names?.firstOrNull() ?: this.place.address.locationName
 
 val PlaceDetails.chargePointAvailability: MutableMap<ConnectorType, Map<Power, List<Status?>>>
     get() {
@@ -102,13 +102,6 @@ val Address?.locationDetails: String
             }
         } ?: ""
     ) + (this?.countryCodeIso3?.let { ", $it" } ?: "")
-
-private val Poi.name: String?
-    get() = this.let {
-        it.names.elementAt(0).ifEmpty {
-            it.urls.elementAt(0).ifEmpty { null }
-        }
-    }
 
 private val Place.poiDetails: String
     get() = (

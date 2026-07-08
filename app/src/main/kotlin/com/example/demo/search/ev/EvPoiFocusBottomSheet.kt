@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +63,7 @@ import com.example.R
 import com.example.application.common.BOTTOMSHEET_PADDING_TOP
 import com.example.application.common.EV_POI_BOTTOMSHEET_PEEK_HEIGHT
 import com.example.application.common.PlaceDetails
+import com.example.application.common.TestTags
 import com.example.application.common.chargePointAvailability
 import com.example.application.common.extension.fadingEdge
 import com.example.application.common.locationDetails
@@ -202,7 +204,9 @@ private fun NearbyPoiList(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { showContent = !showContent },
+            modifier = Modifier
+                .testTag(TestTags.NEARBY_POI_TOGGLE)
+                .clickable { showContent = !showContent },
         ) {
             Text(
                 text = stringResource(R.string.demo_search_ev_label_nearby_poi),
@@ -237,6 +241,7 @@ private fun NearbyPoiList(
                         imageVector = ImageVector.vectorResource(EvNearbyPoiCategory.fromType(it).imageVector),
                         contentDescription = stringResource(EvNearbyPoiCategory.fromType(it).nearbyCategoryDescription),
                         modifier = Modifier
+                            .testTag(TestTags.nearbyPoiIcon(it.toString()))
                             .size(32.dp)
                             .align(Alignment.CenterVertically),
                         tint = MaterialTheme.colorScheme.secondary,
@@ -268,7 +273,9 @@ private fun EvChargePointsList(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { showContent = !showContent },
+            modifier = Modifier
+                .testTag(TestTags.CHARGE_POINTS_TOGGLE)
+                .clickable { showContent = !showContent },
         ) {
             Text(
                 text = stringResource(R.string.demo_search_ev_label_charge_points),

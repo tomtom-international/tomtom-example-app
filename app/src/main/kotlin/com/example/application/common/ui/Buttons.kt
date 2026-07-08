@@ -50,11 +50,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.application.common.TestTags
 import com.example.application.ui.theme.NavSdkExampleTheme
 
 @Composable
@@ -76,9 +75,7 @@ fun TextCheckBox(
         Checkbox(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier
-                .testTag("checkbox_$text")
-                .semantics { contentDescription = "checkbox_$text" },
+            modifier = Modifier.testTag(TestTags.checkbox(text)),
         )
     }
 }
@@ -98,7 +95,8 @@ fun TextRadioButton(
                 onClick = { onOptionSelected(key) },
                 role = Role.RadioButton,
             )
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .testTag(TestTags.radioButton(text)),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(
@@ -153,6 +151,7 @@ fun MapModeToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier
+            .testTag(TestTags.MAP_MODE_TOGGLE_BUTTON)
             .shadow(
                 elevation = 6.0.dp,
                 shape = CircleShape,
@@ -198,7 +197,7 @@ fun CloseButton(
     onClick = onClick,
     imageVector = Icons.Filled.Close,
     contentDescription = stringResource(R.string.common_content_description_close),
-    modifier = modifier,
+    modifier = modifier.testTag(TestTags.CLOSE_BUTTON),
     iconTint = iconTint,
     backgroundColor = backgroundColor,
 )
@@ -224,7 +223,7 @@ fun RecenterMapButton(
             onClick = stateHolder.onRecenterClick,
             imageVector = ImageVector.vectorResource(R.drawable.tt_asset_icon_recenter_line_32),
             contentDescription = stringResource(id = R.string.common_content_description_center_on_user),
-            modifier = modifier,
+            modifier = modifier.testTag(TestTags.RECENTER_MAP_BUTTON),
             iconTint = MaterialTheme.colorScheme.primary,
         )
     }
@@ -239,7 +238,7 @@ fun SettingsButton(
         onClick = onClick,
         imageVector = Icons.Default.Settings,
         contentDescription = stringResource(R.string.common_content_description_settings),
-        modifier = modifier,
+        modifier = modifier.testTag(TestTags.SETTINGS_BUTTON),
         iconTint = MaterialTheme.colorScheme.primary,
     )
 }
@@ -285,7 +284,7 @@ fun ArrowDownIconButton(
     onArrowDownIconClicked: () -> Unit = {},
 ) = IconButton(
     onClick = onArrowDownIconClicked,
-    modifier = modifier,
+    modifier = modifier.testTag(TestTags.ARROW_DOWN_ICON_BUTTON),
 ) {
     Icon(
         imageVector = Icons.Default.KeyboardArrowDown,
@@ -310,7 +309,7 @@ fun ClearSearchIconButton(
     onClearSearchIconClicked: () -> Unit = {},
 ) = IconButton(
     onClick = onClearSearchIconClicked,
-    modifier = modifier,
+    modifier = modifier.testTag(TestTags.CLEAR_SEARCH_ICON_BUTTON),
 ) {
     Icon(
         imageVector = Icons.Default.Close,
@@ -338,6 +337,7 @@ fun PoiIconButton(
 ) = IconButton(
     onClick = onClick,
     modifier = modifier
+        .testTag(TestTags.poiIconButton(contentDescription))
         .background(
             color = MaterialTheme.colorScheme.background,
             shape = CircleShape,
@@ -374,9 +374,10 @@ fun CustomIconButton(
     modifier: Modifier = Modifier,
     onIconClick: () -> Unit = {},
     tint: Color = MaterialTheme.colorScheme.primary,
+    testTag: String,
 ) = IconButton(
     onClick = onIconClick,
-    modifier = modifier,
+    modifier = modifier.testTag(testTag),
 ) {
     Icon(
         imageVector = imageVector,
@@ -393,6 +394,7 @@ private fun CustomIconButtonPreview() {
         CustomIconButton(
             imageVector = ImageVector.vectorResource(id = R.drawable.tt_asset_icon_filter_line_32),
             modifier = Modifier,
+            testTag = "custom_icon_button",
         )
     }
 }

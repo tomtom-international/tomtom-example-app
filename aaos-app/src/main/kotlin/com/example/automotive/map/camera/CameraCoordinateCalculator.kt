@@ -18,6 +18,7 @@ package com.example.automotive.map.camera
 
 import com.tomtom.sdk.location.GeoPoint
 import kotlin.math.cos
+import kotlin.math.ln
 import kotlin.math.pow
 
 /**
@@ -99,9 +100,5 @@ object CameraCoordinateCalculator {
     fun scaleFactorToZoomDelta(
         scaleFactor: Float,
         sensitivity: Double = 2.0,
-    ): Double {
-        // 2x scale ~ +1 zoom level (before sensitivity)
-        // Using log base 2 because each zoom level doubles the scale
-        return Math.log(scaleFactor.toDouble()) / Math.log(2.0) * sensitivity
-    }
+    ): Double = ln(scaleFactor.toDouble()) / ln(2.0) * sensitivity
 }

@@ -24,120 +24,122 @@ import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.MessageTemplate
 import androidx.car.app.model.Template
 import androidx.car.app.navigation.model.NavigationTemplate
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.automotive.R
 import com.example.automotive.common.permissions.PermissionsManager
 import com.example.automotive.map.RoutesViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
- * Main navigation screen for the AAOS application.
- * Displays the navigation template with route planning controls and manages permissions.
+ * Main navigation screen for AAOS application.
  *
- * @param carContext The CarContext from Android Automotive framework
- * @param routesViewModel ViewModel managing route planning state and operations
- * @param permissionsManager Manager for runtime permission requests (injectable for testing)
+ * @param carContext CarContext from Android Automotive framework
+ * @param routesViewModel ViewModel for route planning and screen state
+ * @param permissionsManager Manager for runtime permissions
  */
 class MainScreen(
     carContext: CarContext,
     private val routesViewModel: RoutesViewModel,
     private val permissionsManager: PermissionsManager = PermissionsManager(carContext),
-) : Screen(carContext), DefaultLifecycleObserver {
-    private var permissionsGranted = false
-
+) : Screen(carContext) {
     init {
-        lifecycle.addObserver(this)
-        Log.d(TAG, "MainScreen initialized")
+        Log.d(TAG, "Initializing MainScreen")
         permissionsManager.checkAndRequestPermissions {
             Log.d(TAG, "Permissions granted")
-            permissionsGranted = true
-            invalidate() // Refresh UI to enable buttons
+            routesViewModel.setPermissionsGranted(true)
         }
-    }
-
-    override fun onStart(owner: LifecycleOwner) {
-        Log.d(TAG, "Screen started, collecting ViewModel state")
         lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Collect combined UI state for efficient updates
-                routesViewModel.uiState.collect { state ->
-                    Log.d(TAG, "UI state updated: loading=${state.isLoading}, hasRoutes=${state.hasRoutes}")
-                    invalidate()
-                }
-            }
+            routesViewModel.uiState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .distinctUntilChanged()
+                .collect { invalidate() }
         }
     }
 
     override fun onGetTemplate(): Template {
-        if (!permissionsGranted) {
-            Log.d(TAG, "Building permissions required template")
-            return buildPermissionsRequiredTemplate()
+        val state = routesViewModel.uiState.value
+        return when {
+            state.initializationError != null -> {
+                Log.e(TAG, "Building SDK initialization error template")
+                buildSdkErrorTemplate(state.initializationError)
+            }
+
+            !state.sdkInitialized -> {
+                Log.d(TAG, "Building SDK loading template")
+                buildSdkLoadingTemplate()
+            }
+
+            !state.permissionsGranted -> {
+                Log.d(TAG, "Building permissions required template")
+                buildPermissionsRequiredTemplate()
+            }
+
+            else -> {
+                Log.d(TAG, "Building navigation template (loading=${state.isLoading}, hasRoutes=${state.hasRoutes})")
+                buildNavigationTemplate(state)
+            }
         }
-
-        val state = routesViewModel.uiState.value
-        Log.d(TAG, "Building navigation template (loading=${state.isLoading}, hasRoutes=${state.hasRoutes})")
-        val builder = NavigationTemplate.Builder()
-        builder.setActionStrip(buildActionStrip())
-        builder.setMapActionStrip(buildMapActionStrip())
-        return builder.build()
     }
 
-    private fun buildActionStrip(): ActionStrip {
-        // Capture state atomically to avoid race conditions
-        val state = routesViewModel.uiState.value
+    private fun buildNavigationTemplate(state: MainScreenUIState): Template = NavigationTemplate.Builder()
+        .setActionStrip(buildActionStrip(state))
+        .setMapActionStrip(buildMapActionStrip())
+        .build()
 
-        return ActionStrip.Builder()
-            .addAction(
-                Action.Builder()
-                    .setTitle(
-                        when {
-                            state.isLoading -> carContext.getString(R.string.action_plan_route_loading)
-                            state.hasRoutes -> carContext.getString(R.string.action_clear_route)
-                            else -> carContext.getString(R.string.action_plan_route)
-                        },
-                    )
-                    .setOnClickListener {
-                        if (state.hasRoutes) {
-                            Log.d(TAG, "User clicked: Clear routes")
-                            routesViewModel.clearRoutes()
-                        } else {
-                            Log.d(TAG, "User clicked: Plan route")
-                            routesViewModel.planSampleEvRoute()
-                        }
+    private fun buildActionStrip(state: MainScreenUIState): ActionStrip = ActionStrip.Builder()
+        .addAction(
+            Action.Builder()
+                .setTitle(
+                    when {
+                        state.isLoading -> carContext.getString(R.string.action_plan_route_loading)
+                        state.hasRoutes -> carContext.getString(R.string.action_clear_route)
+                        else -> carContext.getString(R.string.action_plan_route)
+                    },
+                )
+                .setOnClickListener {
+                    if (routesViewModel.uiState.value.hasRoutes) {
+                        Log.d(TAG, "User clicked: Clear routes")
+                        routesViewModel.clearRoutes()
+                    } else {
+                        Log.d(TAG, "User clicked: Plan route")
+                        routesViewModel.planSampleEvRoute()
                     }
-                    .setEnabled(!state.isLoading)
-                    .build(),
-            )
-            .build()
-    }
-
-    private fun buildMapActionStrip(): ActionStrip {
-        return ActionStrip.Builder()
-            .addAction(Action.Builder(Action.PAN).build())
-            .build()
-    }
-
-    private fun buildPermissionsRequiredTemplate(): Template {
-        return MessageTemplate.Builder(
-            carContext.getString(R.string.permissions_required_message),
+                }
+                .setEnabled(!state.isLoading)
+                .build(),
         )
-            .addAction(
-                Action.Builder()
-                    .setTitle(carContext.getString(R.string.action_grant_permissions))
-                    .setOnClickListener {
-                        permissionsManager.checkAndRequestPermissions {
-                            permissionsGranted = true
-                            invalidate()
-                        }
-                    }
-                    .build(),
-            )
+        .build()
+
+    private fun buildMapActionStrip(): ActionStrip = ActionStrip.Builder()
+        .addAction(Action.Builder(Action.PAN).build())
+        .build()
+
+    private fun buildSdkLoadingTemplate(): Template =
+        MessageTemplate.Builder(carContext.getString(R.string.sdk_initializing))
+            .setLoading(true)
             .build()
-    }
+
+    private fun buildSdkErrorTemplate(errorMessage: String): Template =
+        MessageTemplate.Builder(carContext.getString(R.string.sdk_initialization_error, errorMessage))
+            .build()
+
+    private fun buildPermissionsRequiredTemplate(): Template = MessageTemplate.Builder(
+        carContext.getString(R.string.permissions_required_message),
+    )
+        .addAction(
+            Action.Builder()
+                .setTitle(carContext.getString(R.string.action_grant_permissions))
+                .setOnClickListener {
+                    permissionsManager.checkAndRequestPermissions {
+                        routesViewModel.setPermissionsGranted(true)
+                    }
+                }
+                .build(),
+        )
+        .build()
 
     companion object {
         private const val TAG = "MainScreen"

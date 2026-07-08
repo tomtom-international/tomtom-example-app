@@ -155,6 +155,7 @@ fun rememberScenarioHolders(
     val poiFocusStateHolder = remember(
         recenterMapStateHolder,
         mapScreenUiState.placeDetails,
+        mapScreenUiState.markerCoordinates,
         onAnimateCamera,
         onClearClick,
         mapScreenViewModel.locationProvider,
@@ -165,6 +166,7 @@ fun rememberScenarioHolders(
         PoiFocusStateHolder(
             recenterMapStateHolder = recenterMapStateHolder,
             placeDetails = mapScreenUiState.placeDetails,
+            markerPosition = mapScreenUiState.markerCoordinates,
             onAnimateCamera = onAnimateCamera,
             onClearClick = onClearClick,
             onRouteButtonClick = {

@@ -22,8 +22,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.automotive.carapp.MainScreenUIState
 import com.example.automotive.vehicle.VehicleRepository
 import com.tomtom.quantity.Energy
-import com.tomtom.sdk.init.TomTomSdk
-import com.tomtom.sdk.init.createRoutePlanner
 import com.tomtom.sdk.location.GeoPoint
 import com.tomtom.sdk.routing.RoutePlanner
 import com.tomtom.sdk.routing.RoutePlanningCallback
@@ -41,15 +39,20 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 /**
- * ViewModel that manages EV route planning state and operations.
+ * Manages EV route planning state and operations.
  *
- * @param routePlanner The route planner instance (injectable for testing)
- * @param vehicleRepository Repository for refreshing vehicle data before route planning
+ * @param routePlanner The instance used for route planning operations.
+ * @param vehicleRepository Repository for vehicle data.
+ * @param sdkInitialized StateFlow indicating SDK initialization status.
+ * @param initializationError StateFlow containing SDK initialization error, null if no error.
  */
 class RoutesViewModel(
-    private val routePlanner: RoutePlanner = TomTomSdk.createRoutePlanner(),
+    private var routePlanner: RoutePlanner?,
     private val vehicleRepository: VehicleRepository,
+    sdkInitialized: StateFlow<Boolean>,
+    initializationError: StateFlow<String?>,
 ) : ViewModel() {
+    private val permissionsGranted = MutableStateFlow(false)
     private val _routes: MutableStateFlow<List<Route>> = MutableStateFlow(emptyList())
     val routes: StateFlow<List<Route>> = _routes.asStateFlow()
 
@@ -59,32 +62,42 @@ class RoutesViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    /**
-     * Combined UI state that atomically captures loading and routes state.
-     * This prevents race conditions when reading state in template building.
-     */
+    /** Single source of truth for all state needed to render MainScreen. */
     val uiState: StateFlow<MainScreenUIState> = combine(
+        sdkInitialized,
+        initializationError,
+        permissionsGranted,
         _isLoading,
         _routes,
-    ) { loading, routes ->
+    ) { sdk, error, perms, loading, routes ->
         MainScreenUIState(
+            sdkInitialized = sdk,
+            initializationError = error,
+            permissionsGranted = perms,
             isLoading = loading,
             hasRoutes = routes.isNotEmpty(),
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+        started = SharingStarted.WhileSubscribed(),
         initialValue = MainScreenUIState(),
     )
 
     private var currentRequestCallback: RoutePlanningCallback? = null
 
-    /**
-     * Plans a sample EV route from Amsterdam to Paris.
-     * Refreshes vehicle data before planning to ensure the latest car information is used.
-     * Sets loading state while route planning is in progress.
-     */
+    /** Sets permissions granted state from the UI layer. */
+    fun setPermissionsGranted(granted: Boolean) {
+        permissionsGranted.value = granted
+    }
+
+    /** Sets the route planner after SDK initialization. */
+    fun setRoutePlanner(planner: RoutePlanner) {
+        routePlanner = planner
+    }
+
+    /** Plans a sample EV route from Amsterdam to Paris. Does nothing if route planner unavailable. */
     fun planSampleEvRoute() {
+        val planner = routePlanner ?: return
         _isLoading.value = true
 
         // Refresh vehicle data to get the latest battery state before planning
@@ -115,7 +128,7 @@ class RoutesViewModel(
         }
 
         currentRequestCallback = callback
-        routePlanner.planRoute(routePlanningOptions, callback)
+        planner.planRoute(routePlanningOptions, callback)
     }
 
     fun clearRoutes() {
@@ -138,16 +151,6 @@ class RoutesViewModel(
 
     companion object {
         private const val TAG = "RoutesViewModel"
-
-        /**
-         * Stop timeout for the UI state Flow when there are no active collectors.
-         *
-         * The 5-second delay prevents unnecessary Flow restarts when collectors briefly disconnect
-         * and reconnect during configuration changes (e.g., screen rotation) or rapid navigation
-         * transitions. If all collectors unsubscribe, the Flow waits 5 seconds before stopping.
-         * If a new collector subscribes within that window, the Flow continues without restart.
-         */
-        private const val STOP_TIMEOUT_MILLIS = 5000L
 
         private const val INITIAL_MIN_CHARGE_KWH = 5.0
         private val INITIAL_MIN_CHARGE: Energy = Energy.kilowattHours(INITIAL_MIN_CHARGE_KWH)

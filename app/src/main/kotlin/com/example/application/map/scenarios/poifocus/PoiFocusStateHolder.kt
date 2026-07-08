@@ -19,6 +19,7 @@ package com.example.application.map.scenarios.poifocus
 import androidx.compose.runtime.Stable
 import com.example.application.common.PlaceDetails
 import com.example.application.common.ui.RecenterMapStateHolder
+import com.tomtom.sdk.location.GeoPoint
 import com.tomtom.sdk.map.display.camera.CameraOptions
 
 /**
@@ -26,6 +27,7 @@ import com.tomtom.sdk.map.display.camera.CameraOptions
  *
  * @param recenterMapStateHolder: holder controlling the recenter button visibility and action.
  * @param placeDetails: details of the place currently focused.
+ * @param markerPosition: coordinate for the marker and camera; defaults to [placeDetails] if null.
  * @param onAnimateCamera: callback to animate camera to the POI.
  * @param onClearClick: callback invoked to clear focus and close the panel.
  * @param onRouteButtonClick: callback invoked to start route planning to the POI.
@@ -37,6 +39,7 @@ import com.tomtom.sdk.map.display.camera.CameraOptions
 data class PoiFocusStateHolder(
     val recenterMapStateHolder: RecenterMapStateHolder,
     val placeDetails: PlaceDetails?,
+    val markerPosition: GeoPoint? = null,
     val onAnimateCamera: (CameraOptions) -> Unit,
     val onClearClick: () -> Unit,
     val onRouteButtonClick: () -> Unit,
