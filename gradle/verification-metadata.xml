@@ -512,9 +512,9 @@
             <pgp value="04543577D6A9CC626239C50C7ECBD740FF06AEB5"/>
          </artifact>
       </component>
-      <component group="org.locationtech.jts" name="jts-core" version="1.20.0">
-         <artifact name="jts-core-1.20.0.jar">
-            <pgp value="6EB0DED2F354B5D1DD24006168127E5CB45F41F3"/>
+      <component group="org.locationtech.jts" name="jts-core" version="1.19.0">
+         <artifact name="jts-core-1.19.0.jar">
+            <pgp value="08D1F76BEBA4FB8BA18F2024D5ED0A0BE001E16F"/>
          </artifact>
       </component>
       <component group="org.reactivestreams" name="reactive-streams" version="1.0.4">
