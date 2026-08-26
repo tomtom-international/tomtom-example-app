@@ -35,14 +35,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.R
-import com.example.application.common.TestTags.evSearchResultItem
 import com.example.application.common.name
 import com.example.application.common.powerAvailability
 import com.example.application.search.SearchResultItemContent
@@ -77,7 +75,6 @@ private fun EvSearchResultItem(
     Row(
         verticalAlignment = Alignment.Top,
         modifier = modifier
-            .testTag(evSearchResultItem(item.placeDetails.name))
             .padding(16.dp)
             .clickable(
                 onClick = { onSearchResultClick(item) },

@@ -60,11 +60,8 @@ import com.example.demo.map.manualmapmanagement.ManualMapManagementViewModel.Com
 import com.example.demo.map.manualmapmanagement.ManualMapManagementViewModel.Companion.ON_SET_IS_LOADING_KEY
 import com.example.demo.ui.LoadingOverlay
 import com.tomtom.quantity.Memory
-import com.tomtom.sdk.annotations.BetaNdsStoreApi
-import com.tomtom.sdk.datamanagement.nds.region.BetaNdsStoreRegionUpdaterApi
 import com.tomtom.sdk.datamanagement.nds.region.RegionInstallState
 import com.tomtom.sdk.datamanagement.nds.region.RegionOperation
-import com.tomtom.sdk.datamanagement.nds.update.BetaRegionStoreAliasApi
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.map.display.camera.InitialCameraOptions
 import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
@@ -72,7 +69,6 @@ import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
 private const val CONTACT_SALES_URL =
     "https://www.tomtom.com/contact-sales?source_app=developerportal&source_product=tomtom-sdk-for-android"
 
-@OptIn(BetaNdsStoreApi::class, BetaRegionStoreAliasApi::class, BetaNdsStoreRegionUpdaterApi::class)
 @Composable
 fun ManualMapManagementScreen(
     demoViewModel: DemoViewModel,
@@ -132,7 +128,6 @@ fun ManualMapManagementScreen(
     }
 }
 
-@OptIn(BetaRegionStoreAliasApi::class, BetaNdsStoreRegionUpdaterApi::class)
 @Composable
 private fun BottomPanel(
     isDeviceInLandscape: Boolean,
@@ -259,7 +254,6 @@ private fun BottomPanel(
     }
 }
 
-@OptIn(BetaNdsStoreRegionUpdaterApi::class)
 @Composable
 private fun ColumnScope.OperationInProgressBottomPanelDetails(
     modifier: Modifier = Modifier,
@@ -309,7 +303,6 @@ private fun ColumnScope.OperationInProgressBottomPanelDetails(
     )
 }
 
-@OptIn(BetaNdsStoreRegionUpdaterApi::class)
 @Composable
 private fun ColumnScope.ReadyToDownloadBottomPanelDetails(
     installState: RegionInstallState?,

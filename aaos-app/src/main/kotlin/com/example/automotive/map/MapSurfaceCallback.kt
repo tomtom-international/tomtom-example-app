@@ -31,6 +31,8 @@ import com.example.automotive.map.camera.CameraController
 import com.example.automotive.map.camera.CameraCoordinateCalculator
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.TomTomSdk.sdkContext
+import com.tomtom.sdk.location.GeoPoint
+import com.tomtom.sdk.location.OnLocationUpdateListener
 import com.tomtom.sdk.map.display.MapLocationInfrastructure
 import com.tomtom.sdk.map.display.compose.model.MapDisplayInfrastructure
 import com.tomtom.sdk.map.display.visualization.navigation.NavigationVisualizationDataProvider
@@ -54,6 +56,7 @@ private const val DEFAULT_GESTURE_SENSITIVITY = 2.0
  * @param savedStateRegistryOwner Saved state registry owner for Compose
  * @param viewModelStoreOwner ViewModel store owner for Compose
  * @param routesViewModel ViewModel providing route data for visualization
+ * @param isLocationPermissionGranted Lambda returning true if ACCESS_FINE_LOCATION is granted
  */
 class MapSurfaceCallback(
     private val context: Context,
@@ -61,21 +64,38 @@ class MapSurfaceCallback(
     private val savedStateRegistryOwner: SavedStateRegistryOwner,
     private val viewModelStoreOwner: ViewModelStoreOwner,
     routesViewModel: RoutesViewModel,
+    private val isLocationPermissionGranted: () -> Boolean,
 ) : SurfaceCallback {
     private val presentationManager = ComposePresentationManager(context)
+
+    private val initialCenter: GeoPoint =
+        TomTomSdk.locationProvider.lastKnownLocation?.position ?: TOMTOM_AMSTERDAM_OFFICE
+
     private val cameraController = CameraController(
-        initialCenter = TOMTOM_AMSTERDAM_OFFICE,
+        initialCenter = initialCenter,
         initialZoom = INITIAL_ZOOM,
         minZoom = MIN_ZOOM,
         maxZoom = MAX_ZOOM,
     )
 
+    private var latestUserPosition: GeoPoint? = null
+    private var initialLocationReceived = false
+    private var isLocationProviderEnabled = false
+
+    private val locationListener = OnLocationUpdateListener { location ->
+        latestUserPosition = location.position
+        if (!initialLocationReceived) {
+            initialLocationReceived = true
+            cameraController.animateToUserLocation(location.position)
+        }
+    }
+
     private val navigationInfrastructure = MutableStateFlow(
         NavigationVisualizationInfrastructure(
             routingVisualizationDataProvider = flowOf(
                 RoutingVisualizationDataProvider(
-                    routes = routesViewModel.routes,
-                    selectedRouteId = routesViewModel.selectedRoute.map { it?.id },
+                    routes = routesViewModel.uiState.map { it.routes },
+                    selectedRouteId = routesViewModel.uiState.map { it.selectedRoute?.id },
                 ),
             ),
             navigationVisualizationDataProvider = flowOf(
@@ -92,6 +112,18 @@ class MapSurfaceCallback(
             return
         }
 
+        presentationManager.destroy()
+
+        initialLocationReceived = false
+
+        if (!isLocationProviderEnabled && isLocationPermissionGranted()) {
+            TomTomSdk.locationProvider.enable()
+            TomTomSdk.locationProvider.addOnLocationUpdateListener(locationListener)
+            isLocationProviderEnabled = true
+        } else if (!isLocationPermissionGranted()) {
+            Log.w(TAG, "Location permission not granted — skipping locationProvider.enable()")
+        }
+
         val mapDisplayInfrastructure = createMapDisplayInfrastructure()
         val composeView = createComposeView(mapDisplayInfrastructure)
 
@@ -102,6 +134,9 @@ class MapSurfaceCallback(
     }
 
     override fun onSurfaceDestroyed(surfaceContainer: SurfaceContainer) {
+        TomTomSdk.locationProvider.removeOnLocationUpdateListener(locationListener)
+        TomTomSdk.locationProvider.disable()
+        isLocationProviderEnabled = false
         presentationManager.destroy()
         cameraController.cleanup()
     }
@@ -141,6 +176,14 @@ class MapSurfaceCallback(
         }
     }
 
+    /** Animates the camera back to the user's most recently known location. */
+    fun recenterToUserLocation() {
+        val position = latestUserPosition
+            ?: TomTomSdk.locationProvider.lastKnownLocation?.position
+            ?: return
+        cameraController.animateToUserLocation(position)
+    }
+
     private fun SurfaceContainer.isValid(): Boolean = surface != null && width > 0 && height > 0
 
     private fun createMapDisplayInfrastructure(): MapDisplayInfrastructure =
@@ -160,8 +203,10 @@ class MapSurfaceCallback(
                 MapScreen(
                     mapDisplayInfrastructure = mapDisplayInfrastructure,
                     navigationInfrastructure = navigationInfrastructure,
+                    initialCenter = initialCenter,
                     onMapViewStateReady = { state ->
                         cameraController.initialize(state)
+                        latestUserPosition?.let { cameraController.animateToUserLocation(it) }
                     },
                 )
             }

@@ -26,56 +26,44 @@ import androidx.core.content.ContextCompat
  */
 class PermissionsManager(private val carContext: CarContext) {
     fun checkAndRequestPermissions(onPermissionsGranted: () -> Unit) {
-        val permissionsToRequest = mutableListOf<String>()
+        val permissionsToRequest = getMissingPermissions()
 
-        if (!hasPermission(CAR_INFO_PERMISSION)) {
-            permissionsToRequest.add(CAR_INFO_PERMISSION)
-        }
-        if (!hasPermission(CAR_ENERGY_PERMISSION)) {
-            permissionsToRequest.add(CAR_ENERGY_PERMISSION)
-        }
-        if (!hasPermission(FINE_LOCATION_PERMISSION)) {
-            permissionsToRequest.add(FINE_LOCATION_PERMISSION)
-        }
-        if (!hasPermission(COARSE_LOCATION_PERMISSION)) {
-            permissionsToRequest.add(COARSE_LOCATION_PERMISSION)
-        }
-
-        if (permissionsToRequest.isNotEmpty()) {
-            Log.i(TAG, "Requesting permissions: $permissionsToRequest")
-            carContext.requestPermissions(permissionsToRequest) { approved, rejected ->
-                handlePermissionsResult(approved, rejected, onPermissionsGranted)
-            }
-        } else {
-            Log.d(TAG, "All permissions already granted")
+        if (permissionsToRequest.isEmpty()) {
             onPermissionsGranted()
+            return
+        }
+
+        Log.i(TAG, "Requesting permissions: $permissionsToRequest")
+        try {
+            carContext.requestPermissions(permissionsToRequest) { approved, rejected ->
+                handlePermissionResult(approved, rejected, onPermissionsGranted)
+            }
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "requestPermissions failed: $e")
         }
     }
 
-    private fun hasAllPermissions(): Boolean =
-        hasPermission(CAR_INFO_PERMISSION) && hasPermission(CAR_ENERGY_PERMISSION) &&
-            (hasPermission(FINE_LOCATION_PERMISSION) || hasPermission(COARSE_LOCATION_PERMISSION))
+    private fun getMissingPermissions(): List<String> = ALL_PERMISSIONS.filterNot { hasPermission(it) }
 
-    private fun hasPermission(permission: String): Boolean =
-        ContextCompat.checkSelfPermission(carContext, permission) == PackageManager.PERMISSION_GRANTED
-
-    private fun handlePermissionsResult(
+    private fun handlePermissionResult(
         approved: List<String>,
         rejected: List<String>,
         onPermissionsGranted: () -> Unit,
     ) {
-        if (approved.isNotEmpty()) {
-            Log.i(TAG, "Permissions approved: $approved")
-        }
-        if (rejected.isNotEmpty()) {
-            Log.w(TAG, "Permissions rejected: $rejected")
-        }
-
-        if (hasAllPermissions()) {
+        if (approved.isNotEmpty()) Log.i(TAG, "Approved: $approved")
+        if (rejected.isNotEmpty()) Log.w(TAG, "Rejected: $rejected")
+        if (hasPermission(FINE_LOCATION_PERMISSION)) {
             onPermissionsGranted()
         } else {
-            Log.i(TAG, "Cannot proceed: Required permissions not fully granted")
+            Log.w(TAG, "ACCESS_FINE_LOCATION not granted — cannot proceed")
         }
+    }
+
+    private fun hasPermission(permission: String): Boolean = try {
+        ContextCompat.checkSelfPermission(carContext, permission) == PackageManager.PERMISSION_GRANTED
+    } catch (e: IllegalArgumentException) {
+        Log.w(TAG, "Invalid permission string '$permission': $e")
+        false
     }
 
     companion object {
@@ -84,5 +72,12 @@ class PermissionsManager(private val carContext: CarContext) {
         private const val CAR_ENERGY_PERMISSION = "android.car.permission.CAR_ENERGY"
         private const val FINE_LOCATION_PERMISSION = "android.permission.ACCESS_FINE_LOCATION"
         private const val COARSE_LOCATION_PERMISSION = "android.permission.ACCESS_COARSE_LOCATION"
+
+        private val ALL_PERMISSIONS = listOf(
+            CAR_INFO_PERMISSION,
+            CAR_ENERGY_PERMISSION,
+            FINE_LOCATION_PERMISSION,
+            COARSE_LOCATION_PERMISSION,
+        )
     }
 }

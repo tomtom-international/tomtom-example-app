@@ -46,6 +46,8 @@ data class MapScreenUiState(
 
         object RoutingError : ErrorState()
 
+        object MapStyleError : ErrorState()
+
         object MapManagementError : ErrorState()
     }
 

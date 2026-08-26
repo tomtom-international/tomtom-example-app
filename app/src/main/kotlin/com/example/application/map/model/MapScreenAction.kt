@@ -60,4 +60,6 @@ sealed interface MapScreenAction {
     data class ToggleBottomSheet(val isExpanded: Boolean?) : MapScreenAction
 
     data class ToggleCameraTrackingMode(val checked: Boolean) : MapScreenAction
+
+    object ShowMapStyleFailure : MapScreenAction
 }

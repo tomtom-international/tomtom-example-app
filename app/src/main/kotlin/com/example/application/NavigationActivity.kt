@@ -37,9 +37,7 @@ import androidx.core.content.ContextCompat
 import com.example.R
 import com.example.application.map.MapScreen
 import com.example.application.settings.SettingsActivity
-import com.example.application.settings.data.LocalSettingsRepository
 import com.example.application.ui.theme.NavSdkExampleTheme
-import com.example.dataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -63,7 +61,6 @@ class NavigationActivity : ComponentActivity() {
                     contentWindowInsets = WindowInsets.navigationBars,
                 ) { innerPadding ->
                     MapScreen(
-                        settingsRepository = LocalSettingsRepository(dataStore),
                         modifier = Modifier.padding(innerPadding),
                         onCheckLocationPermission = onCheckLocationPermission,
                         locationRequestGrantedFlow = locationRequestGrantedFlow.asStateFlow(),

@@ -16,14 +16,14 @@ limitations under the License.
 
 package com.example.automotive.carapp
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.car.app.AppManager
 import androidx.car.app.Screen
-import androidx.car.app.ScreenManager
 import androidx.car.app.Session
-import androidx.car.app.model.MessageTemplate
-import androidx.car.app.model.Template
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -35,7 +35,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import com.example.automotive.R
 import com.example.automotive.map.MapSurfaceCallback
 import com.example.automotive.map.RoutesViewModel
 import com.example.automotive.settings.data.model.ConsentLevel
@@ -43,7 +42,6 @@ import com.example.automotive.vehicle.VehicleRepository
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.createRoutePlanner
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -53,8 +51,8 @@ import kotlinx.coroutines.launch
  * @param sdkInitialized StateFlow indicating SDK initialization status
  * @param initializationError StateFlow containing SDK initialization error, null if no error
  * @param consentRequired StateFlow tracking consent state:
- *   null  = DataStore read still in progress,
- *   true  = consent required (first launch),
+ *   null = DataStore read still in progress,
+ *   true = consent required (first launch),
  *   false = consent already stored
  * @param onConsentSelected Callback invoked when the user selects a telemetry consent level
  */
@@ -66,6 +64,7 @@ class CarNavigationSession(
 ) : Session(), SavedStateRegistryOwner, ViewModelStoreOwner, DefaultLifecycleObserver {
     private val appManager: AppManager by lazy { carContext.getCarService(AppManager::class.java) }
     private var surfaceCallbackRegistered = false
+    private var mapSurfaceCallback: MapSurfaceCallback? = null
 
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private val _viewModelStore = ViewModelStore()
@@ -100,53 +99,24 @@ class CarNavigationSession(
     init {
         savedStateRegistryController.performRestore(null)
         lifecycle.addObserver(this)
-
-        lifecycleScope.launch {
-            val required = consentRequired.filterNotNull().first()
-            val screenManager = carContext.getCarService(ScreenManager::class.java)
-            if (required) {
-                screenManager.push(
-                    TelemetryConsentScreen(carContext) { level ->
-                        onConsentSelected(level)
-                        screenManager.push(buildMainScreen())
-                    },
-                )
-            } else {
-                screenManager.push(buildMainScreen())
-            }
-        }
     }
 
     override fun onStart(owner: LifecycleOwner) {
-        if (surfaceCallbackRegistered) return
-        lifecycleScope.launch {
-            // Wait until the SDK is truly initialized (first { it } skips any false emissions).
-            sdkInitialized.first { it }
-            if (!surfaceCallbackRegistered) {
-                Log.d(TAG, "SDK became ready, setting route planner and registering surface callback")
-                routesViewModel.setRoutePlanner(TomTomSdk.createRoutePlanner())
-                ensureSurfaceCallback(routesViewModel)
+        if (!surfaceCallbackRegistered) {
+            lifecycleScope.launch {
+                // Wait until the SDK is truly initialized (first { it } skips any false emissions).
+                sdkInitialized.first { it }
+                if (!surfaceCallbackRegistered) {
+                    Log.d(TAG, "SDK became ready, setting route planner and registering surface callback")
+                    routesViewModel.setRoutePlanner(TomTomSdk.createRoutePlanner())
+                    ensureSurfaceCallback(routesViewModel)
+                }
             }
         }
     }
 
-    override fun onCreateScreen(intent: Intent): Screen {
-        return when (consentRequired.value) {
-            null -> buildLoadingScreen()
-            true -> TelemetryConsentScreen(carContext) { level ->
-                onConsentSelected(level)
-                carContext.getCarService(ScreenManager::class.java).push(buildMainScreen())
-            }
-            false -> buildMainScreen()
-        }
-    }
-
-    private fun buildLoadingScreen(): Screen = object : Screen(carContext) {
-        override fun onGetTemplate(): Template =
-            MessageTemplate.Builder(carContext.getString(R.string.sdk_initializing))
-                .setLoading(true)
-                .build()
-    }
+    override fun onCreateScreen(intent: Intent): Screen =
+        LoadingScreen(carContext, consentRequired, onConsentSelected, ::buildMainScreen)
 
     private fun buildMainScreen(): MainScreen {
         if (sdkInitialized.value) {
@@ -155,22 +125,32 @@ class CarNavigationSession(
         return MainScreen(
             carContext = carContext,
             routesViewModel = routesViewModel,
+            onRecenter = { mapSurfaceCallback?.recenterToUserLocation() },
         )
     }
 
     private fun ensureSurfaceCallback(viewModel: RoutesViewModel) {
         if (!surfaceCallbackRegistered) {
-            appManager.setSurfaceCallback(
-                MapSurfaceCallback(
+            try {
+                mapSurfaceCallback = MapSurfaceCallback(
                     context = carContext,
                     lifecycleOwner = this,
                     savedStateRegistryOwner = this,
                     viewModelStoreOwner = this,
                     routesViewModel = viewModel,
-                ),
-            )
-            surfaceCallbackRegistered = true
-            Log.d(TAG, "SurfaceCallback registered")
+                    isLocationPermissionGranted = {
+                        ContextCompat.checkSelfPermission(
+                            carContext,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                        ) == PackageManager.PERMISSION_GRANTED
+                    },
+                )
+                appManager.setSurfaceCallback(mapSurfaceCallback)
+                surfaceCallbackRegistered = true
+                Log.d(TAG, "SurfaceCallback registered")
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "Could not register SurfaceCallback, host not yet bound: $e")
+            }
         }
     }
 

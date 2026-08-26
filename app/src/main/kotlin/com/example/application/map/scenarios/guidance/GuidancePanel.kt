@@ -115,7 +115,9 @@ fun GuidancePanel(
             }
         },
         rightSideColumn = {
-            Button(onClick = onStopGuidance) {
+            Button(
+                onClick = onStopGuidance,
+            ) {
                 Text(
                     text = stringResource(R.string.guidance_button_exit),
                     style = MaterialTheme.typography.titleMedium,

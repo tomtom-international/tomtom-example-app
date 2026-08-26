@@ -85,6 +85,7 @@ fun BottomSheet(
             scaffoldState = scaffoldState,
             sheetPeekHeight = sheetPeekHeight,
             sheetSwipeEnabled = sheetSwipeEnabled,
+            snackbarHost = {},
             sheetDragHandle = {
                 if (showDragHandle) {
                     BottomSheetDefaults.DragHandle(

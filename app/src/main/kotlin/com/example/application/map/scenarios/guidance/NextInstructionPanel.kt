@@ -50,7 +50,6 @@ import com.tomtom.sdk.routing.route.section.lane.Direction.SHARP_RIGHT
 import com.tomtom.sdk.routing.route.section.lane.Direction.STRAIGHT
 import com.tomtom.sdk.routing.route.section.lane.Lane
 
-@Suppress("detekt:MagicNumber")
 val nextInstructionPanelBackground = Color(0xFF2F598E)
 
 @Composable

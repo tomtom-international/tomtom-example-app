@@ -47,9 +47,10 @@ limitations under the License.
     <string name="demo_manual_map_management_removing">Removing map</string>
     <string name="demo_manual_map_management_subtitle">Download and remove maps manually.</string>
     <string name="demo_manual_map_management_success_download">Map successfully downloaded</string>
-    <string name="demo_manual_map_management_title">Map management - Beta</string>
+    <string name="demo_manual_map_management_title">Map management</string>
     <string name="demo_map_subtitle">Map features</string>
     <string name="demo_map_title">Map</string>
+    <string name="common_error_map_style_loading_failed">Failed to load map style. Please check your internet connection.</string>
     <string name="common_error_message">Error message</string>
     <string name="common_format_two_words_with_space">%1$s %2$s</string>
     <string name="common_speed_unit_kph">km/h</string>

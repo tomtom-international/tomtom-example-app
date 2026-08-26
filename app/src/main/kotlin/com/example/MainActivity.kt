@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -48,6 +49,7 @@ import com.example.MainViewModel.Companion.MAP_ASSET_PATH
 import com.example.application.common.ISO3_GBR
 import com.example.application.common.ISO3_USA
 import com.example.application.map.OnboardMapAssetsExtractor
+import com.example.application.map.TomTomSdkFailureRecoveryHandler
 import com.example.application.settings.data.LocalSettingsRepository
 import com.example.application.ui.theme.NavSdkExampleTheme
 import com.example.demo.getDemoDestinations
@@ -55,12 +57,13 @@ import com.example.onboarding.DeploymentModeScreen
 import com.example.onboarding.MapExtractionFailedDialog
 import com.example.onboarding.PrivacyScreen
 import com.example.onboarding.SplashContent
-import com.tomtom.sdk.annotations.BetaSdkInitializationApi
 import com.tomtom.sdk.common.configuration.buildSdkConfiguration
 import com.tomtom.sdk.common.measures.UnitSystem
 import com.tomtom.sdk.init.TomTomSdk
+import com.tomtom.sdk.logging.common.LogLevel
 import com.tomtom.sdk.navigation.UnitSystemType
 import com.tomtom.sdk.telemetry.UserConsent
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.util.Locale
 
@@ -221,7 +224,6 @@ class MainActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    @OptIn(BetaSdkInitializationApi::class)
     private suspend fun initializeTomTomSdk(
         deploymentMode: DeploymentMode,
         telemetryConsent: suspend () -> UserConsent,
@@ -231,6 +233,11 @@ class MainActivity : ComponentActivity() {
                 context = application,
                 apiKey = BuildConfig.TOMTOM_API_KEY,
                 telemetryUserConsent = telemetryConsent,
+                coreConfiguration = {
+                    loggingConfiguration = {
+                        level = LogLevel.WARN
+                    }
+                },
             )
 
             ONLINE_FIRST -> buildSdkConfiguration(
@@ -238,6 +245,11 @@ class MainActivity : ComponentActivity() {
                 apiKey = BuildConfig.TOMTOM_API_KEY,
                 regionStorePath = viewModel.mapDir,
                 telemetryUserConsent = telemetryConsent,
+                coreConfiguration = {
+                    loggingConfiguration = {
+                        level = LogLevel.WARN
+                    }
+                },
                 regionStoreConfiguration = {
                     keyStorePath = viewModel.ndsKeyStorePath
                 },
@@ -251,6 +263,19 @@ class MainActivity : ComponentActivity() {
                 ISO3_USA -> UnitSystemType.Fixed(UnitSystem.US)
                 ISO3_GBR -> UnitSystemType.Fixed(UnitSystem.UK)
                 else -> UnitSystemType.Fixed(UnitSystem.Metric)
+            }
+        }
+
+        if (deploymentMode == ONLINE_FIRST) {
+            lifecycleScope.launch {
+                TomTomSdk.failures.collect { failure ->
+                    TomTomSdkFailureRecoveryHandler.handleFailure(
+                        failure = failure,
+                        context = application,
+                        mapAsset = MAP_ASSET_PATH,
+                        keystoreAsset = KEYSTORE_ASSET_PATH,
+                    )
+                }
             }
         }
     }

@@ -25,11 +25,8 @@ import com.example.Destination.ChildActivityDestination.ManualMapManagementDesti
 import com.example.DestinationCard
 import com.example.PaddedLazyColumn
 import com.example.R
-import com.tomtom.sdk.annotations.BetaNdsStoreApi
-import com.tomtom.sdk.datamanagement.nds.update.BetaRegionStoreAliasApi
 import com.tomtom.sdk.init.TomTomSdk
 
-@OptIn(BetaNdsStoreApi::class, BetaRegionStoreAliasApi::class)
 @Composable
 fun MapListScreen(
     onNavigateToDestination: (Destination) -> Unit,

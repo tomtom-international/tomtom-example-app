@@ -16,6 +16,8 @@ limitations under the License.
 
 package com.example.automotive.carapp
 
+import com.tomtom.sdk.routing.route.Route
+
 /**
  * UI state for the main screen.
  *
@@ -23,12 +25,16 @@ package com.example.automotive.carapp
  * @param initializationError SDK initialization error message, null if no error
  * @param permissionsGranted Whether required runtime permissions have been granted
  * @param isLoading Whether route planning is in progress
- * @param hasRoutes Whether routes are currently available
+ * @param routes The list of planned routes; empty if no routes are available
+ * @param selectedRoute The currently selected route, or null if none
+ * @param locationEnabled Whether location services are enabled on the device
  */
 data class MainScreenUIState(
     val sdkInitialized: Boolean = false,
     val initializationError: String? = null,
     val permissionsGranted: Boolean = false,
     val isLoading: Boolean = false,
-    val hasRoutes: Boolean = false,
+    val routes: List<Route> = emptyList(),
+    val selectedRoute: Route? = null,
+    val locationEnabled: Boolean = true,
 )

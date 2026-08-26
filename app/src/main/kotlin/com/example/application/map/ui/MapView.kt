@@ -70,8 +70,12 @@ fun MapView(
                 mapCallbacks.onDispatchMapScreenAction(ShowPoiFocus(destination))
             }
         },
-        onMapDoubleClickListener = { mapCallbacks.onDispatchMapScreenAction(StartInteractiveMode) },
-        onMapPanningListener = { mapCallbacks.onDispatchMapScreenAction(StartInteractiveMode) },
+        onMapDoubleClickListener = {
+            mapCallbacks.onDispatchMapScreenAction(StartInteractiveMode)
+        },
+        onMapPanningListener = {
+            mapCallbacks.onDispatchMapScreenAction(StartInteractiveMode)
+        },
     ) {
         Traffic(
             state = rememberTrafficState(

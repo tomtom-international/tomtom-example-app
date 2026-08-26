@@ -30,16 +30,16 @@ import com.tomtom.sdk.routing.RoutingFailure
 import com.tomtom.sdk.routing.buildEvRoutePlanningOptions
 import com.tomtom.sdk.routing.options.ChargingOptions
 import com.tomtom.sdk.routing.options.Itinerary
-import com.tomtom.sdk.routing.route.Route
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
- * Manages EV route planning state and operations.
+ * Manages EV route planning state and operations, and acts as the single source of truth
+ * for all state needed to render MainScreen.
  *
  * @param routePlanner The instance used for route planning operations.
  * @param vehicleRepository Repository for vehicle data.
@@ -49,45 +49,35 @@ import kotlinx.coroutines.flow.stateIn
 class RoutesViewModel(
     private var routePlanner: RoutePlanner?,
     private val vehicleRepository: VehicleRepository,
-    sdkInitialized: StateFlow<Boolean>,
-    initializationError: StateFlow<String?>,
+    private val sdkInitialized: StateFlow<Boolean>,
+    private val initializationError: StateFlow<String?>,
 ) : ViewModel() {
-    private val permissionsGranted = MutableStateFlow(false)
-    private val _routes: MutableStateFlow<List<Route>> = MutableStateFlow(emptyList())
-    val routes: StateFlow<List<Route>> = _routes.asStateFlow()
-
-    private val _selectedRoute = MutableStateFlow<Route?>(null)
-    val selectedRoute: StateFlow<Route?> = _selectedRoute.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    /** Single source of truth for all state needed to render MainScreen. */
-    val uiState: StateFlow<MainScreenUIState> = combine(
-        sdkInitialized,
-        initializationError,
-        permissionsGranted,
-        _isLoading,
-        _routes,
-    ) { sdk, error, perms, loading, routes ->
-        MainScreenUIState(
-            sdkInitialized = sdk,
-            initializationError = error,
-            permissionsGranted = perms,
-            isLoading = loading,
-            hasRoutes = routes.isNotEmpty(),
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = MainScreenUIState(),
-    )
+    private val _uiState = MutableStateFlow(MainScreenUIState())
+    val uiState: StateFlow<MainScreenUIState> = _uiState.asStateFlow()
 
     private var currentRequestCallback: RoutePlanningCallback? = null
 
+    init {
+        viewModelScope.launch {
+            merge(sdkInitialized, initializationError).collect {
+                _uiState.update {
+                    it.copy(
+                        sdkInitialized = sdkInitialized.value,
+                        initializationError = initializationError.value,
+                    )
+                }
+            }
+        }
+    }
+
     /** Sets permissions granted state from the UI layer. */
     fun setPermissionsGranted(granted: Boolean) {
-        permissionsGranted.value = granted
+        _uiState.update { it.copy(permissionsGranted = granted) }
+    }
+
+    /** Sets location enabled state from the UI layer. */
+    fun setLocationEnabled(enabled: Boolean) {
+        _uiState.update { it.copy(locationEnabled = enabled) }
     }
 
     /** Sets the route planner after SDK initialization. */
@@ -98,7 +88,7 @@ class RoutesViewModel(
     /** Plans a sample EV route from Amsterdam to Paris. Does nothing if route planner unavailable. */
     fun planSampleEvRoute() {
         val planner = routePlanner ?: return
-        _isLoading.value = true
+        _uiState.update { it.copy(isLoading = true) }
 
         // Refresh vehicle data to get the latest battery state before planning
         vehicleRepository.configureVehicle()
@@ -108,10 +98,13 @@ class RoutesViewModel(
         val callback = object : RoutePlanningCallback {
             override fun onSuccess(result: RoutePlanningResponse) {
                 if (currentRequestCallback == this) {
-                    val firstRoute = result.routes.firstOrNull()
-                    _routes.value = result.routes
-                    _selectedRoute.value = firstRoute
-                    _isLoading.value = false
+                    _uiState.update {
+                        it.copy(
+                            routes = result.routes,
+                            selectedRoute = result.routes.firstOrNull(),
+                            isLoading = false,
+                        )
+                    }
                     currentRequestCallback = null
                 }
             }
@@ -119,9 +112,13 @@ class RoutesViewModel(
             override fun onFailure(failure: RoutingFailure) {
                 if (currentRequestCallback == this) {
                     Log.e(TAG, "Route planning failed: $failure")
-                    _routes.value = emptyList()
-                    _selectedRoute.value = null
-                    _isLoading.value = false
+                    _uiState.update {
+                        it.copy(
+                            routes = emptyList(),
+                            selectedRoute = null,
+                            isLoading = false,
+                        )
+                    }
                     currentRequestCallback = null
                 }
             }
@@ -132,8 +129,7 @@ class RoutesViewModel(
     }
 
     fun clearRoutes() {
-        _routes.value = emptyList()
-        _selectedRoute.value = null
+        _uiState.update { it.copy(routes = emptyList(), selectedRoute = null) }
     }
 
     override fun onCleared() {

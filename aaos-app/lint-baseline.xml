@@ -15,18 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<issues format="6" by="lint 8.12.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.2)" variant="all" version="8.12.2">
-
-    <issue
-        id="PrivateResource"
-        message="The resource `@array/hosts_allowlist_sample` is marked as private in androidx.car.app:app:1.7.0"
-        errorLine1="                .addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample)"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/example/automotive/NavigationService.kt"
-            line="26"
-            column="59"/>
-    </issue>
+<issues format="6" by="lint 8.13.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.2)" variant="all" version="8.13.2">
 
     <issue
         id="TrustAllX509TrustManager"
@@ -49,7 +38,7 @@ limitations under the License.
         errorLine2="         ~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="79"
+            line="76"
             column="10"/>
     </issue>
 

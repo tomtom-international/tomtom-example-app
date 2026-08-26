@@ -23,6 +23,8 @@ limitations under the License.
     <string name="action_grant_permissions">Grant Permissions</string>
     <string name="sdk_initializing">Initializing…</string>
     <string name="sdk_initialization_error">Failed to initialize TomTom SDK: %1$s</string>
+    <string name="location_disabled_message">Location services are disabled. Please enable location to display the user location.</string>
+    <string name="action_enable_location">Enable Location</string>
     <string name="main_telemetry_dialog_label">Do you want to send Telemetry data?</string>
     <string name="settings_label_telemetry_consent_off">Off</string>
     <string name="settings_label_telemetry_consent_location_only">Location only</string>

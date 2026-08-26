@@ -53,6 +53,23 @@ android {
         buildConfigField("String", "TOMTOM_API_KEY", "\"$tomtomApiKey\"")
     }
 
+    flavorDimensions += listOf("mapDisplay")
+
+    productFlavors {
+        create("standard") {
+            dimension = "mapDisplay"
+            applicationIdSuffix = ".standard"
+            versionNameSuffix = "-standard"
+        }
+
+        create("premium") {
+            dimension = "mapDisplay"
+            applicationIdSuffix = ".premium"
+            versionNameSuffix = "-premium"
+            isDefault = true
+        }
+    }
+
     buildTypes {
         applicationVariants.configureEach {
             val flavorPart = if (productFlavors.isEmpty()) {
@@ -123,12 +140,14 @@ dependencies {
     implementation(libs.tomtomSdk.init)
     implementation(libs.tomtomSdkCommon.configuration)
     implementation(libs.tomtomSdkLocation.provider.default)
-    implementation(libs.tomtomSdkMaps.mapDisplayComposeStandard)
     implementation(libs.tomtomSdkMapsVisualization.visualizationCompose)
     implementation(libs.tomtomSdkRouting.routePlanner)
     implementation(libs.tomtomSdkSearch.reverseGeocoder)
     implementation(libs.tomtomSdkSearch.search)
     implementation(libs.tomtomSdkDatamanagementNds.sampleMap)
+
+    "standardImplementation"(libs.tomtomSdkMaps.mapDisplayComposeStandard)
+    "premiumImplementation"(libs.tomtomSdkMaps.mapDisplayComposePremium)
 
     debugImplementation(libs.androidxComposeUi.testManifest)
     debugImplementation(libs.androidxComposeUi.tooling)

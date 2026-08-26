@@ -35,8 +35,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.example.Destination
 import com.example.Destination.ChildActivityDestination
@@ -108,7 +106,10 @@ private fun DemoScreen(
     destination: Destination?,
     innerPadding: PaddingValues,
 ) {
-    Box(modifier = Modifier.padding(innerPadding).semantics { testTagsAsResourceId = true }) {
+    Box(
+        modifier = Modifier
+            .padding(innerPadding),
+    ) {
         when (destination) {
             is RoutePlanningDestination -> RoutePlanningScreen(demoViewModel = demoViewModel)
             is RoutingWithWaypointsDestination -> RoutingWithWaypointsScreen(demoViewModel = demoViewModel)

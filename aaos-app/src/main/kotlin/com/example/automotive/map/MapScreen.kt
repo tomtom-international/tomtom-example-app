@@ -32,10 +32,14 @@ import com.tomtom.sdk.location.GeoPoint
 import com.tomtom.sdk.map.display.camera.InitialCameraOptions
 import com.tomtom.sdk.map.display.compose.TomTomMap
 import com.tomtom.sdk.map.display.compose.model.MapDisplayInfrastructure
+import com.tomtom.sdk.map.display.compose.nodes.CurrentLocationMarker
 import com.tomtom.sdk.map.display.compose.nodes.Traffic
+import com.tomtom.sdk.map.display.compose.properties.CurrentLocationMarkerProperties
 import com.tomtom.sdk.map.display.compose.state.MapViewState
+import com.tomtom.sdk.map.display.compose.state.rememberCurrentLocationMarkerState
 import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
 import com.tomtom.sdk.map.display.compose.state.rememberTrafficState
+import com.tomtom.sdk.map.display.location.LocationMarkerOptions
 import com.tomtom.sdk.map.display.style.StyleMode
 import com.tomtom.sdk.map.display.visualization.navigation.compose.NavigationVisualization
 import com.tomtom.sdk.map.display.visualization.navigation.compose.model.NavigationVisualizationInfrastructure
@@ -55,12 +59,14 @@ val TOMTOM_AMSTERDAM_OFFICE = GeoPoint(TOMTOM_AMSTERDAM_LATITUDE, TOMTOM_AMSTERD
  *
  * @param mapDisplayInfrastructure Infrastructure for map display
  * @param navigationInfrastructure Flow of navigation visualization infrastructure
+ * @param initialCenter Initial camera center position; defaults to TomTom Amsterdam office
  * @param onMapViewStateReady Callback invoked when MapViewState is ready
  */
 @Composable
 fun MapScreen(
     mapDisplayInfrastructure: MapDisplayInfrastructure,
     navigationInfrastructure: StateFlow<NavigationVisualizationInfrastructure>,
+    initialCenter: GeoPoint = TOMTOM_AMSTERDAM_OFFICE,
     onMapViewStateReady: (MapViewState) -> Unit,
 ) {
     Box(
@@ -71,7 +77,7 @@ fun MapScreen(
     ) {
         val mapViewState = rememberStyledMapViewState(
             initialCameraOptions = InitialCameraOptions.LocationBased(
-                position = TOMTOM_AMSTERDAM_OFFICE,
+                position = initialCenter,
                 zoom = INITIAL_ZOOM,
             ),
         )
@@ -90,6 +96,13 @@ fun MapScreen(
                     showTrafficFlow = false,
                     showTrafficIncidents = true,
                 ),
+            )
+
+            CurrentLocationMarker(
+                properties = CurrentLocationMarkerProperties {
+                    type = LocationMarkerOptions.Type.Chevron
+                },
+                state = rememberCurrentLocationMarkerState(),
             )
 
             val infra = navigationInfrastructure.collectAsState().value

@@ -31,7 +31,6 @@ import com.example.application.map.model.MapScreenAction.ShowPoiCategorySearchRe
 import com.example.application.map.model.MapScreenAction.ShowSearchFailure
 import com.example.application.map.scenarios.freedriving.FreeDrivingManager
 import com.example.application.search.SearchViewModel
-import com.example.application.settings.data.SettingsRepository
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.createReverseGeocoder
 import com.tomtom.sdk.init.createRoutePlanner
@@ -44,10 +43,7 @@ import com.tomtom.sdk.search.common.error.SearchFailure
  * Single place to assemble SDK extras and callbacks so the UI stays free of wiring.
  */
 @Composable
-fun rememberMapScreenViewModels(
-    settingsRepository: SettingsRepository,
-    onCheckLocationPermission: () -> Boolean,
-): MapScreenDependencies {
+fun rememberMapScreenViewModels(onCheckLocationPermission: () -> Boolean): MapScreenDependencies {
     val context = LocalContext.current
 
     val routesViewModel: RoutesViewModel = viewModel(
@@ -61,18 +57,14 @@ fun rememberMapScreenViewModels(
     val mapScreenViewModel: MapScreenViewModel = viewModel(
         factory = MapScreenViewModel.Factory,
         extras = MutableCreationExtras().apply {
-            set(
-                MapScreenViewModel.SDK_CONTEXT,
-                TomTomSdk.sdkContext,
-            )
+            set(MapScreenViewModel.SDK_CONTEXT, TomTomSdk.sdkContext)
             set(MapScreenViewModel.DEFAULT_LOCATION_PROVIDER_KEY, TomTomSdk.locationProvider)
             set(MapScreenViewModel.REVERSE_GEOCODER_KEY, TomTomSdk.createReverseGeocoder())
             set(MapScreenViewModel.NAVIGATION_KEY, TomTomSdk.navigation)
             set(MapScreenViewModel.FREE_DRIVING_MANAGER_KEY, FreeDrivingManager())
-            set(MapScreenViewModel.SETTINGS_REPOSITORY_KEY, settingsRepository)
             set(MapScreenViewModel.ON_CLEAR_MAP_KEY) { routesViewModel.clearRoutes() }
             set(MapScreenViewModel.ON_CHECK_LOCATION_PERMISSION, onCheckLocationPermission)
-            set(MapScreenViewModel.TEXT_TO_SPEECH_ENGINE_KEY, TextToSpeechEngine(context))
+            set(MapScreenViewModel.TEXT_TO_SPEECH_ENGINE_KEY, TextToSpeechEngine(context.applicationContext))
         },
     )
 

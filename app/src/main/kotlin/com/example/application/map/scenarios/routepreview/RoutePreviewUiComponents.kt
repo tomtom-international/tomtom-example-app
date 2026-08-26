@@ -181,7 +181,9 @@ private fun RoutePreviewPanel(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Button(onClick = onDriveButtonClick) {
+                Button(
+                    onClick = onDriveButtonClick,
+                ) {
                     Text(
                         text = stringResource(R.string.route_preview_button_drive),
                         style = MaterialTheme.typography.titleMedium,

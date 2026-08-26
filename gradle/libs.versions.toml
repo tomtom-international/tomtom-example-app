@@ -14,9 +14,9 @@
 
 [versions]
 
-tomtomNavsdk = "2.4.3"
+tomtomNavsdk = "2.5.3"
 
-androidGradlePlugin                                 = "8.12.2"
+androidGradlePlugin                                 = "8.13.2"
 androidxActivity                                    = "1.10.1"
 androidxAppcompat                                   = "1.7.1"
 androidxCarApp                                      = "1.7.0"
@@ -46,6 +46,7 @@ androidxComposeUi                                   = { group = "androidx.compos
 androidxComposeUi-tooling                           = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "androidxCompose" }
 androidxComposeUi-toolingPreview                    = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "androidxCompose" }
 androidxComposeUi-testManifest                      = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "androidxCompose" }
+androidxComposeUi-testJunit4                        = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "androidxCompose" }
 androidxCore-ktx                                    = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidxDatastore-preferences                       = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
 androidxNavigation-compose                          = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigationCompose" }
@@ -54,6 +55,7 @@ kotlinx-serializationJson                           = { group = "org.jetbrains.k
 tomtomSdk-init                                      = { group = "com.tomtom.sdk", name = "init", version.ref = "tomtomNavsdk" }
 tomtomSdkCommon-configuration                       = { group = "com.tomtom.sdk.common", name = "configuration", version.ref = "tomtomNavsdk" }
 tomtomSdkLocation-provider-default                  = { group = "com.tomtom.sdk.location", name = "provider-default", version.ref = "tomtomNavsdk" }
+tomtomSdkMaps-mapDisplayComposePremium              = { group = "com.tomtom.sdk.maps", name = "map-display-compose-premium", version.ref = "tomtomNavsdk" }
 tomtomSdkMaps-mapDisplayComposeStandard             = { group = "com.tomtom.sdk.maps", name = "map-display-compose-standard", version.ref = "tomtomNavsdk" }
 tomtomSdkMapsVisualization-visualizationCompose     = { group = "com.tomtom.sdk.maps.visualization", name = "visualization-compose", version.ref = "tomtomNavsdk" }
 tomtomSdkRouting-routePlanner                       = { group = "com.tomtom.sdk.routing", name = "route-planner", version.ref = "tomtomNavsdk" }

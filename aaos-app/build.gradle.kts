@@ -72,7 +72,7 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
-        kotlinOptions.allWarningsAsErrors = true
+        allWarningsAsErrors = true
     }
 
     ktlint {
@@ -99,6 +99,7 @@ dependencies {
     implementation(libs.tomtomSdkMapsVisualization.visualizationCompose)
     implementation(libs.tomtomSdkMaps.mapDisplayComposeStandard)
     implementation(libs.tomtomSdkDatamanagementNds.sampleMap)
+    implementation(libs.tomtomSdkLocation.provider.default)
 
     implementation(libs.androidxDatastore.preferences)
     implementation(libs.androidxCore.ktx)

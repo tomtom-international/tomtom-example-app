@@ -218,7 +218,6 @@ private val Direction.xOffset: Dp
         else -> 0.dp
     }
 
-@Suppress("detekt:MagicNumber")
 private val simpleLaneGuidancePanelBackground = Color(0xFF2F598E)
 private val lowlightedArrowColor = Color.White.copy(alpha = 0.4f)
 private val lowlightedDividerColor = Color.White.copy(alpha = 0.4f)
@@ -316,7 +315,6 @@ private fun LanesAlignmentPreview() {
     }
 }
 
-@Suppress("detekt:MagicNumber")
 @Preview(showBackground = true)
 @PreviewLightDark
 @Composable

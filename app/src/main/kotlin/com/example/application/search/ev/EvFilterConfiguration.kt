@@ -104,7 +104,6 @@ private fun EvConnectorType.toFilterOption(): ConnectorTypeEvFilterOption = Conn
     connectorType = connectorType,
 )
 
-@Suppress("detekt:MagicNumber")
 val evFilterCategories: Map<EvFilter, EvFilterCategory> = hashMapOf(
     EvFilter.CHARGING_SPEED to EvFilterCategory(
         imageVector = R.drawable.tt_asset_icon_chargeslow_fill_32,

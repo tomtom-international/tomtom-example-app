@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +45,6 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.R
 import com.example.application.common.TOMTOM_AMSTERDAM_OFFICE
-import com.example.application.common.TestTags
 import com.example.application.common.extension.formattedArrivalTime
 import com.example.application.common.extension.formattedDistance
 import com.example.application.common.extension.formattedDuration
@@ -199,7 +197,6 @@ private fun BottomPanel(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.testTag(TestTags.ETA_TEXT),
                 )
             }
 

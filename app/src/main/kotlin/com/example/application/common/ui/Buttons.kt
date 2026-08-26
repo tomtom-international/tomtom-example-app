@@ -53,7 +53,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.R
-import com.example.application.common.TestTags
 import com.example.application.ui.theme.NavSdkExampleTheme
 
 @Composable
@@ -75,7 +74,6 @@ fun TextCheckBox(
         Checkbox(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier.testTag(TestTags.checkbox(text)),
         )
     }
 }
@@ -95,8 +93,7 @@ fun TextRadioButton(
                 onClick = { onOptionSelected(key) },
                 role = Role.RadioButton,
             )
-            .padding(horizontal = 16.dp)
-            .testTag(TestTags.radioButton(text)),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(
@@ -151,7 +148,6 @@ fun MapModeToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier
-            .testTag(TestTags.MAP_MODE_TOGGLE_BUTTON)
             .shadow(
                 elevation = 6.0.dp,
                 shape = CircleShape,
@@ -193,14 +189,17 @@ fun CloseButton(
     modifier: Modifier = Modifier,
     iconTint: Color = MaterialTheme.colorScheme.primary,
     backgroundColor: Color = MaterialTheme.colorScheme.background,
-) = MapIconButton(
-    onClick = onClick,
-    imageVector = Icons.Filled.Close,
-    contentDescription = stringResource(R.string.common_content_description_close),
-    modifier = modifier.testTag(TestTags.CLOSE_BUTTON),
-    iconTint = iconTint,
-    backgroundColor = backgroundColor,
-)
+) {
+    val buttonModifier = modifier
+    MapIconButton(
+        onClick = onClick,
+        imageVector = Icons.Filled.Close,
+        contentDescription = stringResource(R.string.common_content_description_close),
+        modifier = buttonModifier,
+        iconTint = iconTint,
+        backgroundColor = backgroundColor,
+    )
+}
 
 @PreviewLightDark
 @Composable
@@ -219,11 +218,12 @@ fun RecenterMapButton(
     modifier: Modifier = Modifier,
 ) {
     if (stateHolder.isInteractiveMode) {
+        val buttonModifier = modifier
         MapIconButton(
             onClick = stateHolder.onRecenterClick,
             imageVector = ImageVector.vectorResource(R.drawable.tt_asset_icon_recenter_line_32),
             contentDescription = stringResource(id = R.string.common_content_description_center_on_user),
-            modifier = modifier.testTag(TestTags.RECENTER_MAP_BUTTON),
+            modifier = buttonModifier,
             iconTint = MaterialTheme.colorScheme.primary,
         )
     }
@@ -234,11 +234,12 @@ fun SettingsButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val buttonModifier = modifier
     MapIconButton(
         onClick = onClick,
         imageVector = Icons.Default.Settings,
         contentDescription = stringResource(R.string.common_content_description_settings),
-        modifier = modifier.testTag(TestTags.SETTINGS_BUTTON),
+        modifier = buttonModifier,
         iconTint = MaterialTheme.colorScheme.primary,
     )
 }
@@ -284,7 +285,7 @@ fun ArrowDownIconButton(
     onArrowDownIconClicked: () -> Unit = {},
 ) = IconButton(
     onClick = onArrowDownIconClicked,
-    modifier = modifier.testTag(TestTags.ARROW_DOWN_ICON_BUTTON),
+    modifier = modifier,
 ) {
     Icon(
         imageVector = Icons.Default.KeyboardArrowDown,
@@ -309,7 +310,7 @@ fun ClearSearchIconButton(
     onClearSearchIconClicked: () -> Unit = {},
 ) = IconButton(
     onClick = onClearSearchIconClicked,
-    modifier = modifier.testTag(TestTags.CLEAR_SEARCH_ICON_BUTTON),
+    modifier = modifier,
 ) {
     Icon(
         imageVector = Icons.Default.Close,
@@ -337,7 +338,6 @@ fun PoiIconButton(
 ) = IconButton(
     onClick = onClick,
     modifier = modifier
-        .testTag(TestTags.poiIconButton(contentDescription))
         .background(
             color = MaterialTheme.colorScheme.background,
             shape = CircleShape,
@@ -374,7 +374,7 @@ fun CustomIconButton(
     modifier: Modifier = Modifier,
     onIconClick: () -> Unit = {},
     tint: Color = MaterialTheme.colorScheme.primary,
-    testTag: String,
+    testTag: String = "",
 ) = IconButton(
     onClick = onIconClick,
     modifier = modifier.testTag(testTag),

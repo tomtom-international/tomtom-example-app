@@ -31,6 +31,7 @@ import com.example.application.horizon.element.UpcomingHorizonElements
 import com.example.application.map.model.MapScreenAction
 import com.example.application.map.model.MapScreenUiState
 import com.example.application.map.model.MapScreenUiState.ErrorState
+import com.example.application.map.model.MapScreenUiState.ErrorState.MapStyleError
 import com.example.application.map.model.MapScreenUiState.ErrorState.RoutingError
 import com.example.application.map.model.MapScreenUiState.ErrorState.SearchError
 import com.example.application.map.model.Scenario
@@ -43,7 +44,6 @@ import com.example.application.map.scenarios.freedriving.FreeDrivingManager
 import com.example.application.map.scenarios.guidance.NextInstruction
 import com.example.application.map.scenarios.guidance.toManeuverType
 import com.example.application.search.SearchResultItemContent
-import com.example.application.settings.data.SettingsRepository
 import com.tomtom.quantity.Distance
 import com.tomtom.sdk.common.configuration.SdkContext
 import com.tomtom.sdk.location.GeoLocation
@@ -57,6 +57,7 @@ import com.tomtom.sdk.map.display.camera.CameraTrackingMode.Companion.FollowRout
 import com.tomtom.sdk.map.display.camera.CameraTrackingMode.Companion.RouteOverview
 import com.tomtom.sdk.map.display.camera.InitialCameraOptions
 import com.tomtom.sdk.map.display.compose.model.MapDisplayInfrastructure
+import com.tomtom.sdk.navigation.AnnouncementListener
 import com.tomtom.sdk.navigation.DestinationArrivalListener
 import com.tomtom.sdk.navigation.GuidanceUpdatedListener
 import com.tomtom.sdk.navigation.LaneGuidanceUpdatedListener
@@ -64,6 +65,8 @@ import com.tomtom.sdk.navigation.LocationContextUpdatedListener
 import com.tomtom.sdk.navigation.NavigationOptions
 import com.tomtom.sdk.navigation.ProgressUpdatedListener
 import com.tomtom.sdk.navigation.TomTomNavigation
+import com.tomtom.sdk.navigation.announcement.VerbalMessage
+import com.tomtom.sdk.navigation.announcement.WarningAnnouncement
 import com.tomtom.sdk.navigation.guidance.GuidanceAnnouncement
 import com.tomtom.sdk.navigation.guidance.InstructionPhase
 import com.tomtom.sdk.navigation.guidance.LaneGuidance
@@ -90,6 +93,7 @@ import kotlinx.coroutines.launch
 /**
  * Coordinates map screen state, location/camera control, POI data, route preview, and turn-by-turn guidance.
  */
+@Suppress("detekt:LongParameterList")
 class MapScreenViewModel(
     sdkContext: SdkContext,
     private val defaultLocationProvider: LocationProvider,
@@ -187,6 +191,21 @@ class MapScreenViewModel(
         }
     }
 
+    private val announcementListener = AnnouncementListener { announcements ->
+        announcements.forEach { announcement ->
+            if (announcement is WarningAnnouncement) {
+                val message = announcement.message
+                Log.d(TAG, "Announcement type: ${announcement::class.java.simpleName}, message: $message")
+                if (message is VerbalMessage) {
+                    textToSpeechEngine.playMessage(
+                        message = message.plainTextMessage,
+                        onError = { error -> Log.e(TAG, "Error playing announcement: $error") },
+                    )
+                }
+            }
+        }
+    }
+
     private val guidanceUpdatedListener = object : GuidanceUpdatedListener {
         override fun onAnnouncementGenerated(
             announcement: GuidanceAnnouncement,
@@ -234,7 +253,6 @@ class MapScreenViewModel(
         defaultLocationProvider.enable()
     }
 
-    @Suppress("detekt:CyclomaticComplexMethod")
     fun dispatchAction(action: MapScreenAction) {
         when (action) {
             is MapScreenAction.ClearMap -> clearMap()
@@ -281,6 +299,11 @@ class MapScreenViewModel(
             }
 
             is MapScreenAction.ToggleCameraTrackingMode -> toggleCameraTrackingMode()
+
+            is MapScreenAction.ShowMapStyleFailure -> {
+                Log.e(TAG, "Map style loading failed")
+                _errorState.update { MapStyleError }
+            }
         }
     }
 
@@ -430,6 +453,7 @@ class MapScreenViewModel(
 
         toggleBottomSheet(false)
 
+        navigation.addAnnouncementListener(announcementListener)
         navigation.addLocationContextUpdatedListener(locationContextUpdatedListener)
         navigation.addGuidanceUpdatedListener(guidanceUpdatedListener)
         navigation.addProgressUpdatedListener(progressUpdatedListener)
@@ -457,6 +481,7 @@ class MapScreenViewModel(
     }
 
     private fun stopGuidance() {
+        navigation.removeAnnouncementListener(announcementListener)
         navigation.removeLocationContextUpdatedListener(locationContextUpdatedListener)
         navigation.removeProgressUpdatedListener(progressUpdatedListener)
         navigation.removeGuidanceUpdatedListener(guidanceUpdatedListener)
@@ -561,7 +586,7 @@ class MapScreenViewModel(
         val REVERSE_GEOCODER_KEY = object : CreationExtras.Key<ReverseGeocoder> {}
         val NAVIGATION_KEY = object : CreationExtras.Key<TomTomNavigation> {}
         val FREE_DRIVING_MANAGER_KEY = object : CreationExtras.Key<FreeDrivingManager> {}
-        val SETTINGS_REPOSITORY_KEY = object : CreationExtras.Key<SettingsRepository> {}
+
         val ON_CLEAR_MAP_KEY = object : CreationExtras.Key<() -> Unit> {}
         val ON_CHECK_LOCATION_PERMISSION = object : CreationExtras.Key<() -> Boolean> {}
         val TEXT_TO_SPEECH_ENGINE_KEY = object : CreationExtras.Key<TextToSpeechEngine> {}

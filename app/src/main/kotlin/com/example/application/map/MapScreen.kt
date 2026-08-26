@@ -16,6 +16,7 @@ limitations under the License.
 
 package com.example.application.map
 
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,13 +30,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.application.common.MARKERS_ZOOM_PADDING_DP
-import com.example.application.common.TestTags
 import com.example.application.common.ui.ErrorSnackbarHost
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.common.ui.safeAreaStartPadding
@@ -49,17 +46,21 @@ import com.example.application.map.model.ScenarioHolders
 import com.example.application.map.ui.MapView
 import com.example.application.map.ui.ScenarioHost
 import com.example.application.map.ui.rememberScenarioHolders
-import com.example.application.settings.data.SettingsRepository
 import com.tomtom.sdk.map.display.camera.CameraOptions
 import com.tomtom.sdk.map.display.camera.InitialCameraOptions
+import com.tomtom.sdk.map.display.compose.state.MapStyleState
 import com.tomtom.sdk.map.display.compose.state.MapViewState
 import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
 import com.tomtom.sdk.map.display.style.StandardStyles
+import com.tomtom.sdk.map.display.style.StyleDescriptor
 import com.tomtom.sdk.map.display.style.StyleMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.ConnectException
+
+private const val TAG = "MapScreen"
 
 /**
  * Full map host used by the navigation activity.
@@ -67,16 +68,12 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun MapScreen(
-    settingsRepository: SettingsRepository,
     modifier: Modifier = Modifier,
     onCheckLocationPermission: () -> Boolean = { false },
     locationRequestGrantedFlow: StateFlow<Boolean?> = MutableStateFlow(null).asStateFlow(),
     onSettingsClick: () -> Unit,
 ) {
-    val viewModels = rememberMapScreenViewModels(
-        settingsRepository = settingsRepository,
-        onCheckLocationPermission = onCheckLocationPermission,
-    )
+    val viewModels = rememberMapScreenViewModels(onCheckLocationPermission = onCheckLocationPermission)
     val routesViewModel = viewModels.routesViewModel
     val mapScreenViewModel = viewModels.mapScreenViewModel
     val searchViewModel = viewModels.searchViewModel
@@ -116,7 +113,9 @@ fun MapScreen(
     }
 
     LaunchedEffect(cameraOptions) {
-        cameraOptions?.let { mapViewState.cameraState.animateCamera(it) }
+        cameraOptions?.let {
+            mapViewState.cameraState.animateCamera(it)
+        }
     }
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -209,7 +208,11 @@ fun MapScreenContent(
             StandardStyles.TomTomOrbisMaps.BROWSING
         }
 
-        mapEnvironment.mapViewState.styleState.loadStyle(mapStyle)
+        loadMapStyle(
+            styleState = mapEnvironment.mapViewState.styleState,
+            mapStyle = mapStyle,
+            onFailure = { callbacks.onDispatchMapScreenAction(MapScreenAction.ShowMapStyleFailure) },
+        )
     }
 
     LaunchedEffect(mapScreenUiState.zoomToAllMarkers) {
@@ -224,9 +227,7 @@ fun MapScreenContent(
     )
 
     Box(
-        modifier = modifier
-            .semantics { testTagsAsResourceId = true }
-            .testTag(TestTags.MAP_SCREEN),
+        modifier = modifier,
     ) {
         MapView(
             mapEnvironment = mapEnvironment,
@@ -259,5 +260,21 @@ private fun ManageLocationRequestGranted(
         if (locationRequestGranted == true) {
             onLocationRequestGranted()
         }
+    }
+}
+
+internal suspend fun loadMapStyle(
+    styleState: MapStyleState,
+    mapStyle: StyleDescriptor,
+    onFailure: () -> Unit,
+) {
+    try {
+        styleState.loadStyle(mapStyle)
+    } catch (exception: ConnectException) {
+        Log.e(TAG, "Failed to load style", exception)
+        onFailure()
+    } catch (exception: IllegalStateException) {
+        Log.e(TAG, "Failed to load style", exception)
+        onFailure()
     }
 }

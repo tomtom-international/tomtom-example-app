@@ -62,7 +62,8 @@ class CameraController(
     fun syncWithMapState() {
         mapViewState?.cameraState?.data?.let { cameraData ->
             currentCenter = cameraData.position.position
-            currentZoom = cameraData.position.zoom
+            val zoom = cameraData.position.zoom
+            if (zoom > 0) currentZoom = zoom
         }
     }
 
@@ -89,6 +90,15 @@ class CameraController(
                 ),
             )
         }
+    }
+
+    /**
+     * Animates the camera to the user's location at the current zoom level.
+     *
+     * @param position The user's current position
+     */
+    fun animateToUserLocation(position: GeoPoint) {
+        animateCamera(newCenter = position, newZoom = currentZoom)
     }
 
     /**

@@ -26,7 +26,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tomtom.quantity.Distance
 import com.tomtom.quantity.Memory
 import com.tomtom.sdk.common.Result
-import com.tomtom.sdk.datamanagement.nds.region.BetaNdsStoreRegionUpdaterApi
 import com.tomtom.sdk.datamanagement.nds.region.DownloadedRegionDataAction
 import com.tomtom.sdk.datamanagement.nds.region.Region
 import com.tomtom.sdk.datamanagement.nds.region.RegionInfoUpdateListener
@@ -38,7 +37,6 @@ import com.tomtom.sdk.datamanagement.nds.region.RegionState
 import com.tomtom.sdk.datamanagement.nds.region.RegionStateInfo
 import com.tomtom.sdk.datamanagement.nds.region.RegionStructure
 import com.tomtom.sdk.datamanagement.nds.region.RegionUpdater
-import com.tomtom.sdk.datamanagement.nds.update.BetaRegionStoreAliasApi
 import com.tomtom.sdk.datamanagement.nds.update.MapUpdateError
 import com.tomtom.sdk.datamanagement.regionstore.RegionStore
 import com.tomtom.sdk.location.GeoPoint
@@ -49,9 +47,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-private const val MADRID_LATITUDE = 40.4166
-private const val MADRID_LONGITUDE = -3.7000
-private val MADRID = GeoPoint(MADRID_LATITUDE, MADRID_LONGITUDE)
+private val MADRID = GeoPoint(40.4166, -3.7000)
 private const val SEARCH_RADIUS_KILOMETERS = 5.0
 
 enum class OperationState {
@@ -69,7 +65,6 @@ enum class OperationState {
  * [Contact sales](https://www.tomtom.com/contact-sales?source_app=developerportal&source_product=tomtom-sdk-for-android)
  * to get started.
  */
-@OptIn(BetaNdsStoreRegionUpdaterApi::class, BetaRegionStoreAliasApi::class)
 class ManualMapManagementViewModel(
     private val regionStore: RegionStore,
     val onSetIsLoading: (Boolean) -> Unit,

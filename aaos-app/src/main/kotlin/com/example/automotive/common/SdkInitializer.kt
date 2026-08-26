@@ -20,10 +20,8 @@ import android.content.Context
 import android.util.Log
 import com.example.automotive.BuildConfig
 import com.example.automotive.map.OnboardMapAssetsExtractor
-import com.tomtom.sdk.annotations.BetaSdkInitializationApi
 import com.tomtom.sdk.common.configuration.buildSdkConfiguration
 import com.tomtom.sdk.datamanagement.nds.update.BetaNdsStoreUpdateApi
-import com.tomtom.sdk.datamanagement.nds.update.BetaRegionStoreAliasApi
 import com.tomtom.sdk.datamanagement.nds.update.NdsStoreAutomaticUpdatesConfiguration
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.telemetry.UserConsent
@@ -92,7 +90,7 @@ class SdkInitializer(
 
     private fun regionStoreExists() = mapDir.isValidMapDir()
 
-    @OptIn(BetaSdkInitializationApi::class, BetaNdsStoreUpdateApi::class, BetaRegionStoreAliasApi::class)
+    @OptIn(BetaNdsStoreUpdateApi::class)
     private fun initializeTomTomSdk(telemetryConsent: suspend () -> UserConsent) {
         TomTomSdk.initialize(
             context,
