@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -50,7 +52,38 @@ android {
         buildConfigField("String", "TOMTOM_API_KEY", "\"$tomtomApiKey\"")
     }
 
+    flavorDimensions += listOf("mapDisplay")
+
+    productFlavors {
+        create("standard") {
+            dimension = "mapDisplay"
+            applicationIdSuffix = ".standard"
+            versionNameSuffix = "-standard"
+        }
+
+        create("premium") {
+            dimension = "mapDisplay"
+            applicationIdSuffix = ".premium"
+            versionNameSuffix = "-premium"
+            isDefault = true
+        }
+    }
+
     buildTypes {
+        applicationVariants.configureEach {
+            val flavorPart = if (productFlavors.isEmpty()) {
+                ""
+            } else {
+                productFlavors
+                    .filterNot { it.name.contains("public") }
+                    .joinToString("-") { it.name.lowercase() } + "-"
+            }
+            outputs.configureEach {
+                (this as? ApkVariantOutputImpl)?.outputFileName =
+                    "open-source-example-aaos-${flavorPart}${buildType.name}.apk"
+            }
+        }
+
         release {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
@@ -97,7 +130,6 @@ dependencies {
 
     implementation(libs.tomtomSdk.init)
     implementation(libs.tomtomSdkMapsVisualization.visualizationCompose)
-    implementation(libs.tomtomSdkMaps.mapDisplayComposeStandard)
     implementation(libs.tomtomSdkDatamanagementNds.sampleMap)
     implementation(libs.tomtomSdkLocation.provider.default)
 
@@ -109,4 +141,7 @@ dependencies {
     implementation(libs.androidxComposeMaterial3)
     implementation(libs.androidxComposeUi)
     implementation(platform(libs.androidxCompose.bom))
+
+    "standardImplementation"(libs.tomtomSdkMaps.mapDisplayComposeStandard)
+    "premiumImplementation"(libs.tomtomSdkMaps.mapDisplayComposePremium)
 }
