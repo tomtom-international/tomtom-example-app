@@ -18,6 +18,8 @@ package com.example.application.common.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -29,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +49,26 @@ fun FixedHeightBottomSheet(
         sheetSwipeEnabled = false,
         showDragHandle = false,
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FixedHeightDemoBottomSheet(
+    isDeviceInLandscape: Boolean,
+    modifier: Modifier = Modifier,
+    sheetPeekHeight: Dp = BottomSheetDefaults.SheetPeekHeight,
+    contentPadding: PaddingValues = PaddingValues(top = 32.dp, start = 16.dp, end = 16.dp),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    FixedHeightBottomSheet(
+        sheetPeekHeight = sheetPeekHeight,
+        modifier = modifier,
+        isDeviceInLandscape = isDeviceInLandscape,
+    ) {
+        Column(modifier = Modifier.padding(contentPadding)) {
+            content()
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

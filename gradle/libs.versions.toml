@@ -14,7 +14,7 @@
 
 [versions]
 
-tomtomNavsdk = "2.5.5"
+tomtomNavsdk = "2.6.0"
 
 androidGradlePlugin                                 = "8.13.2"
 androidxActivity                                    = "1.10.1"
@@ -26,8 +26,7 @@ androidxCore                                        = "1.16.0"
 androidxDatastore                                   = "1.1.7"
 androidxNavigationCompose                           = "2.8.9"
 junit                                               = "4.13.2"
-kotlin                                              = "1.8.22"
-kotlinCompilerExtensionVersion                      = "1.4.8"
+kotlin                                              = "2.1.21"
 kotlinxCoroutines                                   = "1.7.3"
 kotlinxSerialization                                = "1.5.1"
 ktlint                                              = "14.2.0"
@@ -67,6 +66,7 @@ tomtomSdkDatamanagementNds-sampleMap                = { group = "com.tomtom.sdk.
 
 android-application                                 = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 kotlin-android                                      = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose                                      = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-jvm                                          = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization                                = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 style-ktlint                                        = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }

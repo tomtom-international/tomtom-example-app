@@ -24,12 +24,8 @@ import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
-import androidx.car.app.model.ActionStrip
-import androidx.car.app.model.CarIcon
 import androidx.car.app.model.MessageTemplate
 import androidx.car.app.model.Template
-import androidx.car.app.navigation.model.NavigationTemplate
-import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -37,7 +33,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.automotive.R
 import com.example.automotive.common.permissions.PermissionsManager
-import com.example.automotive.map.RoutesViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -45,25 +40,25 @@ import kotlinx.coroutines.launch
  * Main navigation screen for AAOS application.
  *
  * @param carContext CarContext from Android Automotive framework
- * @param routesViewModel ViewModel for route planning and screen state
+ * @param mainViewModel ViewModel for route planning and screen state
  * @param permissionsManager Manager for runtime permissions
- * @param onRecenter Callback invoked when the user taps the recenter button
  */
 class MainScreen(
     carContext: CarContext,
-    private val routesViewModel: RoutesViewModel,
+    private val mainViewModel: MainViewModel,
     private val permissionsManager: PermissionsManager = PermissionsManager(carContext),
-    private val onRecenter: (() -> Unit)? = null,
 ) : Screen(carContext) {
+    private val navigationTemplateBuilder = NavigationTemplateBuilder(carContext, mainViewModel)
+
     init {
         Log.d(TAG, "Initializing MainScreen")
 
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
-                if (!routesViewModel.uiState.value.permissionsGranted) {
+                if (!mainViewModel.uiState.value.permissionsGranted) {
                     permissionsManager.checkAndRequestPermissions {
                         Log.d(TAG, "Permissions granted")
-                        routesViewModel.setPermissionsGranted(true)
+                        mainViewModel.setPermissionsGranted(true)
                         checkAndReportLocationEnabled()
                     }
                 } else {
@@ -73,7 +68,7 @@ class MainScreen(
         })
 
         lifecycleScope.launch {
-            routesViewModel.uiState
+            mainViewModel.uiState
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .distinctUntilChanged()
                 .collect { invalidate() }
@@ -81,18 +76,8 @@ class MainScreen(
     }
 
     override fun onGetTemplate(): Template {
-        val state = routesViewModel.uiState.value
+        val state = mainViewModel.uiState.value
         return when {
-            state.initializationError != null -> {
-                Log.e(TAG, "Building SDK initialization error template")
-                buildSdkErrorTemplate(state.initializationError)
-            }
-
-            !state.sdkInitialized -> {
-                Log.d(TAG, "Building SDK loading template")
-                buildSdkLoadingTemplate()
-            }
-
             !state.permissionsGranted -> {
                 Log.d(TAG, "Building permissions required template")
                 buildPermissionsRequiredTemplate()
@@ -108,64 +93,15 @@ class MainScreen(
                     TAG,
                     "Building navigation template (loading=${state.isLoading}, hasRoutes=${state.routes.isNotEmpty()})",
                 )
-                buildNavigationTemplate(state)
+                navigationTemplateBuilder.buildNavigationTemplate(state)
             }
         }
     }
 
-    private fun buildNavigationTemplate(state: MainScreenUIState): Template = NavigationTemplate.Builder()
-        .setActionStrip(buildActionStrip(state))
-        .setMapActionStrip(buildMapActionStrip())
-        .build()
-
-    private fun buildActionStrip(state: MainScreenUIState): ActionStrip = ActionStrip.Builder()
-        .addAction(
-            Action.Builder()
-                .setTitle(
-                    when {
-                        state.isLoading -> carContext.getString(R.string.action_plan_route_loading)
-                        state.routes.isNotEmpty() -> carContext.getString(R.string.action_clear_route)
-                        else -> carContext.getString(R.string.action_plan_route)
-                    },
-                )
-                .setOnClickListener {
-                    if (routesViewModel.uiState.value.routes.isNotEmpty()) {
-                        Log.d(TAG, "User clicked: Clear routes")
-                        routesViewModel.clearRoutes()
-                    } else {
-                        Log.d(TAG, "User clicked: Plan route")
-                        routesViewModel.planSampleEvRoute()
-                    }
-                }
-                .setEnabled(!state.isLoading)
-                .build(),
-        )
-        .build()
-
-    private fun buildRecenterButton(): Action = Action.Builder()
-        .setIcon(
-            CarIcon.Builder(
-                IconCompat.createWithResource(
-                    carContext,
-                    R.drawable.tt_asset_icon_recenter_line_32,
-                ),
-            ).build(),
-        )
-        .setOnClickListener {
-            Log.d(TAG, "User clicked: Recenter")
-            onRecenter?.invoke()
-        }
-        .build()
-
-    private fun buildMapActionStrip(): ActionStrip = ActionStrip.Builder()
-        .addAction(Action.Builder(Action.PAN).build())
-        .addAction(buildRecenterButton())
-        .build()
-
     private fun checkAndReportLocationEnabled() {
         try {
             val lm = carContext.getSystemService("location") as? LocationManager
-            lm?.let { routesViewModel.setLocationEnabled(it.isLocationEnabled) }
+            lm?.let { mainViewModel.setLocationEnabled(it.isLocationEnabled) }
         } catch (e: SecurityException) {
             Log.w(TAG, "Could not check location enabled state: $e")
         }
@@ -174,7 +110,7 @@ class MainScreen(
     private fun tryEnableLocationInApp() {
         val lm = carContext.getSystemService(LocationManager::class.java)
         if (lm?.isLocationEnabled == true) {
-            routesViewModel.setLocationEnabled(true)
+            mainViewModel.setLocationEnabled(true)
         } else {
             openLocationSettings()
         }
@@ -192,34 +128,25 @@ class MainScreen(
     }
 
     private fun buildLocationDisabledTemplate(): Template = MessageTemplate.Builder(
-        carContext.getString(R.string.location_disabled_message),
+        carContext.getString(R.string.template_title_location_disabled),
     )
         .addAction(
             Action.Builder()
-                .setTitle(carContext.getString(R.string.action_enable_location))
+                .setTitle(carContext.getString(R.string.template_action_title_enable_location))
                 .setOnClickListener { tryEnableLocationInApp() }
                 .build(),
         )
         .build()
 
-    private fun buildSdkLoadingTemplate(): Template =
-        MessageTemplate.Builder(carContext.getString(R.string.sdk_initializing))
-            .setLoading(true)
-            .build()
-
-    private fun buildSdkErrorTemplate(errorMessage: String): Template =
-        MessageTemplate.Builder(carContext.getString(R.string.sdk_initialization_error, errorMessage))
-            .build()
-
     private fun buildPermissionsRequiredTemplate(): Template = MessageTemplate.Builder(
-        carContext.getString(R.string.permissions_required_message),
+        carContext.getString(R.string.template_title_permissions_required),
     )
         .addAction(
             Action.Builder()
-                .setTitle(carContext.getString(R.string.action_grant_permissions))
+                .setTitle(carContext.getString(R.string.template_action_title_grant_permissions))
                 .setOnClickListener {
                     permissionsManager.checkAndRequestPermissions {
-                        routesViewModel.setPermissionsGranted(true)
+                        mainViewModel.setPermissionsGranted(true)
                     }
                 }
                 .build(),

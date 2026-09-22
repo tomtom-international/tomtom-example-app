@@ -18,12 +18,14 @@ package com.example.demo.routing.routingwithwaypoints
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,7 +33,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,7 +49,7 @@ import com.example.application.common.TOMTOM_AMSTERDAM_OFFICE
 import com.example.application.common.extension.formattedArrivalTime
 import com.example.application.common.extension.formattedDistance
 import com.example.application.common.extension.formattedDuration
-import com.example.application.common.ui.FixedHeightBottomSheet
+import com.example.application.common.ui.FixedHeightDemoBottomSheet
 import com.example.application.common.ui.TextCheckBox
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.map.model.MapScreenUiState.ErrorState.RoutingError
@@ -67,6 +68,8 @@ import com.tomtom.sdk.map.display.style.StyleMode
 import com.tomtom.sdk.map.display.visualization.navigation.compose.NavigationVisualization
 import com.tomtom.sdk.routing.RoutingFailure
 import kotlinx.coroutines.flow.StateFlow
+
+private val BOTTOM_SHEET_PEEK_HEIGHT = 192.dp
 
 @Composable
 fun RoutingWithWaypointsScreen(
@@ -98,6 +101,9 @@ fun RoutingWithWaypointsScreen(
         this.styleState.styleMode = StyleMode.MAIN
     }
 
+    val localDensity = LocalDensity.current
+    val statusBarTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+
     Box(modifier = modifier) {
         DemoMap(
             mapUiState = mapUiState,
@@ -112,7 +118,19 @@ fun RoutingWithWaypointsScreen(
         }
 
         LaunchedEffect(Unit) {
-            demoViewModel.updateSafeAreaTopPadding(0)
+            val topPadding = localDensity.run {
+                statusBarTopPadding.toPx().toInt()
+            }
+            demoViewModel.updateSafeAreaTopPadding(topPadding)
+
+            val bottomPadding = if (isDeviceInLandscape) {
+                0
+            } else {
+                localDensity.run {
+                    BOTTOM_SHEET_PEEK_HEIGHT.toPx().toInt()
+                }
+            }
+            demoViewModel.updateSafeAreaBottomPadding(bottomPadding)
         }
 
         LoadingOverlay(isLoading = mapUiState.isLoading)
@@ -129,9 +147,6 @@ fun RoutingWithWaypointsScreen(
                 isDeviceInLandscape = isDeviceInLandscape,
                 remainingDistance = route.formattedDistance(),
                 remainingDuration = route.formattedDuration(),
-                onSafeAreaBottomPaddingUpdate = { bottomPadding ->
-                    demoViewModel.updateSafeAreaBottomPadding(bottomPadding)
-                },
             )
         }
     }
@@ -150,78 +165,65 @@ private fun BottomPanel(
     modifier: Modifier = Modifier,
     remainingDistance: String? = null,
     remainingDuration: String? = null,
-    onSafeAreaBottomPaddingUpdate: (Int) -> Unit,
 ) {
-    val sheetPeekHeight = remember { 192.dp }
-    val localDensity = LocalDensity.current
-    LaunchedEffect(Unit) {
-        if (isDeviceInLandscape) {
-            onSafeAreaBottomPaddingUpdate(localDensity.run { 0.dp.toPx().toInt() })
-        } else {
-            onSafeAreaBottomPaddingUpdate(localDensity.run { sheetPeekHeight.toPx().toInt() })
-        }
-    }
-
-    FixedHeightBottomSheet(
-        sheetPeekHeight = sheetPeekHeight,
+    FixedHeightDemoBottomSheet(
+        sheetPeekHeight = BOTTOM_SHEET_PEEK_HEIGHT,
         isDeviceInLandscape = isDeviceInLandscape,
         modifier = modifier,
     ) {
-        Column(modifier = Modifier.padding(top = 32.dp, start = 16.dp, end = 16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.tt_asset_graphic_finish_64),
-                    contentDescription = stringResource(id = R.string.common_content_description_arrival_time),
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(4.dp),
-                )
-                Text(
-                    text = eta,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-
-            Row(modifier = Modifier.padding(start = 8.dp)) {
-                Text(
-                    text = remainingDistance ?: "",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    maxLines = 1,
-                )
-                if (remainingDistance != null && remainingDuration != null) {
-                    VerticalDivider(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .height(MaterialTheme.typography.titleMedium.fontSize.value.dp)
-                            .padding(start = 4.dp, end = 4.dp),
-                        thickness = 2.dp,
-                    )
-                }
-                Text(
-                    text = remainingDuration ?: "",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    maxLines = 1,
-                )
-            }
-
-            val isHagueSelected by isHagueSelectedFlow.collectAsStateWithLifecycle()
-            val isUtrechtSelected by isUtrechtSelectedFlow.collectAsStateWithLifecycle()
-            val isDordrechtSelected by isDordrechtSelectedFlow.collectAsStateWithLifecycle()
-
-            WaypointsRow(
-                isHagueSelected = isHagueSelected,
-                isUtrechtSelected = isUtrechtSelected,
-                isDordrechtSelected = isDordrechtSelected,
-                onHagueChange = onHagueChange,
-                onUtrechtChange = onUtrechtChange,
-                onDordrechtChange = onDordrechtChange,
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.tt_asset_graphic_finish_64),
+                contentDescription = stringResource(id = R.string.common_content_description_arrival_time),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(40.dp)
+                    .padding(4.dp),
+            )
+            Text(
+                text = eta,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
+
+        Row(modifier = Modifier.padding(start = 8.dp)) {
+            Text(
+                text = remainingDistance ?: "",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary,
+                maxLines = 1,
+            )
+            if (remainingDistance != null && remainingDuration != null) {
+                VerticalDivider(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .height(MaterialTheme.typography.titleMedium.fontSize.value.dp)
+                        .padding(start = 4.dp, end = 4.dp),
+                    thickness = 2.dp,
+                )
+            }
+            Text(
+                text = remainingDuration ?: "",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary,
+                maxLines = 1,
+            )
+        }
+
+        val isHagueSelected by isHagueSelectedFlow.collectAsStateWithLifecycle()
+        val isUtrechtSelected by isUtrechtSelectedFlow.collectAsStateWithLifecycle()
+        val isDordrechtSelected by isDordrechtSelectedFlow.collectAsStateWithLifecycle()
+
+        WaypointsRow(
+            isHagueSelected = isHagueSelected,
+            isUtrechtSelected = isUtrechtSelected,
+            isDordrechtSelected = isDordrechtSelected,
+            onHagueChange = onHagueChange,
+            onUtrechtChange = onUtrechtChange,
+            onDordrechtChange = onDordrechtChange,
+        )
     }
 }
 

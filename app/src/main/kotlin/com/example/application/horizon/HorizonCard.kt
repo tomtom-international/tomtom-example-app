@@ -157,7 +157,7 @@ private fun createHorizonCardProperties(horizonElement: HorizonElement): Horizon
 @PreviewLightDark
 @Composable
 fun TrafficHorizonCardPreview() {
-    val mockTrafficElement = Traffic(
+    val mockTrafficElement = Traffic.Jam(
         distance = Distance.meters(1200.0),
         element = TrafficElement(
             id = 0,

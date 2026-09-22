@@ -15,10 +15,13 @@ limitations under the License.
 */
 
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.style.ktlint)
 }
 
@@ -87,6 +90,7 @@ android {
         release {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -94,18 +98,18 @@ android {
         }
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtensionVersion.get()
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-        allWarningsAsErrors = true
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+            languageVersion.set(KotlinVersion.KOTLIN_1_8)
+            apiVersion.set(KotlinVersion.KOTLIN_1_8)
+            allWarningsAsErrors.set(true)
+        }
     }
 
     ktlint {
@@ -132,6 +136,7 @@ dependencies {
     implementation(libs.tomtomSdkMapsVisualization.visualizationCompose)
     implementation(libs.tomtomSdkDatamanagementNds.sampleMap)
     implementation(libs.tomtomSdkLocation.provider.default)
+    implementation(libs.tomtomSdkSearch.reverseGeocoder)
 
     implementation(libs.androidxDatastore.preferences)
     implementation(libs.androidxCore.ktx)

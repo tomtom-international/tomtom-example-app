@@ -53,7 +53,7 @@ class DefaultHorizonUpdatedListener(
         latestHorizonPosition = position
         latestSnapshot?.let { snapshot ->
             val traffic = latestTrafficElement?.let {
-                Traffic(
+                Traffic.create(
                     distance = calculateDistanceIfPossible(snapshot, it),
                     element = it,
                 )
@@ -101,7 +101,7 @@ class DefaultHorizonUpdatedListener(
             ?.firstOrNull() as? HazardElement
 
         val traffic = latestTrafficElement?.let { trafficElement ->
-            Traffic(
+            Traffic.create(
                 distance = calculateDistanceIfPossible(snapshot, trafficElement),
                 element = trafficElement,
             )

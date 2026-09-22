@@ -218,7 +218,8 @@ private fun BottomPanel(
             }
 
             when {
-                operationState == OperationState.STARTING -> {
+                operationState == OperationState.STARTING ||
+                    operationState == OperationState.CANCELLING -> {
                     CircularProgressIndicator(
                         modifier = modifier
                             .align(Alignment.CenterHorizontally)
@@ -226,8 +227,7 @@ private fun BottomPanel(
                     )
                 }
 
-                installState == RegionInstallState.PartiallyInstalled &&
-                    operationState == OperationState.IN_PROGRESS -> {
+                operationState == OperationState.IN_PROGRESS -> {
                     OperationInProgressBottomPanelDetails(
                         operationType = operationType,
                         operationProgress = operationProgress,

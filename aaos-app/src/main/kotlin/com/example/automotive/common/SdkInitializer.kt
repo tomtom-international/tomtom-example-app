@@ -92,6 +92,10 @@ class SdkInitializer(
 
     @OptIn(BetaNdsStoreUpdateApi::class)
     private fun initializeTomTomSdk(telemetryConsent: suspend () -> UserConsent) {
+        if (TomTomSdk.isInitialized) {
+            Log.i(TAG, "SDK already initialized, skipping initialization")
+            return
+        }
         TomTomSdk.initialize(
             context,
             buildSdkConfiguration(

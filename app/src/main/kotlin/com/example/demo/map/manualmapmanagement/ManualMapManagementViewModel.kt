@@ -52,7 +52,7 @@ private const val SEARCH_RADIUS_KILOMETERS = 5.0
 
 enum class OperationState {
     STARTING,
-    CANCELLED,
+    CANCELLING,
     IN_PROGRESS,
     COMPLETED,
     FAILED,
@@ -126,13 +126,14 @@ class ManualMapManagementViewModel(
                     _operationState.value = OperationState.IN_PROGRESS
                 }
                 is RegionOperationStatus.Completed -> {
-                    val newState = when (operationStatus.error) {
-                        null -> OperationState.COMPLETED
-                        is MapUpdateError.Canceled -> OperationState.CANCELLED
-                        else -> OperationState.FAILED
+                    when (operationStatus.error) {
+                        null -> _operationState.value = OperationState.COMPLETED
+                        is MapUpdateError.Canceled -> Unit
+                        else -> {
+                            _operationState.value = OperationState.FAILED
+                            onOperationFailed()
+                        }
                     }
-                    _operationState.value = newState
-                    if (newState == OperationState.FAILED) onOperationFailed()
                 }
             }
         }
@@ -179,12 +180,10 @@ class ManualMapManagementViewModel(
     )
 
     fun downloadRegion() {
+        _operationState.value = OperationState.STARTING
         viewModelScope.launch(ioDispatcher) {
             when (val result = regionUpdater.download(listOfNotNull(downloadRegion))) {
-                is Result.Success -> {
-                    _operationState.value = OperationState.STARTING
-                }
-
+                is Result.Success -> Unit
                 is Result.Failure -> {
                     _operationState.value = OperationState.FAILED
                     onOperationFailed()
@@ -195,11 +194,10 @@ class ManualMapManagementViewModel(
     }
 
     fun deleteRegion() {
+        _operationState.value = OperationState.STARTING
         viewModelScope.launch(ioDispatcher) {
             when (val result = regionUpdater.delete(listOfNotNull(downloadRegion))) {
-                is Result.Success -> {
-                    _operationState.value = OperationState.STARTING
-                }
+                is Result.Success -> Unit
                 is Result.Failure -> {
                     _operationState.value = OperationState.FAILED
                     onOperationFailed()
@@ -210,13 +208,14 @@ class ManualMapManagementViewModel(
     }
 
     fun cancelOperation() {
+        _operationState.value = OperationState.CANCELLING
         viewModelScope.launch(ioDispatcher) {
             regionUpdater.cancelOperations(
                 regionIds = setOfNotNull(downloadRegion),
-                action = DownloadedRegionDataAction.Delete,
+                action = DownloadedRegionDataAction.Keep,
             )
             _operationType.value = null
-            _operationState.value = OperationState.CANCELLED
+            _operationState.value = OperationState.COMPLETED
         }
     }
 

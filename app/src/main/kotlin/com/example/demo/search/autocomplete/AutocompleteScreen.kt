@@ -72,7 +72,7 @@ import com.tomtom.sdk.search.model.result.AutocompleteSegment
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Autocomplete demo — provides type-ahead suggestions and resolves a place on selection.
+ * Autocomplete demo. Provides type-ahead suggestions and resolves a place on selection.
  */
 @Composable
 fun AutocompleteScreen(

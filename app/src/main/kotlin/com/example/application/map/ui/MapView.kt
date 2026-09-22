@@ -108,6 +108,7 @@ fun MapView(
                 state = rememberBetterRouteVisualizationState(
                     enabled = true,
                 ),
+                onBetterRouteClicked = { routeId -> mapCallbacks.onSelectRoute(routeId) },
             )
         }
     }

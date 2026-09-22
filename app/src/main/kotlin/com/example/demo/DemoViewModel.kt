@@ -159,10 +159,6 @@ class DemoViewModel(
         _mapUiState.update { it.copy(safeAreaBottomPadding = bottomPadding) }
     }
 
-    fun updateMapStyleUrl(mapStyleUrl: String) {
-        _mapUiState.update { it.copy(mapStyleUrl = mapStyleUrl) }
-    }
-
     fun clearErrorState() {
         _errorState.update { null }
     }

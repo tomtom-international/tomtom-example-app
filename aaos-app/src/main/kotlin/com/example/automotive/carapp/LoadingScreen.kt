@@ -28,6 +28,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.automotive.R
 import com.example.automotive.settings.data.model.ConsentLevel
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -35,9 +36,12 @@ import kotlinx.coroutines.launch
 /**
  * Initial loading screen for AAOS application.
  *
- * Displays a loading spinner while waiting for the consent state to be read from DataStore.
- * On [Lifecycle.Event.ON_CREATE], launches a coroutine that waits for [consentRequired] to emit
- * a non-null value, then navigates to [TelemetryConsentScreen] or [MainScreen] accordingly.
+ * Displays a loading spinner while waiting for the consent state to be read from DataStore and
+ * for the SDK to initialize. On [Lifecycle.Event.ON_CREATE], launches a coroutine that waits for
+ * [consentRequired] to emit a non-null value, shows [TelemetryConsentScreen] if needed, then
+ * suspends until SDK initialization succeeds or fails. Only on success is [buildMainScreen]
+ * invoked, which guarantees [MainViewModel] is never created before the SDK is ready. On failure
+ * this screen renders the initialization error instead.
  *
  * @param carContext CarContext from the Car App Library
  * @param consentRequired StateFlow tracking consent state:
@@ -45,14 +49,21 @@ import kotlinx.coroutines.launch
  *   true = consent required (first launch),
  *   false = consent already stored
  * @param onConsentSelected Callback invoked when the user selects a telemetry consent level
- * @param buildMainScreen Factory lambda that constructs the [MainScreen]
+ * @param sdkInitialized StateFlow indicating SDK initialization status
+ * @param initializationError StateFlow containing SDK initialization error, null if no error
+ * @param buildMainScreen Factory lambda that constructs the [MainScreen]; must only be invoked
+ *   once [sdkInitialized] is true
  */
 class LoadingScreen(
     carContext: CarContext,
     private val consentRequired: StateFlow<Boolean?>,
     private val onConsentSelected: (ConsentLevel) -> Unit,
+    private val sdkInitialized: StateFlow<Boolean>,
+    private val initializationError: StateFlow<String?>,
     private val buildMainScreen: () -> MainScreen,
 ) : Screen(carContext) {
+    private var errorMessage: String? = null
+
     init {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
@@ -63,18 +74,36 @@ class LoadingScreen(
                         screenManager.push(
                             TelemetryConsentScreen(carContext) { level ->
                                 onConsentSelected(level)
-                                screenManager.push(buildMainScreen())
+                                screenManager.pop()
                             },
                         )
-                    } else {
+                    }
+
+                    val (initialized, error) =
+                        combine(sdkInitialized, initializationError) { initialized, error ->
+                            initialized to error
+                        }.first { (initialized, error) -> initialized || error != null }
+
+                    if (initialized) {
                         screenManager.push(buildMainScreen())
+                    } else {
+                        errorMessage = error
+                        invalidate()
                     }
                 }
             }
         })
     }
 
-    override fun onGetTemplate(): Template = MessageTemplate.Builder(carContext.getString(R.string.sdk_initializing))
-        .setLoading(true)
-        .build()
+    override fun onGetTemplate(): Template {
+        return if (errorMessage != null) {
+            MessageTemplate.Builder(
+                carContext.getString(R.string.template_title_sdk_initialization_error, errorMessage),
+            ).build()
+        } else {
+            MessageTemplate.Builder(carContext.getString(R.string.template_title_sdk_initializing))
+                .setLoading(true)
+                .build()
+        }
+    }
 }

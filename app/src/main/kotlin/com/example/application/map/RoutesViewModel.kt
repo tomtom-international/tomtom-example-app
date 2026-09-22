@@ -34,6 +34,7 @@ import com.tomtom.sdk.routing.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.options.Itinerary
 import com.tomtom.sdk.routing.options.RoutePlanningOptions
 import com.tomtom.sdk.routing.route.Route
+import com.tomtom.sdk.routing.route.RouteId
 import com.tomtom.sdk.routing.route.RouteStop
 import com.tomtom.sdk.routing.route.RouteStopId
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +64,7 @@ class RoutesViewModel(
             routingVisualizationDataProvider = flowOf(
                 RoutingVisualizationDataProvider(
                     routes = routes,
-                    selectedRouteId = selectedRoute.map { it?.id },
+                    selectedRouteId = _selectedRoute.map { it?.id },
                 ),
             ),
             navigationVisualizationDataProvider = flowOf(
@@ -74,6 +75,13 @@ class RoutesViewModel(
         ),
     )
     val navigationInfrastructure: StateFlow<NavigationVisualizationInfrastructure> = _navigationInfrastructure
+
+    fun selectRoute(routeId: RouteId) {
+        _routes.value.firstOrNull { it.id == routeId }?.let { route ->
+            _selectedRoute.update { route }
+        }
+        navigation.selectActiveRoute(routeId)
+    }
 
     fun getRouteStop(routeStopId: RouteStopId): RouteStop? {
         return selectedRoute.value?.routeStops?.firstOrNull { it.id == routeStopId }

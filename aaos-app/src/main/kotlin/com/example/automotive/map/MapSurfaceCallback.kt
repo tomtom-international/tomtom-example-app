@@ -16,24 +16,37 @@ limitations under the License.
 
 package com.example.automotive.map
 
-import android.content.Context
+import android.annotation.SuppressLint
+import android.os.Build
+import android.os.SystemClock
 import android.util.Log
+import android.view.MotionEvent
+import android.view.WindowInsets
+import android.view.WindowManager
+import androidx.annotation.RequiresApi
+import androidx.car.app.CarContext
 import androidx.car.app.SurfaceCallback
 import androidx.car.app.SurfaceContainer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.example.automotive.carapp.MainViewModel
 import com.example.automotive.map.camera.CameraController
+import com.example.automotive.map.camera.CameraController.Companion.DEFAULT_POSITION
 import com.example.automotive.map.camera.CameraCoordinateCalculator
 import com.tomtom.sdk.init.TomTomSdk
-import com.tomtom.sdk.init.TomTomSdk.sdkContext
 import com.tomtom.sdk.location.GeoPoint
-import com.tomtom.sdk.location.OnLocationUpdateListener
 import com.tomtom.sdk.map.display.MapLocationInfrastructure
+import com.tomtom.sdk.map.display.camera.CameraOptions
+import com.tomtom.sdk.map.display.camera.CameraTrackingMode
 import com.tomtom.sdk.map.display.compose.model.MapDisplayInfrastructure
 import com.tomtom.sdk.map.display.visualization.navigation.NavigationVisualizationDataProvider
 import com.tomtom.sdk.map.display.visualization.navigation.compose.model.NavigationVisualizationInfrastructure
@@ -42,60 +55,51 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
-private const val INITIAL_ZOOM = 14.0
-private const val MIN_ZOOM = 2.0
-private const val MAX_ZOOM = 20.0
 private const val DEFAULT_GESTURE_SENSITIVITY = 2.0
 
 /**
  * SurfaceCallback that coordinates map display, camera gestures, and navigation visualization
  * using VirtualDisplay and Compose presentation.
  *
- * @param context Android context
+ * @param carContext CarContext for accessing car services
  * @param lifecycleOwner Lifecycle owner for Compose integration
  * @param savedStateRegistryOwner Saved state registry owner for Compose
  * @param viewModelStoreOwner ViewModel store owner for Compose
- * @param routesViewModel ViewModel providing route data for visualization
+ * @param mainViewModel ViewModel providing route data for visualization
  * @param isLocationPermissionGranted Lambda returning true if ACCESS_FINE_LOCATION is granted
  */
 class MapSurfaceCallback(
-    private val context: Context,
+    private val carContext: CarContext,
     private val lifecycleOwner: LifecycleOwner,
     private val savedStateRegistryOwner: SavedStateRegistryOwner,
     private val viewModelStoreOwner: ViewModelStoreOwner,
-    routesViewModel: RoutesViewModel,
+    private val mainViewModel: MainViewModel,
     private val isLocationPermissionGranted: () -> Boolean,
 ) : SurfaceCallback {
-    private val presentationManager = ComposePresentationManager(context)
+    private val presentationManager = ComposePresentationManager(carContext)
 
     private val initialCenter: GeoPoint =
-        TomTomSdk.locationProvider.lastKnownLocation?.position ?: TOMTOM_AMSTERDAM_OFFICE
+        TomTomSdk.locationProvider.lastKnownLocation?.position ?: DEFAULT_POSITION
 
-    private val cameraController = CameraController(
-        initialCenter = initialCenter,
-        initialZoom = INITIAL_ZOOM,
-        minZoom = MIN_ZOOM,
-        maxZoom = MAX_ZOOM,
-    )
+    private val statusBarHeight: Int by lazy { resolveStatusBarHeight() }
+    private val navBarHeight: Int by lazy { resolveNavBarHeight() }
 
-    private var latestUserPosition: GeoPoint? = null
-    private var initialLocationReceived = false
+    private val cameraController = CameraController(initialCenter = initialCenter)
+
     private var isLocationProviderEnabled = false
 
-    private val locationListener = OnLocationUpdateListener { location ->
-        latestUserPosition = location.position
-        if (!initialLocationReceived) {
-            initialLocationReceived = true
-            cameraController.animateToUserLocation(location.position)
-        }
+    private var composeView: ComposeView? = null
+
+    init {
+        mainViewModel.setCameraController(cameraController)
     }
 
     private val navigationInfrastructure = MutableStateFlow(
         NavigationVisualizationInfrastructure(
             routingVisualizationDataProvider = flowOf(
                 RoutingVisualizationDataProvider(
-                    routes = routesViewModel.uiState.map { it.routes },
-                    selectedRouteId = routesViewModel.uiState.map { it.selectedRoute?.id },
+                    routes = mainViewModel.uiState.map { it.routes },
+                    selectedRouteId = mainViewModel.uiState.map { it.selectedRoute?.id },
                 ),
             ),
             navigationVisualizationDataProvider = flowOf(
@@ -114,47 +118,47 @@ class MapSurfaceCallback(
 
         presentationManager.destroy()
 
-        initialLocationReceived = false
-
         if (!isLocationProviderEnabled && isLocationPermissionGranted()) {
             TomTomSdk.locationProvider.enable()
-            TomTomSdk.locationProvider.addOnLocationUpdateListener(locationListener)
             isLocationProviderEnabled = true
         } else if (!isLocationPermissionGranted()) {
             Log.w(TAG, "Location permission not granted — skipping locationProvider.enable()")
         }
 
         val mapDisplayInfrastructure = createMapDisplayInfrastructure()
-        val composeView = createComposeView(mapDisplayInfrastructure)
-
-        presentationManager.create(
-            surfaceContainer = surfaceContainer,
-            composeView = composeView,
-        )
+        composeView = createComposeView(mapDisplayInfrastructure).also {
+            presentationManager.create(
+                surfaceContainer = surfaceContainer,
+                composeView = it,
+            )
+        }
     }
 
     override fun onSurfaceDestroyed(surfaceContainer: SurfaceContainer) {
-        TomTomSdk.locationProvider.removeOnLocationUpdateListener(locationListener)
         TomTomSdk.locationProvider.disable()
         isLocationProviderEnabled = false
         presentationManager.destroy()
-        cameraController.cleanup()
     }
 
     override fun onScroll(
         distanceX: Float,
         distanceY: Float,
     ) {
+        cameraController.setCameraTracking(CameraTrackingMode.None)
         cameraController.syncWithMapState()
 
-        val newCenter = CameraCoordinateCalculator.computePannedCenter(
-            currentCenter = cameraController.currentCenter,
-            currentZoom = cameraController.currentZoom,
-            distanceX = distanceX,
-            distanceY = distanceY,
-        )
+        cameraController.currentCameraOptions.position?.let { currentCenter ->
+            cameraController.currentCameraOptions.zoom?.let { currentZoom ->
+                val newCenter = CameraCoordinateCalculator.computePannedCenter(
+                    currentCenter = currentCenter,
+                    currentZoom = currentZoom,
+                    distanceX = distanceX,
+                    distanceY = distanceY,
+                )
 
-        cameraController.moveCamera(newCenter, cameraController.currentZoom)
+                cameraController.moveCamera(CameraOptions(newCenter, currentZoom))
+            }
+        }
     }
 
     override fun onScale(
@@ -164,6 +168,7 @@ class MapSurfaceCallback(
     ) {
         if (scaleFactor <= 0f) return
 
+        cameraController.setCameraTracking(CameraTrackingMode.None)
         cameraController.syncWithMapState()
 
         val zoomDelta = CameraCoordinateCalculator.scaleFactorToZoomDelta(
@@ -176,41 +181,122 @@ class MapSurfaceCallback(
         }
     }
 
-    /** Animates the camera back to the user's most recently known location. */
-    fun recenterToUserLocation() {
-        val position = latestUserPosition
-            ?: TomTomSdk.locationProvider.lastKnownLocation?.position
-            ?: return
-        cameraController.animateToUserLocation(position)
+    override fun onClick(
+        x: Float,
+        y: Float,
+    ) {
+        val adjustedY = y + statusBarHeight
+        val downTime = SystemClock.uptimeMillis()
+        val motionEventDown = MotionEvent.obtain(
+            downTime,
+            downTime,
+            MotionEvent.ACTION_DOWN,
+            x,
+            adjustedY,
+            0,
+        )
+        composeView?.dispatchTouchEvent(motionEventDown)
+
+        val motionEventUp = MotionEvent.obtain(
+            downTime,
+            SystemClock.uptimeMillis(),
+            MotionEvent.ACTION_UP,
+            x,
+            adjustedY,
+            0,
+        )
+        composeView?.dispatchTouchEvent(motionEventUp)
+
+        motionEventDown.recycle()
+        motionEventUp.recycle()
     }
 
     private fun SurfaceContainer.isValid(): Boolean = surface != null && width > 0 && height > 0
 
     private fun createMapDisplayInfrastructure(): MapDisplayInfrastructure =
-        MapDisplayInfrastructure(sdkContext = sdkContext) {
+        MapDisplayInfrastructure(sdkContext = TomTomSdk.sdkContext) {
             locationInfrastructure = MapLocationInfrastructure {
                 locationProvider = TomTomSdk.locationProvider
             }
         }
 
+    /** Animates the camera to a specific position. */
+    fun animateTo(position: GeoPoint) {
+        cameraController.animateCamera(cameraController.currentCameraOptions.deepCopy(position = position))
+    }
+
     private fun createComposeView(mapDisplayInfrastructure: MapDisplayInfrastructure): ComposeView =
-        ComposeView(context).apply {
+        ComposeView(carContext).apply {
             setViewTreeLifecycleOwner(lifecycleOwner)
             setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
             setViewTreeViewModelStoreOwner(viewModelStoreOwner)
 
             setContent {
                 MapScreen(
+                    carContext = carContext,
                     mapDisplayInfrastructure = mapDisplayInfrastructure,
                     navigationInfrastructure = navigationInfrastructure,
                     initialCenter = initialCenter,
+                    mainViewModel = mainViewModel,
+                    modifier = Modifier.padding(
+                        top = with(LocalDensity.current) { statusBarHeight.toDp() },
+                        bottom = with(LocalDensity.current) { navBarHeight.toDp() },
+                    ),
                     onMapViewStateReady = { state ->
-                        cameraController.initialize(state)
-                        latestUserPosition?.let { cameraController.animateToUserLocation(it) }
+                        cameraController.initialize(state, lifecycleOwner.lifecycleScope)
+                        TomTomSdk.locationProvider.lastKnownLocation?.let { animateTo(it.position) }
                     },
                 )
             }
         }
+
+    private fun resolveStatusBarHeight(): Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        resolveDefaultDisplayInsets().top
+    } else {
+        resolveSystemDimensionPixelSize("status_bar_height")
+    }
+
+    private fun resolveNavBarHeight(): Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        resolveDefaultDisplayInsets().bottom
+    } else {
+        resolveSystemDimensionPixelSize("navigation_bar_height")
+    }
+
+    /**
+     * Returns system bar insets from the default (real) display.
+     *
+     * [CarContext.getSystemService] is scoped to the car app's own
+     * window context which lives on a [android.hardware.display.VirtualDisplay] — its
+     * [WindowManager.currentWindowMetrics] reports zero insets because the virtual display has no
+     * system bars. Using [CarContext.applicationContext] instead gives us a context bound to the
+     * default display, so [WindowManager.currentWindowMetrics] returns the real insets.
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun resolveDefaultDisplayInsets(): android.graphics.Insets {
+        val windowManager = carContext.applicationContext.getSystemService(WindowManager::class.java)
+        return windowManager.currentWindowMetrics.windowInsets
+            .getInsetsIgnoringVisibility(
+                WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars(),
+            )
+    }
+
+    /**
+     * Resolves the pixel size of a system dimension resource by its name.
+     *
+     * We use [android.content.res.Resources.getIdentifier] which is a discouraged API
+     * because it's the only way to resolve system dimensions like "status_bar_height"
+     * and "navigation_bar_height" on Android versions prior to [Build.VERSION_CODES.R]
+     * when using a VirtualDisplay with Compose presentation.
+     * Starting from [Build.VERSION_CODES.R], [resolveDefaultDisplayInsets] should be used instead.
+     *
+     * @param name The name of the system dimension resource to resolve.
+     * @return The pixel size of the resolved dimension resource, or 0 if the resource is not found.
+     */
+    @SuppressLint("DiscouragedApi")
+    private fun resolveSystemDimensionPixelSize(name: String): Int {
+        val resourceId = carContext.resources.getIdentifier(name, "dimen", "android")
+        return if (resourceId > 0) carContext.resources.getDimensionPixelSize(resourceId) else 0
+    }
 
     private companion object {
         const val TAG = "MapSurfaceCallback"

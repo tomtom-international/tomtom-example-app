@@ -51,7 +51,6 @@ import com.tomtom.sdk.map.display.camera.InitialCameraOptions
 import com.tomtom.sdk.map.display.compose.state.MapStyleState
 import com.tomtom.sdk.map.display.compose.state.MapViewState
 import com.tomtom.sdk.map.display.compose.state.rememberMapViewState
-import com.tomtom.sdk.map.display.style.StandardStyles
 import com.tomtom.sdk.map.display.style.StyleDescriptor
 import com.tomtom.sdk.map.display.style.StyleMode
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,6 +90,7 @@ fun MapScreen(
     val mapDisplayInfrastructure by mapScreenViewModel.mapDisplayInfrastructure.collectAsStateWithLifecycle()
     val navigationInfrastructure by routesViewModel.navigationInfrastructure.collectAsStateWithLifecycle()
     val mapScreenUiState by mapScreenViewModel.mapScreenUiState.collectAsStateWithLifecycle()
+    val styleDescriptor by mapScreenViewModel.styleDescriptor.collectAsStateWithLifecycle()
 
     ManageLocationRequestGranted(locationRequestGrantedFlow) {
         mapScreenViewModel.startLocationProvider()
@@ -168,12 +168,13 @@ fun MapScreen(
         callbacks = MapCallbacks(
             onDispatchMapScreenAction = { mapScreenViewModel.dispatchAction(it) },
             onGetRouteStop = { routesViewModel.getRouteStop(it) },
+            onSelectRoute = { routesViewModel.selectRoute(it) },
         ),
         holders = holders,
         snackbarHostState = snackBarHostState,
+        styleDescriptor = styleDescriptor,
         modifier = modifier,
-        onErrorShown = { mapScreenViewModel.clearErrorState() },
-    )
+    ) { mapScreenViewModel.clearErrorState() }
 }
 
 @Composable
@@ -198,19 +199,14 @@ fun MapScreenContent(
     callbacks: MapCallbacks,
     holders: ScenarioHolders,
     snackbarHostState: SnackbarHostState,
+    styleDescriptor: StyleDescriptor,
     modifier: Modifier = Modifier,
     onErrorShown: () -> Unit,
 ) {
-    LaunchedEffect(mapScreenUiState.scenario) {
-        val mapStyle = if (mapScreenUiState.isDrivingScenario()) {
-            StandardStyles.TomTomOrbisMaps.DRIVING
-        } else {
-            StandardStyles.TomTomOrbisMaps.BROWSING
-        }
-
+    LaunchedEffect(styleDescriptor) {
         loadMapStyle(
             styleState = mapEnvironment.mapViewState.styleState,
-            mapStyle = mapStyle,
+            mapStyle = styleDescriptor,
             onFailure = { callbacks.onDispatchMapScreenAction(MapScreenAction.ShowMapStyleFailure) },
         )
     }

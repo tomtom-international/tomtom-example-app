@@ -22,10 +22,13 @@ import androidx.car.app.Session
 import androidx.car.app.SessionInfo
 import androidx.car.app.validation.HostValidator
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.automotive.carapp.cluster.ClusterData
+import com.example.automotive.carapp.cluster.ClusterNavigationSession
 import com.example.automotive.common.HostValidatorFactory
 import com.example.automotive.common.SdkInitializer
 import com.example.automotive.settings.data.LocalSettingsRepository
 import com.example.automotive.settings.data.model.ConsentLevel
+import com.tomtom.sdk.init.TomTomSdk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -55,22 +58,15 @@ class NavigationService : CarAppService() {
      */
     private val consentRequired = MutableStateFlow<Boolean?>(null)
 
+    private val clusterData = ClusterData(
+        isActiveGuidance = MutableStateFlow(false),
+        clusterRoutes = MutableStateFlow(emptyList()),
+        clusterSelectedRoute = MutableStateFlow(null),
+    )
+
     private val sdkInitializer by lazy { SdkInitializer(applicationContext) }
 
     private val settingsRepository by lazy { LocalSettingsRepository(dataStore) }
-
-    override fun onCreate() {
-        super.onCreate()
-        serviceScope.launch {
-            val consentLevel = settingsRepository.settings.first().consentLevel
-            if (consentLevel == null) {
-                consentRequired.value = true
-            } else {
-                consentRequired.value = false
-                initializeSdkAsync()
-            }
-        }
-    }
 
     fun onConsentSelected(level: ConsentLevel) {
         serviceScope.launch {
@@ -80,24 +76,26 @@ class NavigationService : CarAppService() {
         }
     }
 
-    private fun initializeSdkAsync() {
-        serviceScope.launch {
-            try {
-                sdkInitializer.initializeSdk {
-                    settingsRepository.settings.first().consentLevel?.toUserConsent()
-                        ?: ConsentLevel.OFF.toUserConsent()
-                }
-                sdkInitialized.value = true
-            } catch (error: IllegalStateException) {
-                Log.e(TAG, "Failed to initialize SDK: ${error.message}", error)
-                initializationError.value = error.message ?: UNKNOWN_ERROR
-            } catch (error: SecurityException) {
-                Log.e(TAG, "Failed to initialize SDK: ${error.message}", error)
-                initializationError.value = error.message ?: UNKNOWN_ERROR
-            } catch (error: IOException) {
-                Log.e(TAG, "Failed to initialize SDK: ${error.message}", error)
-                initializationError.value = error.message ?: UNKNOWN_ERROR
+    private suspend fun initializeSdkAsync() {
+        if (TomTomSdk.isInitialized) {
+            sdkInitialized.value = true
+            return
+        }
+        try {
+            sdkInitializer.initializeSdk {
+                settingsRepository.settings.first().consentLevel?.toUserConsent()
+                    ?: ConsentLevel.OFF.toUserConsent()
             }
+            sdkInitialized.value = true
+        } catch (error: IllegalStateException) {
+            Log.e(TAG, "Failed to initialize SDK: ${error.message}", error)
+            initializationError.value = error.message ?: UNKNOWN_ERROR
+        } catch (error: SecurityException) {
+            Log.e(TAG, "Failed to initialize SDK: ${error.message}", error)
+            initializationError.value = error.message ?: UNKNOWN_ERROR
+        } catch (error: IOException) {
+            Log.e(TAG, "Failed to initialize SDK: ${error.message}", error)
+            initializationError.value = error.message ?: UNKNOWN_ERROR
         }
     }
 
@@ -106,12 +104,31 @@ class NavigationService : CarAppService() {
     }
 
     override fun onCreateSession(sessionInfo: SessionInfo): Session {
-        return CarNavigationSession(
-            sdkInitialized = sdkInitialized,
-            initializationError = initializationError,
-            consentRequired = consentRequired,
-            onConsentSelected = ::onConsentSelected,
-        )
+        return if (sessionInfo.displayType == SessionInfo.DISPLAY_TYPE_CLUSTER) {
+            Log.d(TAG, "Creating ClusterNavigationSession")
+
+            ClusterNavigationSession(clusterData = clusterData)
+        } else {
+            Log.d(TAG, "Creating CarNavigationSession")
+
+            serviceScope.launch {
+                val consentLevel = settingsRepository.settings.first().consentLevel
+                if (consentLevel == null) {
+                    consentRequired.value = true
+                } else {
+                    consentRequired.value = false
+                    initializeSdkAsync()
+                }
+            }
+
+            CarNavigationSession(
+                sdkInitialized = sdkInitialized,
+                initializationError = initializationError,
+                consentRequired = consentRequired,
+                onConsentSelected = ::onConsentSelected,
+                clusterData = clusterData,
+            )
+        }
     }
 
     override fun onDestroy() {

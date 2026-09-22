@@ -18,41 +18,35 @@ package com.example.automotive.map.camera
 
 import com.tomtom.sdk.location.GeoPoint
 import com.tomtom.sdk.map.display.camera.CameraOptions
+import com.tomtom.sdk.map.display.camera.CameraTrackingMode
 import com.tomtom.sdk.map.display.compose.state.MapViewState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
  * Manages map camera state, animations, and synchronization with MapViewState.
  */
-class CameraController(
-    initialCenter: GeoPoint,
-    initialZoom: Double,
-    private val minZoom: Double = 2.0,
-    private val maxZoom: Double = 20.0,
-) {
+class CameraController(initialCenter: GeoPoint) {
     private var mapViewState: MapViewState? = null
-    private var animationScope: CoroutineScope? = null
+    private var cameraControllerScope: CoroutineScope? = null
 
-    var currentCenter: GeoPoint = initialCenter
-        private set
+    var currentCameraOptions: CameraOptions = CameraOptions(initialCenter, DEFAULT_CAMERA_ZOOM)
 
-    var currentZoom: Double = initialZoom
-        private set
-
-    fun initialize(state: MapViewState) {
+    fun initialize(
+        state: MapViewState,
+        parentScope: CoroutineScope,
+    ) {
         mapViewState = state
+        mapViewState?.cameraState?.trackingMode = CameraTrackingMode.FollowNorthUp
         syncWithMapState()
-        animationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        cameraControllerScope = parentScope
     }
 
-    fun cleanup() {
-        animationScope?.cancel()
-        animationScope = null
-        mapViewState = null
+    /**
+     * Sets the camera tracking mode.
+     */
+    fun setCameraTracking(mode: CameraTrackingMode) {
+        mapViewState?.cameraState?.trackingMode = mode
     }
 
     /**
@@ -61,68 +55,41 @@ class CameraController(
      */
     fun syncWithMapState() {
         mapViewState?.cameraState?.data?.let { cameraData ->
-            currentCenter = cameraData.position.position
-            val zoom = cameraData.position.zoom
-            if (zoom > 0) currentZoom = zoom
+            val position = cameraData.position.position
+            val zoom = if (cameraData.position.zoom > 0) cameraData.position.zoom else currentCameraOptions.zoom
+            val tilt = cameraData.position.tilt
+            val rotation = cameraData.position.rotation
+            currentCameraOptions = CameraOptions(position, zoom, tilt, rotation)
         }
     }
 
     /**
      * Moves the camera to a new position without animation.
      *
-     * @param newCenter New camera center position
-     * @param newZoom New zoom level (will be clamped to min/max range)
+     * @param cameraOptions New camera options
      */
-    fun moveCamera(
-        newCenter: GeoPoint,
-        newZoom: Double,
-    ) {
+    fun moveCamera(cameraOptions: CameraOptions) {
         val state = mapViewState ?: return
 
-        currentCenter = newCenter
-        currentZoom = newZoom.coerceIn(minZoom, maxZoom)
+        currentCameraOptions = cameraOptions
 
-        animationScope?.launch {
-            state.cameraState.moveCamera(
-                CameraOptions(
-                    position = currentCenter,
-                    zoom = currentZoom,
-                ),
-            )
+        cameraControllerScope?.launch {
+            state.cameraState.moveCamera(currentCameraOptions)
         }
-    }
-
-    /**
-     * Animates the camera to the user's location at the current zoom level.
-     *
-     * @param position The user's current position
-     */
-    fun animateToUserLocation(position: GeoPoint) {
-        animateCamera(newCenter = position, newZoom = currentZoom)
     }
 
     /**
      * Animates the camera to a new position with smooth transition.
      *
-     * @param newCenter New camera center position
-     * @param newZoom New zoom level (will be clamped to min/max range)
+     * @param cameraOptions New camera options
      */
-    private fun animateCamera(
-        newCenter: GeoPoint,
-        newZoom: Double,
-    ) {
+    fun animateCamera(cameraOptions: CameraOptions) {
         val state = mapViewState ?: return
 
-        currentCenter = newCenter
-        currentZoom = newZoom.coerceIn(minZoom, maxZoom)
+        currentCameraOptions = cameraOptions
 
-        animationScope?.launch {
-            state.cameraState.animateCamera(
-                CameraOptions(
-                    position = currentCenter,
-                    zoom = currentZoom,
-                ),
-            )
+        cameraControllerScope?.launch {
+            state.cameraState.animateCamera(currentCameraOptions)
         }
     }
 
@@ -136,11 +103,24 @@ class CameraController(
         delta: Double,
         animate: Boolean = true,
     ) {
-        val newZoom = currentZoom + delta
+        val currentZoom =
+            currentCameraOptions.zoom ?: mapViewState?.cameraState?.data?.position?.zoom ?: DEFAULT_CAMERA_ZOOM
+        val newZoom = (currentZoom + delta).coerceIn(MIN_ZOOM, MAX_ZOOM)
         if (animate) {
-            animateCamera(currentCenter, newZoom)
+            animateCamera(currentCameraOptions.deepCopy(zoom = newZoom))
         } else {
-            moveCamera(currentCenter, newZoom)
+            moveCamera(currentCameraOptions.deepCopy(zoom = newZoom))
         }
+    }
+
+    companion object {
+        val DEFAULT_POSITION = GeoPoint(52.3772449, 4.9097159)
+        const val DEFAULT_CAMERA_ZOOM = 12.0
+        const val POI_CAMERA_ZOOM = 14.0
+        const val DEFAULT_TILT = 0.0
+        const val DEFAULT_ROTATION = 0.0
+
+        private const val MIN_ZOOM = 2.0
+        private const val MAX_ZOOM = 20.0
     }
 }

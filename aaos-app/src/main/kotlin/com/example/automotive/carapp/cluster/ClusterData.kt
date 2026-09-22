@@ -14,19 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package com.example.application.map.model
+package com.example.automotive.carapp.cluster
 
-import com.tomtom.sdk.routing.route.RouteId
-import com.tomtom.sdk.routing.route.RouteStop
-import com.tomtom.sdk.routing.route.RouteStopId
+import com.tomtom.sdk.routing.route.Route
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
- * @param onDispatchMapScreenAction: send a MapScreenAction to the screen’s view model.
- * @param onGetRouteStop: resolve a route stop by RouteStopId.
- * @param onSelectRoute: select a route by RouteId.
+ * Class with data shared with the cluster screen.
  */
-data class MapCallbacks(
-    val onDispatchMapScreenAction: (MapScreenAction) -> Unit,
-    val onGetRouteStop: (RouteStopId) -> RouteStop?,
-    val onSelectRoute: (RouteId) -> Unit,
+data class ClusterData(
+    val isActiveGuidance: MutableStateFlow<Boolean>,
+    val clusterRoutes: MutableStateFlow<List<Route>>,
+    val clusterSelectedRoute: MutableStateFlow<Route?>,
 )

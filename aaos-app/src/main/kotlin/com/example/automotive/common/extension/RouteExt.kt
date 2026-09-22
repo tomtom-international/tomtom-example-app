@@ -14,28 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package com.example.application.common.extension
+package com.example.automotive.common.extension
 
-import com.example.application.common.formatDistance
-import com.tomtom.sdk.location.GeoLocation
+import com.example.automotive.common.formatDistance
 import com.tomtom.sdk.navigation.progress.RouteProgress
 import com.tomtom.sdk.routing.route.Route
 import java.time.Instant.now
-import java.time.format.DateTimeFormatter
 
 fun Route.formattedArrivalTime(): String = this.summary.arrivalTime.toInstant().toEpochMilli().asFormattedTime()
-
-fun Route.formattedArrivalTimeWithDate(): String {
-    val time = this.summary.arrivalTime.toInstant().toEpochMilli().asFormattedTime()
-    val date = this.summary.arrivalTime.format(DateTimeFormatter.ofPattern("MMMM d yyyy"))
-    return "$time, $date"
-}
-
-fun Route.formattedDepartureTimeWithDate(): String {
-    val time = this.summary.departureTime.toInstant().toEpochMilli().asFormattedTime()
-    val date = this.summary.departureTime.format(DateTimeFormatter.ofPattern("MMMM d yyyy"))
-    return "$time, $date"
-}
 
 fun RouteProgress.formattedRemainingTime(): String =
     now().plusSeconds(remainingTime.inWholeSeconds).toEpochMilli().asFormattedTime()
@@ -49,9 +35,6 @@ fun Route.formattedDuration(): String? =
 
 fun RouteProgress.formattedDuration(): String? =
     remainingTime.toComponents { days, hours, minutes, _, _ -> formatDuration(days, hours, minutes) }
-
-val Route.locations: List<GeoLocation>
-    get() = legs.flatMap { it.points }.map { GeoLocation(it) }
 
 private fun formatDuration(
     days: Long,

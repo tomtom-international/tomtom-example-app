@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-@file:Suppress("detekt:MatchingDeclarationName")
-
-package com.example.application.common
+package com.example.automotive.common
 
 import com.tomtom.quantity.Distance
 import java.util.Locale
@@ -166,6 +164,9 @@ private enum class MeasurementSystem {
     MILES_AND_YARDS,
 }
 
+private const val ISO3_USA = "USA"
+private const val ISO3_GBR = "GBR"
+private const val ISO3_PRI = "PRI"
 private val COUNTRY_CODES_USING_MILES_AND_YARDS: Set<String> = HashSet(listOf(ISO3_GBR))
 private val COUNTRY_CODES_USING_MILES_AND_FEET: Set<String> = HashSet(listOf(ISO3_USA, ISO3_PRI))
 

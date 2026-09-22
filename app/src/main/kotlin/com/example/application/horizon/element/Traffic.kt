@@ -20,21 +20,80 @@ import com.example.R
 import com.example.application.horizon.element.UpcomingHorizonElements.HorizonElement
 import com.tomtom.quantity.Distance
 import com.tomtom.sdk.navigation.horizon.elements.traffic.TrafficElement
+import com.tomtom.sdk.traffic.common.Category
 
-data class Traffic
-    constructor(
+sealed class Traffic(
+    override val distance: Distance?,
+    open val element: TrafficElement,
+) : HorizonElement(distance) {
+    override val delayMinutes: Long? get() = element.trafficEvent.delay?.inWholeMinutes
+
+    data class Jam(
         override val distance: Distance?,
-        val element: TrafficElement?,
-    ) : HorizonElement(distance) {
+        override val element: TrafficElement,
+    ) : Traffic(distance, element) {
         override val iconResource: Int = R.drawable.tt_asset_icon_jam_fill_48
-
         override val descriptionResource: Int = if ((distance?.inMeters() ?: -1.0) >= 0.0) {
             R.string.horizon_label_traffic_card_description
         } else {
-            R.string.horizon_label_traffic_card_description_without_distance
+            R.string.horizon_label_traffic_card_in_jam_description
         }
-
-        override val fallbackDelayResId: Int = R.string.horizon_label_traffic_delay_unknown
-
-        override val delayMinutes: Long? = element?.trafficEvent?.delay?.inWholeMinutes
     }
+
+    data class RoadClosure(
+        override val distance: Distance?,
+        override val element: TrafficElement,
+    ) : Traffic(distance, element) {
+        override val iconResource: Int = R.drawable.tt_asset_icon_cone_line_32
+        override val descriptionResource: Int = R.string.horizon_label_traffic_card_road_closure_description
+    }
+
+    data class Accident(
+        override val distance: Distance?,
+        override val element: TrafficElement,
+    ) : Traffic(distance, element) {
+        override val iconResource: Int = R.drawable.tt_asset_icon_accident_line_32
+        override val descriptionResource: Int = R.string.horizon_label_traffic_card_accident_description
+    }
+
+    data class RoadWorks(
+        override val distance: Distance?,
+        override val element: TrafficElement,
+    ) : Traffic(distance, element) {
+        override val iconResource: Int = R.drawable.tt_asset_icon_workadded_line_32
+        override val descriptionResource: Int = R.string.horizon_label_traffic_card_road_works_description
+    }
+
+    data class LaneClosed(
+        override val distance: Distance?,
+        override val element: TrafficElement,
+    ) : Traffic(distance, element) {
+        override val iconResource: Int = R.drawable.tt_asset_icon_cone_line_32
+        override val descriptionResource: Int = R.string.horizon_label_traffic_card_lane_closed_description
+    }
+
+    data class Generic(
+        override val distance: Distance?,
+        override val element: TrafficElement,
+    ) : Traffic(distance, element) {
+        override val iconResource: Int = R.drawable.tt_asset_icon_jam_fill_48
+        override val descriptionResource: Int = R.string.horizon_label_traffic_card_description
+    }
+
+    companion object {
+        fun create(
+            distance: Distance?,
+            element: TrafficElement?,
+        ): Traffic? {
+            element ?: return null
+            return when (element.trafficEvent.category) {
+                Category.Jam -> Jam(distance, element)
+                Category.RoadClosure -> RoadClosure(distance, element)
+                Category.Accident -> Accident(distance, element)
+                Category.RoadWorks -> RoadWorks(distance, element)
+                Category.LaneClosed -> LaneClosed(distance, element)
+                else -> Generic(distance, element)
+            }
+        }
+    }
+}

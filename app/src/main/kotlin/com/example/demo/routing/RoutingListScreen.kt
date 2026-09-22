@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.Destination
 import com.example.Destination.ChildActivityDestination.LdevrDestination
 import com.example.Destination.ChildActivityDestination.RoutePlanningDestination
+import com.example.Destination.ChildActivityDestination.RouteWithTimingDestination
 import com.example.Destination.ChildActivityDestination.RoutingWithWaypointsDestination
 import com.example.DestinationCard
 import com.example.PaddedLazyColumn
@@ -58,6 +59,14 @@ fun RoutingListScreen(
                 onClick = { onNavigateToDestination(LdevrDestination) },
                 title = stringResource(R.string.demo_route_ldevr_title),
                 subtitle = stringResource(R.string.demo_route_ldevr_subtitle),
+            )
+        }
+
+        item {
+            DestinationCard(
+                onClick = { onNavigateToDestination(RouteWithTimingDestination) },
+                title = stringResource(R.string.demo_route_timing_title),
+                subtitle = stringResource(R.string.demo_route_timing_subtitle),
             )
         }
     }

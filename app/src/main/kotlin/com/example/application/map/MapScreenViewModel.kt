@@ -57,6 +57,8 @@ import com.tomtom.sdk.map.display.camera.CameraTrackingMode.Companion.FollowRout
 import com.tomtom.sdk.map.display.camera.CameraTrackingMode.Companion.RouteOverview
 import com.tomtom.sdk.map.display.camera.InitialCameraOptions
 import com.tomtom.sdk.map.display.compose.model.MapDisplayInfrastructure
+import com.tomtom.sdk.map.display.style.StandardStyles
+import com.tomtom.sdk.map.display.style.StyleDescriptor
 import com.tomtom.sdk.navigation.AnnouncementListener
 import com.tomtom.sdk.navigation.DestinationArrivalListener
 import com.tomtom.sdk.navigation.GuidanceUpdatedListener
@@ -85,8 +87,12 @@ import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoderResponse
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -118,6 +124,20 @@ class MapScreenViewModel(
     // StateFlow that represents the current state of the map screen.
     private val _mapScreenUiState: MutableStateFlow<MapScreenUiState> = MutableStateFlow(MapScreenUiState(HOME))
     val mapScreenUiState: StateFlow<MapScreenUiState> = _mapScreenUiState.asStateFlow()
+
+    val styleDescriptor: StateFlow<StyleDescriptor> = mapScreenUiState
+        .map { state ->
+            when {
+                state.isDrivingScenario() -> StandardStyles.TomTomOrbisMaps.DRIVING
+                else -> StandardStyles.TomTomOrbisMaps.BROWSING
+            }
+        }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = StandardStyles.TomTomOrbisMaps.BROWSING,
+        )
 
     private val _errorState: MutableStateFlow<ErrorState?> = MutableStateFlow(null)
     val errorState: StateFlow<ErrorState?> = _errorState.asStateFlow()

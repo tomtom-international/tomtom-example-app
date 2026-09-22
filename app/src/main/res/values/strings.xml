@@ -75,6 +75,17 @@ limitations under the License.
     <string name="demo_route_planning_label_types">Route types:</string>
     <string name="demo_route_planning_subtitle">Plan a route with multiple alternatives, filter by route type, or avoid motorways, tolls, and ferries</string>
     <string name="demo_route_planning_title">Route planning</string>
+    <string name="demo_route_timing_title">Plan a route with departure/arrival time</string>
+    <string name="demo_route_timing_subtitle">Plan a route with departure or arrival time constraints</string>
+    <string name="demo_route_timing_car_type_label">Select your car type:</string>
+    <string name="demo_route_timing_car_fuel">Fuel car</string>
+    <string name="demo_route_timing_car_ev">EV car</string>
+    <string name="demo_route_timing_timing_label">Select your arrival/departure preferences:</string>
+    <string name="demo_route_timing_arrive_at">Arrive at</string>
+    <string name="demo_route_timing_depart_at">Departure at</string>
+    <string name="demo_route_timing_stops">Stops: %1$d</string>
+    <string name="demo_route_timing_departure_time">Departure: %1$s</string>
+    <string name="demo_route_timing_select_date_time">Select date &amp; time</string>
     <string name="demo_routing_subtitle">Routing features</string>
     <string name="demo_routing_title">Routing</string>
     <string name="demo_routing_waypoints_title">Routing with waypoints</string>
@@ -157,11 +168,13 @@ limitations under the License.
     <string name="horizon_label_safety_location_card_speed_camera_description">Speed Camera</string>
     <string name="horizon_label_safety_location_card_redlight_description">Red Light Camera</string>
     <string name="horizon_label_traffic_card_description">Traffic</string>
-    <string name="horizon_label_traffic_card_description_without_distance">In Traffic Jam</string>
+    <string name="horizon_label_traffic_card_in_jam_description">In Traffic Jam</string>
+    <string name="horizon_label_traffic_card_road_closure_description">Road Closed</string>
+    <string name="horizon_label_traffic_card_accident_description">Accident</string>
+    <string name="horizon_label_traffic_card_road_works_description">Road Works</string>
+    <string name="horizon_label_traffic_card_lane_closed_description">Lane Closed</string>
     <string name="horizon_label_traffic_delay_under_a_minute">&lt;1 min</string>
     <string name="horizon_label_traffic_delay_minutes">%d min</string>
-
-    <string name="horizon_label_traffic_delay_unknown">Unknown delay</string>
 
     <string name="onboarding_error_install_map_title">Asset installation failed</string>
     <string name="onboarding_error_install_map_message">There was an error installing assets to the disk. The app will now close.</string>

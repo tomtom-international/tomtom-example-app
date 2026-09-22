@@ -16,17 +16,23 @@ limitations under the License.
 
 <resources>
     <string name="app_name">TomTom Android Automotive SDK Example</string>
-    <string name="action_plan_route">Plan route</string>
-    <string name="action_plan_route_loading">Planning…</string>
-    <string name="action_clear_route">Clear</string>
-    <string name="permissions_required_message">This app requires Car and Location permissions to function.</string>
-    <string name="action_grant_permissions">Grant Permissions</string>
-    <string name="sdk_initializing">Initializing…</string>
-    <string name="sdk_initialization_error">Failed to initialize TomTom SDK: %1$s</string>
-    <string name="location_disabled_message">Location services are disabled. Please enable location to display the user location.</string>
-    <string name="action_enable_location">Enable Location</string>
-    <string name="main_telemetry_dialog_label">Do you want to send Telemetry data?</string>
-    <string name="settings_label_telemetry_consent_off">Off</string>
-    <string name="settings_label_telemetry_consent_location_only">Location only</string>
-    <string name="settings_label_telemetry_consent_on">On</string>
+
+    <string name="map_title_destination_arrival">You have arrived!</string>
+
+    <string name="template_action_title_clear">Clear</string>
+    <string name="template_action_title_drive">Drive</string>
+    <string name="template_action_title_enable_location">Enable Location</string>
+    <string name="template_action_title_grant_permissions">Grant Permissions</string>
+    <string name="template_action_title_loading">Planning…</string>
+    <string name="template_action_title_plan_route">Plan route</string>
+
+    <string name="template_label_telemetry_consent_location_only">Location only</string>
+    <string name="template_label_telemetry_consent_off">Off</string>
+    <string name="template_label_telemetry_consent_on">On</string>
+
+    <string name="template_title_location_disabled">Location services are disabled. Please enable location to display the user location.</string>
+    <string name="template_title_permissions_required">This app requires Car and Location permissions to function.</string>
+    <string name="template_title_send_telemetry">Do you want to send Telemetry data?</string>
+    <string name="template_title_sdk_initializing">Initializing…</string>
+    <string name="template_title_sdk_initialization_error">Failed to initialize TomTom SDK: %1$s</string>
 </resources>

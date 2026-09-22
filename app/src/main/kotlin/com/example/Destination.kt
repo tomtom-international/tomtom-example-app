@@ -37,6 +37,9 @@ sealed interface Destination {
         object LdevrDestination : ChildActivityDestination(DemoActivity::class.java.name)
 
         @Serializable
+        object RouteWithTimingDestination : ChildActivityDestination(DemoActivity::class.java.name)
+
+        @Serializable
         object EvSearchDestination : ChildActivityDestination(DemoActivity::class.java.name)
 
         @Serializable

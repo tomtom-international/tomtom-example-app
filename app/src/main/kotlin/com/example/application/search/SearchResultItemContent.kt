@@ -21,6 +21,7 @@ import com.example.R
 import com.example.application.common.PlaceDetails
 import com.example.application.common.formatDistance
 import com.tomtom.sdk.location.GeoPoint
+import com.tomtom.sdk.location.Place
 import com.tomtom.sdk.search.model.result.EvSearchResult
 import com.tomtom.sdk.search.model.result.SearchResult
 
@@ -31,13 +32,23 @@ data class SearchResultItemContent(
 )
 
 fun SearchResult.toSearchResultItemContent() = SearchResultItemContent(
-    iconId = place.details?.let { getPoiIcon(it.categoryIds.elementAt(0).standard) } ?: R.drawable.location_on_24px,
+    iconId = place.details?.let {
+        getPoiIcon(it.categoryIds.firstOrNull()?.standard)
+    } ?: R.drawable.location_on_24px,
     placeDetails = PlaceDetails(place),
     distance = distance?.let { formatDistance(it) } ?: "",
 )
 
 fun EvSearchResult.toSearchResultItemContent(geoBias: GeoPoint? = null) = SearchResultItemContent(
-    iconId = getPoiIcon(place.details?.categoryIds?.elementAt(0)?.standard),
+    iconId = getPoiIcon(place.details?.categoryIds?.firstOrNull()?.standard),
     placeDetails = PlaceDetails(place, accessType, nearbyPoiCategories),
     distance = geoBias?.let { formatDistance(place.coordinate.distanceTo(it)) } ?: "",
+)
+
+fun Place.toSearchResultItemContent() = SearchResultItemContent(
+    iconId = details?.let {
+        getPoiIcon(it.categoryIds.firstOrNull()?.standard)
+    } ?: R.drawable.location_on_24px,
+    placeDetails = PlaceDetails(this),
+    distance = "",
 )

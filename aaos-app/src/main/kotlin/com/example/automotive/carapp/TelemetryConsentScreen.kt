@@ -41,19 +41,19 @@ class TelemetryConsentScreen(
         val itemList = ItemList.Builder()
             .addItem(
                 Row.Builder()
-                    .setTitle(carContext.getString(R.string.settings_label_telemetry_consent_off))
+                    .setTitle(carContext.getString(R.string.template_label_telemetry_consent_off))
                     .setOnClickListener { onConsentSelected(ConsentLevel.OFF) }
                     .build(),
             )
             .addItem(
                 Row.Builder()
-                    .setTitle(carContext.getString(R.string.settings_label_telemetry_consent_location_only))
+                    .setTitle(carContext.getString(R.string.template_label_telemetry_consent_location_only))
                     .setOnClickListener { onConsentSelected(ConsentLevel.LOCATION_ONLY) }
                     .build(),
             )
             .addItem(
                 Row.Builder()
-                    .setTitle(carContext.getString(R.string.settings_label_telemetry_consent_on))
+                    .setTitle(carContext.getString(R.string.template_label_telemetry_consent_on))
                     .setOnClickListener { onConsentSelected(ConsentLevel.ON) }
                     .build(),
             )
@@ -62,7 +62,7 @@ class TelemetryConsentScreen(
         return ListTemplate.Builder()
             .setHeader(
                 Header.Builder()
-                    .setTitle(carContext.getString(R.string.main_telemetry_dialog_label))
+                    .setTitle(carContext.getString(R.string.template_title_send_telemetry))
                     .build(),
             )
             .setSingleList(itemList)

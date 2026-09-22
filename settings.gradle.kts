@@ -59,6 +59,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Navigation Example"
+rootProject.name = "navigation-example"
 include(":aaos-app")
 include(":app")

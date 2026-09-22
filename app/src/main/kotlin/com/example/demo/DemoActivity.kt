@@ -44,6 +44,7 @@ import com.example.Destination.ChildActivityDestination.ManualMapManagementDesti
 import com.example.Destination.ChildActivityDestination.PoiAlongRouteDestination
 import com.example.Destination.ChildActivityDestination.PoiSearchAreaDestination
 import com.example.Destination.ChildActivityDestination.RoutePlanningDestination
+import com.example.Destination.ChildActivityDestination.RouteWithTimingDestination
 import com.example.Destination.ChildActivityDestination.RoutingWithWaypointsDestination
 import com.example.MainActivity.Companion.DESTINATION_KEY
 import com.example.application.common.MARKERS_ZOOM_PADDING_DP
@@ -52,6 +53,7 @@ import com.example.application.common.ui.safeAreaStartPadding
 import com.example.application.ui.theme.NavSdkExampleTheme
 import com.example.demo.map.manualmapmanagement.ManualMapManagementScreen
 import com.example.demo.routing.routeplanning.RoutePlanningScreen
+import com.example.demo.routing.routewithtiming.RouteWithTimingScreen
 import com.example.demo.routing.routingwithwaypoints.RoutingWithWaypointsScreen
 import com.example.demo.search.area.PoiSearchAreaScreen
 import com.example.demo.search.autocomplete.AutocompleteScreen
@@ -113,6 +115,7 @@ private fun DemoScreen(
         when (destination) {
             is RoutePlanningDestination -> RoutePlanningScreen(demoViewModel = demoViewModel)
             is RoutingWithWaypointsDestination -> RoutingWithWaypointsScreen(demoViewModel = demoViewModel)
+            is RouteWithTimingDestination -> RouteWithTimingScreen(demoViewModel = demoViewModel)
             is EvSearchDestination -> EvSearchScreen(demoViewModel = demoViewModel)
             is PoiAlongRouteDestination -> PoiAlongRouteScreen(demoViewModel = demoViewModel)
             is AutocompleteDestination -> AutocompleteScreen(demoViewModel = demoViewModel)
@@ -155,6 +158,7 @@ fun DemoMap(
         mapViewState.gestureState.config = GesturesConfig {
             isScrollEnabled = false
             isZoomEnabled = false
+            isRotationEnabled = false
         }
     }
 
@@ -180,6 +184,5 @@ data class DemoMapUiState(
     val isLoading: Boolean = false,
     val safeAreaTopPadding: Int = 0,
     val safeAreaBottomPadding: Int = 0,
-    val mapStyleUrl: String? = null,
     val cameraTrackingMode: CameraTrackingMode = CameraTrackingMode.None,
 )
