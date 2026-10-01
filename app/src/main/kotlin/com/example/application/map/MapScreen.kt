@@ -42,6 +42,7 @@ import com.example.application.map.model.MapEnvironment
 import com.example.application.map.model.MapScreenAction
 import com.example.application.map.model.MapScreenUiState
 import com.example.application.map.model.MapScreenUiState.ErrorState
+import com.example.application.map.model.MapStyleFailureCause
 import com.example.application.map.model.ScenarioHolders
 import com.example.application.map.ui.MapView
 import com.example.application.map.ui.ScenarioHost
@@ -58,6 +59,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.net.ConnectException
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val TAG = "MapScreen"
 
@@ -207,7 +209,7 @@ fun MapScreenContent(
         loadMapStyle(
             styleState = mapEnvironment.mapViewState.styleState,
             mapStyle = styleDescriptor,
-            onFailure = { callbacks.onDispatchMapScreenAction(MapScreenAction.ShowMapStyleFailure) },
+            onFailure = { cause -> callbacks.onDispatchMapScreenAction(MapScreenAction.ShowMapStyleFailure(cause)) },
         )
     }
 
@@ -259,18 +261,28 @@ private fun ManageLocationRequestGranted(
     }
 }
 
+/**
+ * Loads [mapStyle] and reports why it failed. [MapStyleState.loadStyle] throws [ConnectException] for a transport
+ * or HTTP error and [IllegalStateException] for anything else.
+ *
+ * @param styleState the style state of the map to load into.
+ * @param mapStyle the style to load.
+ * @param onFailure invoked with the cause when the style could not be loaded.
+ */
 internal suspend fun loadMapStyle(
     styleState: MapStyleState,
     mapStyle: StyleDescriptor,
-    onFailure: () -> Unit,
+    onFailure: (MapStyleFailureCause) -> Unit,
 ) {
     try {
         styleState.loadStyle(mapStyle)
+    } catch (exception: CancellationException) {
+        throw exception
     } catch (exception: ConnectException) {
         Log.e(TAG, "Failed to load style", exception)
-        onFailure()
+        onFailure(MapStyleFailureCause.NETWORK)
     } catch (exception: IllegalStateException) {
         Log.e(TAG, "Failed to load style", exception)
-        onFailure()
+        onFailure(MapStyleFailureCause.INTERNAL)
     }
 }

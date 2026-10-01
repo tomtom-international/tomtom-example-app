@@ -40,6 +40,7 @@ import com.example.application.map.model.MapScreenUiState.ErrorState.MapManageme
 import com.example.application.map.model.MapScreenUiState.ErrorState.MapStyleError
 import com.example.application.map.model.MapScreenUiState.ErrorState.RoutingError
 import com.example.application.map.model.MapScreenUiState.ErrorState.SearchError
+import com.example.application.map.model.MapStyleFailureCause
 import com.example.application.ui.theme.NavSdkExampleTheme
 import kotlinx.coroutines.flow.StateFlow
 
@@ -97,7 +98,10 @@ private fun ErrorStateListener(
         val message = when (error) {
             is SearchError -> stringResource(R.string.search_error_failed)
             is RoutingError -> stringResource(R.string.navigation_error_routing_failed)
-            is MapStyleError -> stringResource(R.string.common_error_map_style_loading_failed)
+            is MapStyleError -> when (error.cause) {
+                MapStyleFailureCause.NETWORK -> stringResource(R.string.common_error_map_style_loading_failed)
+                MapStyleFailureCause.INTERNAL -> stringResource(R.string.common_error_map_style_loading_internal)
+            }
             is MapManagementError -> stringResource(R.string.demo_manual_map_management_operation_error)
         }
         LaunchedEffect(error) {

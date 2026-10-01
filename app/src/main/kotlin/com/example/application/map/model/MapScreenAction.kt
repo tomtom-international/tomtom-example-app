@@ -61,5 +61,5 @@ sealed interface MapScreenAction {
 
     data class ToggleCameraTrackingMode(val checked: Boolean) : MapScreenAction
 
-    object ShowMapStyleFailure : MapScreenAction
+    data class ShowMapStyleFailure(val cause: MapStyleFailureCause) : MapScreenAction
 }

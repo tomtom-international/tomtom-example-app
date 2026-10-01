@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.tomtom.sdk.common.Cancellable
 import com.tomtom.sdk.location.GeoPoint
 import com.tomtom.sdk.map.display.visualization.navigation.NavigationVisualizationDataProvider
 import com.tomtom.sdk.map.display.visualization.navigation.compose.model.NavigationVisualizationInfrastructure
@@ -52,6 +53,11 @@ class RoutesViewModel(
     private val navigation: TomTomNavigation,
 ) : ViewModel() {
     lateinit var routePlanningOptions: RoutePlanningOptions
+
+    private val _isPlanningRoute = MutableStateFlow(false)
+    val isPlanningRoute: StateFlow<Boolean> = _isPlanningRoute
+
+    private var routePlanningCancellable: Cancellable? = null
 
     private val _routes = MutableStateFlow<List<Route>>(emptyList())
     val routes: StateFlow<List<Route>> = _routes
@@ -88,6 +94,7 @@ class RoutesViewModel(
     }
 
     fun clearRoutes() {
+        cancelRoutePlanning()
         _routes.update { emptyList() }
         _selectedRoute.update { null }
     }
@@ -114,21 +121,36 @@ class RoutesViewModel(
         onRoutePlanningSuccess: () -> Unit,
         onRoutePlanningFailure: (RoutingFailure) -> Unit,
     ) {
+        cancelRoutePlanning()
         routePlanningOptions = newRoutePlanningOptions
-        routePlanner.planRoute(
+        _isPlanningRoute.update { true }
+        routePlanningCancellable = routePlanner.planRoute(
             routePlanningOptions = routePlanningOptions,
             object : RoutePlanningCallback {
                 override fun onSuccess(result: RoutePlanningResponse) {
+                    _isPlanningRoute.update { false }
                     _routes.update { result.routes }
                     _selectedRoute.update { result.routes.firstOrNull() }
                     onRoutePlanningSuccess()
                 }
 
                 override fun onFailure(failure: RoutingFailure) {
+                    _isPlanningRoute.update { false }
                     onRoutePlanningFailure(failure)
                 }
             },
         )
+    }
+
+    private fun cancelRoutePlanning() {
+        routePlanningCancellable?.cancel()
+        routePlanningCancellable = null
+        _isPlanningRoute.update { false }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelRoutePlanning()
     }
 
     companion object {

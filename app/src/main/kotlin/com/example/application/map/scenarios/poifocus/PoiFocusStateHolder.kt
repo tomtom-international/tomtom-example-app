@@ -21,6 +21,7 @@ import com.example.application.common.PlaceDetails
 import com.example.application.common.ui.RecenterMapStateHolder
 import com.tomtom.sdk.location.GeoPoint
 import com.tomtom.sdk.map.display.camera.CameraOptions
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * UI state and callbacks for the POI Focus scenario.
@@ -31,6 +32,7 @@ import com.tomtom.sdk.map.display.camera.CameraOptions
  * @param onAnimateCamera: callback to animate camera to the POI.
  * @param onClearClick: callback invoked to clear focus and close the panel.
  * @param onRouteButtonClick: callback invoked to start route planning to the POI.
+ * @param isPlanningRouteFlow: emits true while a route planning request is in flight.
  * @param isDeviceInLandscape: whether the device is currently in landscape orientation.
  * @param onSafeAreaTopPaddingUpdate: reports top inset used by overlays.
  * @param onSafeAreaBottomPaddingUpdate: reports bottom inset used by overlays.
@@ -43,6 +45,7 @@ data class PoiFocusStateHolder(
     val onAnimateCamera: (CameraOptions) -> Unit,
     val onClearClick: () -> Unit,
     val onRouteButtonClick: () -> Unit,
+    val isPlanningRouteFlow: StateFlow<Boolean>,
     val isDeviceInLandscape: Boolean,
     val onSafeAreaTopPaddingUpdate: (Int) -> Unit,
     val onSafeAreaBottomPaddingUpdate: (Int) -> Unit,

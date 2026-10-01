@@ -51,6 +51,7 @@ limitations under the License.
     <string name="demo_map_subtitle">Map features</string>
     <string name="demo_map_title">Map</string>
     <string name="common_error_map_style_loading_failed">Failed to load map style. Please check your internet connection.</string>
+    <string name="common_error_map_style_loading_internal">Failed to load map style. Please try again.</string>
     <string name="common_error_message">Error message</string>
     <string name="common_format_two_words_with_space">%1$s %2$s</string>
     <string name="common_speed_unit_kph">km/h</string>

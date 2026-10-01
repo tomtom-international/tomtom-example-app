@@ -46,7 +46,7 @@ data class MapScreenUiState(
 
         object RoutingError : ErrorState()
 
-        object MapStyleError : ErrorState()
+        data class MapStyleError(val cause: MapStyleFailureCause) : ErrorState()
 
         object MapManagementError : ErrorState()
     }

@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.R
 import com.example.application.common.PlaceDetails
 import com.example.application.common.locationDetails
@@ -106,8 +108,11 @@ fun BoxScope.PoiFocusUiComponents(stateHolder: PoiFocusStateHolder) {
 
 @Composable
 private fun PoiFocusPanel(stateHolder: PoiFocusStateHolder) {
+    val isPlanningRoute by stateHolder.isPlanningRouteFlow.collectAsStateWithLifecycle()
+
     PoiFocusPanel(
         onRouteButtonClick = stateHolder.onRouteButtonClick,
+        isPlanningRoute = isPlanningRoute,
         placeDetails = stateHolder.placeDetails,
         isDeviceInLandscape = stateHolder.isDeviceInLandscape,
         onSafeAreaBottomPaddingUpdate = stateHolder.onSafeAreaBottomPaddingUpdate,
@@ -117,6 +122,7 @@ private fun PoiFocusPanel(stateHolder: PoiFocusStateHolder) {
 @Composable
 private fun PoiFocusPanel(
     onRouteButtonClick: () -> Unit,
+    isPlanningRoute: Boolean,
     placeDetails: PlaceDetails?,
     isDeviceInLandscape: Boolean,
     onSafeAreaBottomPaddingUpdate: (Int) -> Unit,
@@ -157,6 +163,7 @@ private fun PoiFocusPanel(
         body = {
             Button(
                 onClick = onRouteButtonClick,
+                enabled = !isPlanningRoute,
                 modifier = Modifier.align(Alignment.End),
             ) {
                 Text(
@@ -174,6 +181,7 @@ private fun PoiFocusPanelPreview() {
     NavSdkExampleTheme {
         PoiFocusPanel(
             onRouteButtonClick = {},
+            isPlanningRoute = false,
             placeDetails = PlaceDetails(
                 place = Place(
                     coordinate = GeoPoint(

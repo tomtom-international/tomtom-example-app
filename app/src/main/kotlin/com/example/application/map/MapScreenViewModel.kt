@@ -321,8 +321,8 @@ class MapScreenViewModel(
             is MapScreenAction.ToggleCameraTrackingMode -> toggleCameraTrackingMode()
 
             is MapScreenAction.ShowMapStyleFailure -> {
-                Log.e(TAG, "Map style loading failed")
-                _errorState.update { MapStyleError }
+                Log.e(TAG, "Map style loading failed with cause: ${action.cause}")
+                _errorState.update { MapStyleError(action.cause) }
             }
         }
     }

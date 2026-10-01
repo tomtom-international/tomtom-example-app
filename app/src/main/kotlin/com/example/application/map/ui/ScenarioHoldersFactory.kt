@@ -159,6 +159,7 @@ fun rememberScenarioHolders(
         onAnimateCamera,
         onClearClick,
         mapScreenViewModel.locationProvider,
+        routesViewModel.isPlanningRoute,
         isDeviceInLandscape,
         onSafeAreaTopPaddingUpdate,
         onSafeAreaBottomPaddingUpdate,
@@ -181,6 +182,7 @@ fun rememberScenarioHolders(
                     }
                 }
             },
+            isPlanningRouteFlow = routesViewModel.isPlanningRoute,
             isDeviceInLandscape = isDeviceInLandscape,
             onSafeAreaTopPaddingUpdate = onSafeAreaTopPaddingUpdate,
             onSafeAreaBottomPaddingUpdate = onSafeAreaBottomPaddingUpdate,
