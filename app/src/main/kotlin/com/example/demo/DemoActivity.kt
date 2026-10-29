@@ -121,7 +121,7 @@ private fun DemoScreen(
             is AutocompleteDestination -> AutocompleteScreen(demoViewModel = demoViewModel)
             is PoiSearchAreaDestination -> PoiSearchAreaScreen(demoViewModel = demoViewModel)
             is ManualMapManagementDestination -> ManualMapManagementScreen(demoViewModel = demoViewModel)
-            else -> {}
+            else -> { /* Null (navigation not yet resolved) or a Destination not routed through this activity. */ }
         }
 
         ErrorSnackbarHost(

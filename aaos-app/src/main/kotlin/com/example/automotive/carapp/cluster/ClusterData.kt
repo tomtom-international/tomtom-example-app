@@ -18,12 +18,34 @@ package com.example.automotive.carapp.cluster
 
 import com.tomtom.sdk.routing.route.Route
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Class with data shared with the cluster screen.
+ * Data shared with the cluster screen.
  */
-data class ClusterData(
-    val isActiveGuidance: MutableStateFlow<Boolean>,
-    val clusterRoutes: MutableStateFlow<List<Route>>,
-    val clusterSelectedRoute: MutableStateFlow<Route?>,
-)
+class ClusterData {
+    private val _isActiveGuidance = MutableStateFlow(false)
+    val isActiveGuidance: StateFlow<Boolean> = _isActiveGuidance.asStateFlow()
+
+    private val _clusterRoutes = MutableStateFlow<List<Route>>(emptyList())
+    val clusterRoutes: StateFlow<List<Route>> = _clusterRoutes.asStateFlow()
+
+    private val _clusterSelectedRoute = MutableStateFlow<Route?>(null)
+    val clusterSelectedRoute: StateFlow<Route?> = _clusterSelectedRoute.asStateFlow()
+
+    fun activateGuidance(
+        routes: List<Route>,
+        selectedRoute: Route,
+    ) {
+        _isActiveGuidance.value = true
+        _clusterRoutes.value = routes
+        _clusterSelectedRoute.value = selectedRoute
+    }
+
+    fun deactivateGuidance() {
+        _isActiveGuidance.value = false
+        _clusterRoutes.value = emptyList()
+        _clusterSelectedRoute.value = null
+    }
+}

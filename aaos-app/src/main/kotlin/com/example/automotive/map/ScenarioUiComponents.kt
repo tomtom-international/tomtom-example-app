@@ -92,7 +92,7 @@ fun BoxScope.ScenarioUiComponents(
             )
         }
 
-        else -> {}
+        else -> { /* HOME shows no overlay panel. */ }
     }
 }
 

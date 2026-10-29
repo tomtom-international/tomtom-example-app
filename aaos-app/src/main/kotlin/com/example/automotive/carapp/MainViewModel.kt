@@ -289,9 +289,7 @@ class MainViewModel(
                 navigation.addDestinationArrivalListener(destinationArrivalListener)
                 navigation.start(navigationOptions)
                 navigationManager.navigationStarted()
-                clusterData.isActiveGuidance.value = true
-                clusterData.clusterRoutes.value = uiState.value.routes
-                clusterData.clusterSelectedRoute.value = selectedRoute
+                clusterData.activateGuidance(routes = uiState.value.routes, selectedRoute = selectedRoute)
                 _uiState.update { it.copy(scenario = GUIDANCE) }
                 recenterCamera()
             }
@@ -307,9 +305,7 @@ class MainViewModel(
         if (uiState.value.scenario == GUIDANCE) {
             navigationManager.navigationEnded()
         }
-        clusterData.isActiveGuidance.value = false
-        clusterData.clusterRoutes.value = emptyList()
-        clusterData.clusterSelectedRoute.value = null
+        clusterData.deactivateGuidance()
         distanceToNextInstruction = null
     }
 
@@ -317,8 +313,8 @@ class MainViewModel(
         val stepMeters = distanceToNextInstruction?.inMeters()
         val remainingMs = _routeProgress.value?.remainingTime?.inWholeMilliseconds
 
-        if (stepMeters == null || remainingMs == null) {
-            return Trip.Builder().setLoading(true).build()
+        return if (stepMeters == null || remainingMs == null) {
+            Trip.Builder().setLoading(true).build()
         } else {
             val maneuver = instruction.toCarManeuver()
             val cue = instruction.nextSignificantRoad?.name ?: instruction.signpost?.towardName
@@ -330,7 +326,7 @@ class MainViewModel(
                 DateTimeWithZone.create(System.currentTimeMillis() + remainingMs, TimeZone.getDefault()),
             ).build()
 
-            return Trip.Builder()
+            Trip.Builder()
                 .addStep(step, stepTravelEstimate)
                 .setLoading(false)
                 .build()

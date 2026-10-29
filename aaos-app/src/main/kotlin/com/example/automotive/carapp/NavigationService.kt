@@ -58,11 +58,7 @@ class NavigationService : CarAppService() {
      */
     private val consentRequired = MutableStateFlow<Boolean?>(null)
 
-    private val clusterData = ClusterData(
-        isActiveGuidance = MutableStateFlow(false),
-        clusterRoutes = MutableStateFlow(emptyList()),
-        clusterSelectedRoute = MutableStateFlow(null),
-    )
+    private val clusterData = ClusterData()
 
     private val sdkInitializer by lazy { SdkInitializer(applicationContext) }
 

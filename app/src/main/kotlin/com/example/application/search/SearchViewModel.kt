@@ -163,7 +163,7 @@ open class SearchViewModel(
         }
     }
 
-    protected suspend fun performSearch(
+    private suspend fun performSearch(
         searchOptions: SearchOptions,
         onSearchSuccess: (List<SearchResultItemContent>) -> Unit,
         onSearchFailure: (SearchFailure) -> Unit,

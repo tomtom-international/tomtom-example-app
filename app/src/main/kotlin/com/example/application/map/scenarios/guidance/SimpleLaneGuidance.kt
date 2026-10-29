@@ -76,58 +76,56 @@ fun SimpleLaneGuidancePanel(
             thickness = 2.dp,
         )
 
+        val slgConfiguration = createSlgConfiguration(lanes, calculateMaxNumberOfLanes(slgPanelWidth))
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(17.dp),
             modifier = Modifier
                 .padding(vertical = 6.dp)
                 .align(Alignment.CenterHorizontally),
         ) {
-            val slgConfiguration = createSlgConfiguration(lanes, calculateMaxNumberOfLanes(slgPanelWidth))
-
             slgConfiguration.lanesToDraw.forEachIndexed { index, lane ->
-                Box(
-                    modifier = Modifier
-                        .height(LANE_SIZE)
-                        .width(LANE_SIZE),
-                ) {
-                    val fadeLeftLane = if (index == 0) slgConfiguration.fadeLeft else false
-                    val fadeRightLane = if (index == slgConfiguration.lanesToDraw.lastIndex) {
-                        slgConfiguration.fadeRight
-                    } else {
-                        false
-                    }
-
-                    for (laneDirection in lane.directions) {
-                        lane.follow?.let { followDirection ->
-                            if (followDirection != laneDirection) {
-                                SimpleLaneGuidanceIcon(
-                                    direction = laneDirection,
-                                    iconTint = lowlightedArrowColor,
-                                    fadeLeft = fadeLeftLane,
-                                    fadeRight = fadeRightLane,
-                                    modifier = Modifier.align(Alignment.Center),
-                                )
-                            }
-                        } ?: SimpleLaneGuidanceIcon(
-                            direction = laneDirection,
-                            iconTint = lowlightedArrowColor,
-                            fadeLeft = fadeLeftLane,
-                            fadeRight = fadeRightLane,
-                            modifier = Modifier.align(Alignment.Center),
-                        )
-                    }
-
-                    lane.follow?.let {
-                        SimpleLaneGuidanceIcon(
-                            direction = it,
-                            iconTint = Color.White,
-                            fadeLeft = fadeLeftLane,
-                            fadeRight = fadeRightLane,
-                            modifier = Modifier.align(Alignment.Center),
-                        )
-                    }
-                }
+                SimpleLaneGuidanceLane(
+                    lane = lane,
+                    fadeLeft = index == 0 && slgConfiguration.fadeLeft,
+                    fadeRight = index == slgConfiguration.lanesToDraw.lastIndex && slgConfiguration.fadeRight,
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun SimpleLaneGuidanceLane(
+    lane: Lane,
+    fadeLeft: Boolean,
+    fadeRight: Boolean,
+) {
+    Box(
+        modifier = Modifier
+            .height(LANE_SIZE)
+            .width(LANE_SIZE),
+    ) {
+        lane.directions.forEach { laneDirection ->
+            if (lane.follow == null || lane.follow != laneDirection) {
+                SimpleLaneGuidanceIcon(
+                    direction = laneDirection,
+                    iconTint = lowlightedArrowColor,
+                    fadeLeft = fadeLeft,
+                    fadeRight = fadeRight,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
+
+        lane.follow?.let {
+            SimpleLaneGuidanceIcon(
+                direction = it,
+                iconTint = Color.White,
+                fadeLeft = fadeLeft,
+                fadeRight = fadeRight,
+                modifier = Modifier.align(Alignment.Center),
+            )
         }
     }
 }

@@ -17,7 +17,6 @@ limitations under the License.
 package com.example.application.map.model
 
 import com.example.application.common.PlaceDetails
-import com.example.application.map.model.MapScreenUiState
 import com.tomtom.sdk.location.LocationProvider
 import com.tomtom.sdk.map.display.camera.CameraOptions
 import com.tomtom.sdk.map.display.camera.CameraTrackingMode

@@ -111,7 +111,7 @@ class MainViewModel(
         if (_uiState.value.persistedConsentLevel != null) return
 
         _uiState.update { it.copy(persistedConsentLevel = telemetryConsentIndex) }
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             settingsRepository.updateTelemetryConsentLevel(telemetryConsentIndex)
         }
     }
