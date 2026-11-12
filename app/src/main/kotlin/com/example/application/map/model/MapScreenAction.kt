@@ -39,6 +39,10 @@ sealed interface MapScreenAction {
 
     object StopGuidance : MapScreenAction
 
+    object AcceptBetterRouteProposal : MapScreenAction
+
+    object DismissBetterRouteProposal : MapScreenAction
+
     data class StartGuidance(
         val navigationOptions: NavigationOptions,
     ) : MapScreenAction

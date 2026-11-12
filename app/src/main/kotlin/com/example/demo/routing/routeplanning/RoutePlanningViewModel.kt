@@ -28,8 +28,8 @@ import com.tomtom.sdk.routing.RoutePlanner
 import com.tomtom.sdk.routing.RoutePlanningCallback
 import com.tomtom.sdk.routing.RoutePlanningResponse
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.options.Itinerary
+import com.tomtom.sdk.routing.options.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.options.calculation.AvoidType
 import com.tomtom.sdk.routing.options.calculation.RouteType
 import com.tomtom.sdk.routing.route.RouteId
@@ -96,12 +96,14 @@ class RoutePlanningViewModel(
         onSetIsLoading(true)
         routePlanJob?.cancel()
 
+        val selectedRouteType = routeType.value
         val routePlanningOptions = buildRoutePlanningOptions(
             itinerary = Itinerary(PARIS, LONDON),
-            maxAlternatives = 2,
-            routeType = routeType.value,
-            avoids = getAvoids(),
-        )
+        ) {
+            maxAlternatives = 2
+            routeType = selectedRouteType
+            avoids = getAvoids()
+        }
         routePlanJob = routePlanner.planRoute(
             routePlanningOptions = routePlanningOptions,
             object : RoutePlanningCallback {

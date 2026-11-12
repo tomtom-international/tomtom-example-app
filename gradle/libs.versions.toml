@@ -14,16 +14,16 @@
 
 [versions]
 
-tomtomNavsdk = "2.6.4"
+tomtomNavsdk = "2.7.2"
 
 androidGradlePlugin                                 = "8.13.2"
 androidxActivity                                    = "1.10.1"
-androidxAppcompat                                   = "1.7.1"
+androidxAppcompat                                   = "1.8.0"
 androidxCarApp                                      = "1.7.0"
 androidxCompose                                     = "1.8.3"
 androidxComposeBom                                  = "2025.07.00"
 androidxCore                                        = "1.16.0"
-androidxDatastore                                   = "1.1.7"
+androidxDatastore                                   = "1.2.1"
 androidxNavigationCompose                           = "2.8.9"
 junit                                               = "4.13.2"
 kotlin                                              = "2.1.21"

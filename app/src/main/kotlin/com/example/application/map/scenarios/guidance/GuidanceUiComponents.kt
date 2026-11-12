@@ -76,7 +76,11 @@ import com.tomtom.sdk.map.display.camera.CameraTrackingMode
 fun BoxScope.GuidanceUiComponents(stateHolder: GuidanceStateHolder) {
     BackHandler { stateHolder.onExitButtonClick() }
 
-    TopPanel(stateHolder)
+    Column(modifier = Modifier.align(Alignment.TopStart)) {
+        TopPanel(stateHolder)
+
+        BetterRouteProposalPanel(stateHolder)
+    }
 
     if (stateHolder.isDeviceInLandscape) {
         Row(modifier = Modifier.align(Alignment.BottomStart)) {
@@ -91,6 +95,17 @@ fun BoxScope.GuidanceUiComponents(stateHolder: GuidanceStateHolder) {
             BottomPanel(stateHolder = stateHolder)
         }
     }
+}
+
+@Composable
+private fun BetterRouteProposalPanel(stateHolder: GuidanceStateHolder) {
+    BetterRouteProposalPanel(
+        proposalFlow = stateHolder.betterRouteProposal,
+        onAccept = stateHolder.onAcceptBetterRouteProposal,
+        onDismiss = stateHolder.onDismissBetterRouteProposal,
+        isDeviceInLandscape = stateHolder.isDeviceInLandscape,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+    )
 }
 
 @Composable

@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,8 @@ import com.example.application.common.ui.CloseButton
 import com.example.application.common.ui.isDeviceInLandscape
 import com.example.application.map.model.MapScreenUiState.ErrorState.SearchError
 import com.example.application.search.SearchResultItemContent
+import com.example.application.search.ev.EvFilterCategory
+import com.example.application.search.ev.EvFilterOption
 import com.example.application.search.ev.EvSearchViewModel
 import com.example.application.search.ev.EvSearchViewModel.Companion.GEO_POINT_KEY
 import com.example.application.search.ev.EvSearchViewModel.Companion.LOCATION_PROVIDER_KEY
@@ -162,40 +165,71 @@ fun EvSearchScreen(
                     demoViewModel.toggleBottomSheet(true)
                 },
                 onBackArrowClick = {
-                    if (evSearchUiState.selectedFilterCategory != null) {
-                        viewModel.setSelectedFilterCategory(null)
-                    } else {
-                        demoViewModel.toggleBottomSheet(false)
-                    }
+                    handleBackArrowClick(evSearchUiState.selectedFilterCategory, viewModel, demoViewModel)
                 },
                 onResetClick = {
                     viewModel.setSelectedFilterCategory(null)
                     viewModel.resetActiveFilters()
                 },
                 onEvFilterCategoryClick = { filterCategory ->
-                    demoViewModel.toggleBottomSheet(true)
-                    if (filterCategory == evSearchUiState.selectedFilterCategory) {
-                        viewModel.setSelectedFilterCategory(null)
-                    } else {
-                        viewModel.setSelectedFilterCategory(filterCategory)
-                    }
+                    handleEvFilterCategoryClick(
+                        filterCategory,
+                        evSearchUiState.selectedFilterCategory,
+                        viewModel,
+                        demoViewModel,
+                    )
                 },
                 onEvFilterOptionClick = { evFilterCategory, evFilterOption ->
-                    if (evFilterOption.isOptionSelected(evFilterCategory, activeFilters)) {
-                        viewModel.removeActiveFilter(
-                            category = evFilterCategory,
-                            filterOption = evFilterOption,
-                        )
-                    } else {
-                        viewModel.addActiveFilter(
-                            category = evFilterCategory,
-                            filterOption = evFilterOption,
-                        )
-                    }
+                    handleEvFilterOptionClick(evFilterCategory, evFilterOption, activeFilters, viewModel)
                 },
                 isDeviceInLandscape = isDeviceInLandscape,
                 modifier = Modifier,
             )
         }
+    }
+}
+
+private fun handleBackArrowClick(
+    selectedFilterCategory: EvFilterCategory?,
+    viewModel: EvSearchViewModel,
+    demoViewModel: DemoViewModel,
+) {
+    if (selectedFilterCategory != null) {
+        viewModel.setSelectedFilterCategory(null)
+    } else {
+        demoViewModel.toggleBottomSheet(false)
+    }
+}
+
+private fun handleEvFilterCategoryClick(
+    filterCategory: EvFilterCategory,
+    selectedFilterCategory: EvFilterCategory?,
+    viewModel: EvSearchViewModel,
+    demoViewModel: DemoViewModel,
+) {
+    demoViewModel.toggleBottomSheet(true)
+    if (filterCategory == selectedFilterCategory) {
+        viewModel.setSelectedFilterCategory(null)
+    } else {
+        viewModel.setSelectedFilterCategory(filterCategory)
+    }
+}
+
+private fun handleEvFilterOptionClick(
+    evFilterCategory: EvFilterCategory,
+    evFilterOption: EvFilterOption,
+    activeFilters: SnapshotStateMap<EvFilterCategory, Set<EvFilterOption>>,
+    viewModel: EvSearchViewModel,
+) {
+    if (evFilterOption.isOptionSelected(evFilterCategory, activeFilters)) {
+        viewModel.removeActiveFilter(
+            category = evFilterCategory,
+            filterOption = evFilterOption,
+        )
+    } else {
+        viewModel.addActiveFilter(
+            category = evFilterCategory,
+            filterOption = evFilterOption,
+        )
     }
 }

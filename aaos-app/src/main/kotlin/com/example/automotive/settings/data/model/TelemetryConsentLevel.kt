@@ -22,7 +22,7 @@ import com.tomtom.sdk.telemetry.UserConsent
  * Type-safe representation of the user's telemetry consent choice.
  * [storageKey] is the integer persisted in DataStore for backward compatibility.
  */
-enum class ConsentLevel(val storageKey: Int) {
+enum class TelemetryConsentLevel(val storageKey: Int) {
     OFF(0),
     LOCATION_ONLY(1),
     ON(2),
@@ -35,6 +35,6 @@ enum class ConsentLevel(val storageKey: Int) {
     }
 
     companion object {
-        fun fromStorageKey(key: Int): ConsentLevel = values().firstOrNull { it.storageKey == key } ?: OFF
+        fun fromStorageKey(key: Int): TelemetryConsentLevel = values().firstOrNull { it.storageKey == key } ?: OFF
     }
 }

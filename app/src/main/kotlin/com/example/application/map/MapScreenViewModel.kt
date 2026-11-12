@@ -40,11 +40,13 @@ import com.example.application.map.model.Scenario.GUIDANCE
 import com.example.application.map.model.Scenario.HOME
 import com.example.application.map.model.Scenario.POI_FOCUS
 import com.example.application.map.model.Scenario.ROUTE_PREVIEW
+import com.example.application.map.scenarios.freedriving.FreeDrivingDetector
 import com.example.application.map.scenarios.freedriving.FreeDrivingManager
+import com.example.application.map.scenarios.guidance.BetterRouteProposal
+import com.example.application.map.scenarios.guidance.BetterRouteProposalHandler
+import com.example.application.map.scenarios.guidance.GuidanceUpdatesHandler
 import com.example.application.map.scenarios.guidance.NextInstruction
-import com.example.application.map.scenarios.guidance.toManeuverType
 import com.example.application.search.SearchResultItemContent
-import com.tomtom.quantity.Distance
 import com.tomtom.sdk.common.configuration.SdkContext
 import com.tomtom.sdk.location.GeoLocation
 import com.tomtom.sdk.location.GeoPoint
@@ -59,20 +61,10 @@ import com.tomtom.sdk.map.display.camera.InitialCameraOptions
 import com.tomtom.sdk.map.display.compose.model.MapDisplayInfrastructure
 import com.tomtom.sdk.map.display.style.StandardStyles
 import com.tomtom.sdk.map.display.style.StyleDescriptor
-import com.tomtom.sdk.navigation.AnnouncementListener
-import com.tomtom.sdk.navigation.DestinationArrivalListener
-import com.tomtom.sdk.navigation.GuidanceUpdatedListener
-import com.tomtom.sdk.navigation.LaneGuidanceUpdatedListener
 import com.tomtom.sdk.navigation.LocationContextUpdatedListener
 import com.tomtom.sdk.navigation.NavigationOptions
-import com.tomtom.sdk.navigation.ProgressUpdatedListener
 import com.tomtom.sdk.navigation.TomTomNavigation
-import com.tomtom.sdk.navigation.announcement.VerbalMessage
-import com.tomtom.sdk.navigation.announcement.WarningAnnouncement
-import com.tomtom.sdk.navigation.guidance.GuidanceAnnouncement
-import com.tomtom.sdk.navigation.guidance.InstructionPhase
 import com.tomtom.sdk.navigation.guidance.LaneGuidance
-import com.tomtom.sdk.navigation.guidance.instruction.GuidanceInstruction
 import com.tomtom.sdk.navigation.horizon.buildHorizonOptions
 import com.tomtom.sdk.navigation.horizon.elements.hazard.HazardElementType
 import com.tomtom.sdk.navigation.horizon.elements.safetylocation.SafetyLocationElementType
@@ -84,8 +76,6 @@ import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoder
 import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoderCallback
 import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoderOptions
 import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoderResponse
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -94,7 +84,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 /**
  * Coordinates map screen state, location/camera control, POI data, route preview, and turn-by-turn guidance.
@@ -164,17 +153,35 @@ class MapScreenViewModel(
         }
     }
 
-    private val _nextInstruction = MutableStateFlow<NextInstruction?>(null)
-    val nextInstruction: StateFlow<NextInstruction?> = _nextInstruction
+    // Guidance listeners/signals live in GuidanceUpdatesHandler; arrival is reported back to keep screen state here.
+    private val guidanceUpdatesHandler = GuidanceUpdatesHandler(
+        navigation = navigation,
+        textToSpeechEngine = textToSpeechEngine,
+        onDestinationArrival = {
+            stopGuidance()
+            _mapScreenUiState.update {
+                it.copy(
+                    scenario = Scenario.DESTINATION_ARRIVAL,
+                    markerCoordinates = mapScreenUiState.value.placeDetails?.place?.coordinate,
+                )
+            }
+        },
+    )
+
+    // Re-exposed from GuidanceUpdatesHandler so the UI reads guidance state from one place.
+    val nextInstruction: StateFlow<NextInstruction?> get() = guidanceUpdatesHandler.nextInstruction
+    val laneGuidance: StateFlow<LaneGuidance?> get() = guidanceUpdatesHandler.laneGuidance
+    val routeProgress: StateFlow<RouteProgress?> get() = guidanceUpdatesHandler.routeProgress
+
+    private val betterRouteProposalHandler = BetterRouteProposalHandler(
+        navigation = navigation,
+        routeProgress = guidanceUpdatesHandler.routeProgress,
+    )
+
+    val betterRouteProposal: StateFlow<BetterRouteProposal?> get() = betterRouteProposalHandler.proposal
 
     private val _upcomingHorizonElements = MutableStateFlow<UpcomingHorizonElements?>(null)
     val upcomingHorizonElements: StateFlow<UpcomingHorizonElements?> = _upcomingHorizonElements
-
-    private val _laneGuidance = MutableStateFlow<LaneGuidance?>(null)
-    val laneGuidance: StateFlow<LaneGuidance?> = _laneGuidance.asStateFlow()
-
-    private val _routeProgress = MutableStateFlow<RouteProgress?>(null)
-    val routeProgress: StateFlow<RouteProgress?> = _routeProgress.asStateFlow()
 
     private val _locationContext = MutableStateFlow<LocationContext?>(null)
     val locationContext: StateFlow<LocationContext?> = _locationContext.asStateFlow()
@@ -185,82 +192,11 @@ class MapScreenViewModel(
         }
     }
 
-    private val progressUpdatedListener = ProgressUpdatedListener { routeProgress ->
-        _routeProgress.tryEmit(routeProgress)
-    }
-
-    private val destinationArrivalListener = DestinationArrivalListener { _ ->
-        stopGuidance()
-        _mapScreenUiState.update {
-            it.copy(
-                scenario = Scenario.DESTINATION_ARRIVAL,
-                markerCoordinates = mapScreenUiState.value.placeDetails?.place?.coordinate,
-            )
-        }
-    }
-
-    private val laneGuidanceUpdatedListener = object : LaneGuidanceUpdatedListener {
-        override fun onLaneGuidanceEnded(laneGuidance: LaneGuidance) {
-            Log.d(TAG, "Lane guidance ended: $laneGuidance")
-            _laneGuidance.update { null }
-        }
-
-        override fun onLaneGuidanceStarted(laneGuidance: LaneGuidance) {
-            Log.d(TAG, "Lane guidance started: $laneGuidance")
-            _laneGuidance.update { laneGuidance }
-        }
-    }
-
-    private val announcementListener = AnnouncementListener { announcements ->
-        announcements.forEach { announcement ->
-            if (announcement is WarningAnnouncement) {
-                val message = announcement.message
-                Log.d(TAG, "Announcement type: ${announcement::class.java.simpleName}, message: $message")
-                if (message is VerbalMessage) {
-                    textToSpeechEngine.playMessage(
-                        message = message.plainTextMessage,
-                        onError = { error -> Log.e(TAG, "Error playing announcement: $error") },
-                    )
-                }
-            }
-        }
-    }
-
-    private val guidanceUpdatedListener = object : GuidanceUpdatedListener {
-        override fun onAnnouncementGenerated(
-            announcement: GuidanceAnnouncement,
-            shouldPlay: Boolean,
-        ) {
-            Log.d(TAG, "Guidance announcement: $announcement")
-
-            if (shouldPlay) {
-                textToSpeechEngine.playMessage(
-                    message = announcement.plainTextMessage,
-                    onError = { error -> Log.e(TAG, "Error playing announcement: $error") },
-                )
-            }
-        }
-
-        override fun onDistanceToNextInstructionChanged(
-            distance: Distance,
-            instructions: List<GuidanceInstruction>,
-            currentPhase: InstructionPhase,
-        ) {
-            Log.d(TAG, "New distance to instruction $distance")
-            _nextInstruction.update { it?.copy(distanceToManeuver = distance) }
-        }
-
-        override fun onInstructionsChanged(instructions: List<GuidanceInstruction>) {
-            Log.d(TAG, "New instruction received from GuidanceUpdatedListener: $instructions")
-            _nextInstruction.update { processNextInstruction(instructions) }
-        }
-    }
-
     private val horizonUpdatedListener = DefaultHorizonUpdatedListener { newHorizonElements ->
         _upcomingHorizonElements.update { newHorizonElements }
     }
 
-    private var freeDrivingJob: Job? = null
+    private val freeDrivingDetector = FreeDrivingDetector(freeDrivingManager, viewModelScope)
 
     init {
         if (onCheckLocationPermission()) {
@@ -318,6 +254,9 @@ class MapScreenViewModel(
                 clearMap()
             }
 
+            is MapScreenAction.AcceptBetterRouteProposal -> betterRouteProposalHandler.accept()
+            is MapScreenAction.DismissBetterRouteProposal -> betterRouteProposalHandler.dismiss()
+
             is MapScreenAction.ToggleCameraTrackingMode -> toggleCameraTrackingMode()
 
             is MapScreenAction.ShowMapStyleFailure -> {
@@ -328,11 +267,11 @@ class MapScreenViewModel(
     }
 
     fun onResume() {
-        startFreeDrivingJob()
+        detectFreeDriving()
     }
 
     fun onPause() {
-        stopFreeDrivingJob()
+        freeDrivingDetector.stopDetecting()
     }
 
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -364,7 +303,7 @@ class MapScreenViewModel(
         } else {
             recenterMap()
         }
-        startFreeDrivingJob()
+        detectFreeDriving()
     }
 
     fun toggleBottomSheet(isExpanded: Boolean? = null) {
@@ -446,7 +385,7 @@ class MapScreenViewModel(
         renderedPoiName: String? = null,
     ) {
         stopFreeDriving()
-        stopFreeDrivingJob()
+        freeDrivingDetector.stopDetecting()
         val resolvedPlaceDetails = if (renderedPoiName != null) {
             placeDetails.copy(renderedPoiName = renderedPoiName)
         } else {
@@ -467,18 +406,9 @@ class MapScreenViewModel(
         mapScreenUiState.value.placeDetails?.let { showPoiFocus(it) }
     }
 
-    // Start turn-by-turn navigation with optional simulation
-    private fun startGuidance(navigationOptions: NavigationOptions) {
-        stopGuidance()
-
-        toggleBottomSheet(false)
-
-        navigation.addAnnouncementListener(announcementListener)
+    // Location context and horizon listeners are shared by guidance and free driving.
+    private fun startAmbientObservation() {
         navigation.addLocationContextUpdatedListener(locationContextUpdatedListener)
-        navigation.addGuidanceUpdatedListener(guidanceUpdatedListener)
-        navigation.addProgressUpdatedListener(progressUpdatedListener)
-        navigation.addDestinationArrivalListener(destinationArrivalListener)
-        navigation.addLaneGuidanceUpdatedListener(laneGuidanceUpdatedListener)
         navigation.addHorizonUpdatedListener(
             options = buildHorizonOptions(
                 elementTypes = listOf(
@@ -489,6 +419,22 @@ class MapScreenViewModel(
             ),
             listener = horizonUpdatedListener,
         )
+    }
+
+    private fun stopAmbientObservation() {
+        navigation.removeLocationContextUpdatedListener(locationContextUpdatedListener)
+        navigation.removeHorizonUpdatedListener(horizonUpdatedListener)
+    }
+
+    // Start turn-by-turn navigation with optional simulation
+    private fun startGuidance(navigationOptions: NavigationOptions) {
+        stopGuidance()
+
+        toggleBottomSheet(false)
+
+        startAmbientObservation()
+        guidanceUpdatesHandler.start()
+        betterRouteProposalHandler.start()
 
         navigation.start(navigationOptions)
         _mapScreenUiState.update {
@@ -501,77 +447,38 @@ class MapScreenViewModel(
     }
 
     private fun stopGuidance() {
-        navigation.removeAnnouncementListener(announcementListener)
-        navigation.removeLocationContextUpdatedListener(locationContextUpdatedListener)
-        navigation.removeProgressUpdatedListener(progressUpdatedListener)
-        navigation.removeGuidanceUpdatedListener(guidanceUpdatedListener)
-        navigation.removeDestinationArrivalListener(destinationArrivalListener)
-        navigation.removeLaneGuidanceUpdatedListener(laneGuidanceUpdatedListener)
-        navigation.removeHorizonUpdatedListener(horizonUpdatedListener)
-
+        guidanceUpdatesHandler.stop()
+        betterRouteProposalHandler.stop()
+        stopAmbientObservation()
         navigation.stop()
     }
-
-    private fun processNextInstruction(instructions: List<GuidanceInstruction>?): NextInstruction? =
-        instructions?.firstOrNull()?.let { firstInstruction ->
-            NextInstruction(
-                maneuverType = firstInstruction.toManeuverType(),
-                distanceToManeuver = firstInstruction.routeOffset,
-                roadName = firstInstruction.nextSignificantRoad?.name,
-                towardName = firstInstruction.signpost?.towardName,
-                exitNumber = firstInstruction.signpost?.exitNumber,
-                exitName = firstInstruction.signpost?.exitName,
-            )
-        }
 
     // Starts free driving scenario
     private fun startFreeDriving() {
         _mapScreenUiState.update { it.copy(scenario = FREE_DRIVING) }
         recenterMap()
 
-        navigation.addHorizonUpdatedListener(
-            options = buildHorizonOptions(
-                elementTypes = listOf(
-                    HazardElementType,
-                    TrafficElementType,
-                    SafetyLocationElementType,
-                ),
-            ),
-            listener = horizonUpdatedListener,
-        )
-
-        navigation.addLocationContextUpdatedListener(locationContextUpdatedListener)
+        startAmbientObservation()
         navigation.start()
     }
 
     // Ends free driving scenario
     private fun stopFreeDriving() {
-        navigation.removeLocationContextUpdatedListener(locationContextUpdatedListener)
-        navigation.removeHorizonUpdatedListener(horizonUpdatedListener)
+        stopAmbientObservation()
         navigation.stop()
     }
 
-    // Starts a flow that checks every second if the user is driving
-    private fun startFreeDrivingJob() {
-        if (mapScreenUiState.value.scenario == HOME || mapScreenUiState.value.scenario == FREE_DRIVING) {
-            freeDrivingJob = viewModelScope.launch {
-                freeDrivingManager.getIsDrivingFlow { locationProvider.value }.collect { isDriving ->
-                    Log.d(TAG, "isDriving: $isDriving")
-                    when {
-                        isDriving && mapScreenUiState.value.scenario == HOME -> startFreeDriving()
-                        !isDriving && mapScreenUiState.value.scenario == FREE_DRIVING -> {
-                            stopFreeDriving()
-                            clearMap()
-                            cancel()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun stopFreeDrivingJob() {
-        freeDrivingJob?.cancel()
+    // Observes the driving state and lets FreeDrivingDetector drive the scenario transitions.
+    private fun detectFreeDriving() {
+        freeDrivingDetector.startDetecting(
+            scenario = mapScreenUiState.value.scenario,
+            locationProvider = locationProvider.value,
+            onStartFreeDriving = ::startFreeDriving,
+            onStopFreeDriving = {
+                stopFreeDriving()
+                clearMap()
+            },
+        )
     }
 
     private fun toggleCameraTrackingMode() {

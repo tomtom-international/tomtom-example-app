@@ -24,6 +24,7 @@ import androidx.car.app.navigation.model.Step
 import androidx.car.app.navigation.model.TravelEstimate
 import androidx.car.app.navigation.model.Trip
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.automotive.carapp.Scenario.DESTINATION_ARRIVAL
 import com.example.automotive.carapp.Scenario.GUIDANCE
 import com.example.automotive.carapp.Scenario.HOME
@@ -33,7 +34,7 @@ import com.example.automotive.common.PlaceDetails
 import com.example.automotive.common.extension.toCarManeuver
 import com.example.automotive.map.camera.CameraController
 import com.example.automotive.map.camera.CameraController.Companion.DEFAULT_POSITION
-import com.example.automotive.vehicle.VehicleRepository
+import com.example.automotive.vehicle.AndroidCarVehicleProvider
 import com.tomtom.quantity.Distance
 import com.tomtom.quantity.Energy
 import com.tomtom.sdk.common.Cancellable
@@ -53,19 +54,24 @@ import com.tomtom.sdk.routing.RoutePlanner
 import com.tomtom.sdk.routing.RoutePlanningCallback
 import com.tomtom.sdk.routing.RoutePlanningResponse
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.buildEvRoutePlanningOptions
 import com.tomtom.sdk.routing.options.ChargingOptions
 import com.tomtom.sdk.routing.options.Itinerary
 import com.tomtom.sdk.routing.options.RoutePlanningOptions
+import com.tomtom.sdk.routing.options.buildEvRoutePlanningOptions
 import com.tomtom.sdk.search.common.error.SearchFailure
 import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoder
 import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoderCallback
 import com.tomtom.sdk.search.reversegeocoder.ReverseGeocoderResponse
 import com.tomtom.sdk.search.reversegeocoder.buildReverseGeocoderOptions
+import com.tomtom.sdk.vehicle.Vehicle
+import com.tomtom.sdk.vehicle.provider.VehicleProvider
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.TimeZone
 import androidx.car.app.model.Distance as CarDistance
 
@@ -82,7 +88,7 @@ import androidx.car.app.model.Distance as CarDistance
  * @param locationProvider Provider of the current location; enabled once the location
  *   permission is confirmed via [setPermissionsGranted].
  * @param navigationManager Car app service used to report navigation state to the host.
- * @param vehicleRepository Repository for vehicle data.
+ * @param vehicleProvider Reads the car's EV battery state for route planning.
  * @param clusterData Container for cluster map state flows.
  */
 class MainViewModel(
@@ -91,7 +97,7 @@ class MainViewModel(
     private val navigation: TomTomNavigation,
     private val locationProvider: LocationProvider,
     private val navigationManager: NavigationManager,
-    private val vehicleRepository: VehicleRepository,
+    private val vehicleProvider: AndroidCarVehicleProvider,
     private val clusterData: ClusterData,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MainScreenUIState())
@@ -138,6 +144,7 @@ class MainViewModel(
 
     private var currentRequestCallback: RoutePlanningCallback? = null
 
+    private var planningJob: Job? = null
     private var routePlannerCancellable: Cancellable? = null
     private var reverseGeocoderCancellable: Cancellable? = null
 
@@ -204,12 +211,51 @@ class MainViewModel(
         }
     }
 
-    /** Plans a route for an EV vehicle from the current location to the given place details location. */
+    /**
+     * Plans a route for an EV vehicle from the current location to the given place details location.
+     */
     fun planRoute(placeDetails: PlaceDetails) {
         _uiState.update { it.copy(isLoading = true) }
 
-        vehicleRepository.configureVehicle()
+        planningJob?.cancel()
+        planningJob = viewModelScope.launch {
+            configureVehicle()
+            requestEvRoute(placeDetails)
+        }
+    }
 
+    /**
+     * Reads the car's battery state and configures the SDK with it, bounded by
+     * [VEHICLE_CONFIGURATION_TIMEOUT_MS]. On failure it keeps the currently set
+     * [VehicleProvider.vehicle] and logs why; it warns the user only when an EV is already
+     * configured, so non-EV setups aren't spammed on every plan.
+     */
+    private suspend fun configureVehicle() {
+        val vehicle = withTimeoutOrNull(VEHICLE_CONFIGURATION_TIMEOUT_MS) { vehicleProvider.currentVehicle() }
+        if (vehicle != null) {
+            VehicleProvider.vehicle = vehicle
+            Log.d(TAG, "EV vehicle configured: $vehicle")
+            return
+        }
+
+        Log.w(
+            TAG,
+            "Could not read the vehicle within ${VEHICLE_CONFIGURATION_TIMEOUT_MS}ms " +
+                "(timeout or no EV data); planning with the currently set vehicle.",
+        )
+        if ((VehicleProvider.vehicle as? Vehicle.Car)?.electricEngine != null) {
+            _uiState.update {
+                it.copy(failureMessage = "Couldn't read the car's battery; planning with the last known charge.")
+            }
+        }
+    }
+
+    /**
+     * Builds the EV route planning options for [placeDetails] and requests the route. Expects the
+     * vehicle to have been configured via [configureVehicle] first, so the SDK uses the current
+     * charge. Cancels any previous request, and updates the UI state from the planning callback.
+     */
+    private fun requestEvRoute(placeDetails: PlaceDetails) {
         val origin = locationProvider.lastKnownLocation?.position ?: DEFAULT_POSITION
         val destination = placeDetails.place.coordinate
         val routePlanningOptions = buildEvRoutePlanningOptions(
@@ -218,7 +264,8 @@ class MainViewModel(
                 minChargeAtDestination = INITIAL_MIN_CHARGE,
                 minChargeAtChargingStops = INITIAL_MIN_CHARGE,
             ),
-        )
+        ) {}
+        notifyIfChargeBelowReserve()
 
         val callback = object : RoutePlanningCallback {
             override fun onSuccess(result: RoutePlanningResponse) {
@@ -256,6 +303,21 @@ class MainViewModel(
 
         routePlannerCancellable?.cancel()
         routePlannerCancellable = routePlanner.planRoute(routePlanningOptions, callback)
+    }
+
+    /**
+     * When the current charge is below the reserve, the planner can't build a route (returns
+     * NO_ROUTE_FOUND), so surface the cause via [MainScreenUIState.failureMessage] and log it.
+     */
+    private fun notifyIfChargeBelowReserve() {
+        val currentCharge = (VehicleProvider.vehicle as? Vehicle.Car)
+            ?.electricEngine?.chargeLevel?.currentCharge ?: return
+        if (currentCharge.inKilowattHours() < INITIAL_MIN_CHARGE.inKilowattHours()) {
+            val message = "Battery charge ($currentCharge) is below the $INITIAL_MIN_CHARGE " +
+                "needed to plan an EV route."
+            Log.w(TAG, message)
+            _uiState.update { it.copy(failureMessage = message) }
+        }
     }
 
     /** Dismisses every panel. */
@@ -360,6 +422,8 @@ class MainViewModel(
 
     companion object {
         private const val TAG = "MainViewModel"
+
+        private const val VEHICLE_CONFIGURATION_TIMEOUT_MS = 2_000L
 
         private const val INITIAL_MIN_CHARGE_KWH = 5.0
         private val INITIAL_MIN_CHARGE: Energy = Energy.kilowattHours(INITIAL_MIN_CHARGE_KWH)

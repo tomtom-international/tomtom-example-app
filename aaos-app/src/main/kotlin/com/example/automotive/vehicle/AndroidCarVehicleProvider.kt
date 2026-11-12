@@ -24,52 +24,80 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.tomtom.sdk.vehicle.Vehicle
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
- * Retrieves EV battery information from Android Automotive CarPropertyManager
- * and maps it to TomTom Vehicle model.
+ * Retrieves EV battery information from Android Automotive [CarPropertyManager] and maps it to the
+ * TomTom [Vehicle] model.
+ *
+ * @param context Context used to access the Android Car API.
+ * @param ioDispatcher Dispatcher for the blocking Car connection and property reads.
  */
-class AndroidCarVehicleProvider(private val context: Context) {
-    fun getVehicle(): Vehicle? {
+class AndroidCarVehicleProvider(
+    private val context: Context,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
+    /**
+     * Reads the current EV [Vehicle] from the Android Car API, or returns `null` if the car, its
+     * permissions, or the EV data aren't available.
+     *
+     * The blocking connection and property reads run on [ioDispatcher], and the connection is
+     * always released before returning.
+     */
+    suspend fun currentVehicle(): Vehicle? = withContext(ioDispatcher) {
+        val car = connectToCar() ?: return@withContext null
+        try {
+            car.propertyManager?.let(::readVehicle)
+        } finally {
+            runCatching { car.disconnect() }
+        }
+    }
+
+    /**
+     * Connects to the car, or returns `null` if permissions are missing or the car can't connect.
+     * An unusable connection is released before returning `null`.
+     */
+    private fun connectToCar(): Car? {
         if (!hasPermission(CAR_INFO_PERMISSION) || !hasPermission(CAR_ENERGY_PERMISSION)) {
             Log.i(TAG, "Permissions missing: INFO=$CAR_INFO_PERMISSION, ENERGY=$CAR_ENERGY_PERMISSION")
             return null
         }
 
-        return try {
-            Car.createCar(context).useConnection { car ->
-                if (!car.isConnected) {
-                    Log.i(TAG, "Car not connected.")
-                    return@useConnection null
-                }
-
-                val propertyManager = car.getCarManager(Car.PROPERTY_SERVICE) as CarPropertyManager
-                val capacity = propertyManager.readDouble(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY)
-                val level = propertyManager.readDouble(VehiclePropertyIds.EV_BATTERY_LEVEL)
-
-                if (capacity != null && level != null) {
-                    mapToVehicle(capacity, level)
-                } else {
-                    Log.i(TAG, "EV properties unavailable (capacity=$capacity, level=$level).")
-                    null
-                }
+        val car = runCatching { Car.createCar(context) }.getOrElse {
+            Log.e(TAG, "Could not connect to the Car API", it)
+            null
+        }
+        return when {
+            car == null -> null
+            car.isConnected -> car
+            else -> {
+                Log.w(TAG, "Car not connected.")
+                runCatching { car.disconnect() }
+                null
             }
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Permission denied while accessing Car API", e)
-            null
-        } catch (e: IllegalStateException) {
-            Log.e(TAG, "Car service not available or disconnected", e)
-            null
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "Invalid property requested from Car API", e)
+        }
+    }
+
+    /** The [CarPropertyManager] of this car, or `null` if the property service is unavailable. */
+    private val Car.propertyManager: CarPropertyManager?
+        get() = runCatching { getCarManager(Car.PROPERTY_SERVICE) as? CarPropertyManager }.getOrNull()
+
+    private fun readVehicle(manager: CarPropertyManager): Vehicle? {
+        val capacity = manager.readDouble(VehiclePropertyIds.EV_CURRENT_BATTERY_CAPACITY)
+            ?: manager.readDouble(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY)
+        val level = manager.readDouble(VehiclePropertyIds.EV_BATTERY_LEVEL)
+
+        return if (capacity != null && level != null) {
+            mapToVehicle(capacity, level)
+        } else {
+            Log.w(TAG, "EV properties unavailable (capacity=$capacity, level=$level).")
             null
         }
     }
 
-    /**
-     * Maps raw battery data to the Vehicle object.
-     * Extracts business logic from the main flow.
-     */
+    /** Maps raw battery data to the [Vehicle] object. */
     private fun mapToVehicle(
         capacity: Double,
         level: Double,
@@ -91,18 +119,6 @@ class AndroidCarVehicleProvider(private val context: Context) {
     private fun CarPropertyManager.readDouble(propertyId: Int): Double? =
         runCatching { getFloatProperty(propertyId, DEFAULT_AREA_ID).toDouble() }.getOrNull()
             ?: runCatching { getIntProperty(propertyId, DEFAULT_AREA_ID).toDouble() }.getOrNull()
-
-    /**
-     * Safely handles the Car lifecycle.
-     * Mimics Kotlin's .use() for objects that require explicit disconnection.
-     */
-    private inline fun <R> Car.useConnection(block: (Car) -> R): R {
-        try {
-            return block(this)
-        } finally {
-            runCatching { disconnect() }
-        }
-    }
 
     companion object {
         private const val TAG = "AndroidCarVehicleProvider"

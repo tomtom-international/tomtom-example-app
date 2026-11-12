@@ -32,15 +32,15 @@ class EvAccessType private constructor(
     companion object {
         private val accessTypeProperties = hashMapOf(
             AccessType.Public to Pair(
-                R.drawable.outline_public_24px,
+                R.drawable.outline_public_32px,
                 R.string.demo_search_ev_label_access_type_option_public,
             ),
             AccessType.Private to Pair(
-                R.drawable.outline_lock_24px,
+                R.drawable.outline_lock_32px,
                 R.string.demo_search_ev_label_access_type_option_private,
             ),
             AccessType.Restricted to Pair(
-                R.drawable.outline_passkey_24px,
+                R.drawable.outline_passkey_32px,
                 R.string.demo_search_ev_label_access_type_option_restricted,
             ),
             AccessType.Company to Pair(

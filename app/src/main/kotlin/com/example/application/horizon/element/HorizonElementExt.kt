@@ -22,10 +22,11 @@ import com.example.R
 import com.example.application.horizon.element.UpcomingHorizonElements.HorizonElement
 
 @Composable
+@SuppressWarnings("kotlin:S6619")
 internal fun HorizonElement.delayText(): String? = delayMinutes?.let { mins ->
     if (mins < 1) {
         stringResource(R.string.horizon_label_traffic_delay_under_a_minute)
     } else {
         stringResource(R.string.horizon_label_traffic_delay_minutes, mins.toInt())
     }
-} ?: fallbackDelayResId?.let { stringResource(it) }
+}

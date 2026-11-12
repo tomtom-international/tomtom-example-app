@@ -228,33 +228,10 @@ class MainActivity : ComponentActivity() {
         deploymentMode: DeploymentMode,
         telemetryConsent: suspend () -> UserConsent,
     ) {
-        val sdkConfiguration = when (deploymentMode) {
-            ONLINE_ONLY -> buildSdkConfiguration(
-                context = application,
-                apiKey = BuildConfig.TOMTOM_API_KEY,
-                telemetryUserConsent = telemetryConsent,
-                coreConfiguration = {
-                    loggingConfiguration = {
-                        level = LogLevel.WARN
-                    }
-                },
-            )
-
-            ONLINE_FIRST -> buildSdkConfiguration(
-                context = application,
-                apiKey = BuildConfig.TOMTOM_API_KEY,
-                regionStorePath = viewModel.mapDir,
-                telemetryUserConsent = telemetryConsent,
-                coreConfiguration = {
-                    loggingConfiguration = {
-                        level = LogLevel.WARN
-                    }
-                },
-                regionStoreConfiguration = {
-                    keyStorePath = viewModel.ndsKeyStorePath
-                },
-            )
-        }
+        val sdkConfiguration = createSdkConfiguration(
+            deploymentMode = deploymentMode,
+            telemetryConsent = telemetryConsent,
+        )
 
         TomTomSdk.initialize(context = application, sdkConfiguration = sdkConfiguration)
 
@@ -278,6 +255,37 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun createSdkConfiguration(
+        deploymentMode: DeploymentMode,
+        telemetryConsent: suspend () -> UserConsent,
+    ) = when (deploymentMode) {
+        ONLINE_ONLY -> buildSdkConfiguration(
+            context = application,
+            apiKey = BuildConfig.TOMTOM_API_KEY,
+            telemetryUserConsent = telemetryConsent,
+            coreConfiguration = {
+                loggingConfiguration = {
+                    level = LogLevel.WARN
+                }
+            },
+        )
+
+        ONLINE_FIRST -> buildSdkConfiguration(
+            context = application,
+            apiKey = BuildConfig.TOMTOM_API_KEY,
+            regionStorePath = viewModel.mapDir,
+            telemetryUserConsent = telemetryConsent,
+            coreConfiguration = {
+                loggingConfiguration = {
+                    level = LogLevel.WARN
+                }
+            },
+            regionStoreConfiguration = {
+                keyStorePath = viewModel.ndsKeyStorePath
+            },
+        )
     }
 
     private fun extractMapAssets() = OnboardMapAssetsExtractor.extractMapAssets(

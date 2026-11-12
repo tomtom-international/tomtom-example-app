@@ -19,8 +19,8 @@ package com.example.automotive.settings.data.model
 /**
  * Represents persisted user settings.
  *
- * @param consentLevel The user's telemetry consent choice, or null if not yet set (first run).
+ * @param telemetryConsentLevel The user's telemetry consent choice, or null if not yet set (first run).
  */
 data class Settings(
-    val consentLevel: ConsentLevel?,
+    val telemetryConsentLevel: TelemetryConsentLevel?,
 )

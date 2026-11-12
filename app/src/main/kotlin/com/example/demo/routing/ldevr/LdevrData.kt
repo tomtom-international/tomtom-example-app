@@ -172,24 +172,24 @@ private class EvCarsProperties private constructor(
         )
 
         val MediumRangeCar = EvCarsProperties(
-            consumption = consumptions[EvCarRange.Medium]!!,
-            batteryCurve = batteryCurves[EvCarRange.Medium]!!,
-            chargingConnector = chargingConnectors[EvCarRange.Medium]!!,
-            chargeLevel = chargeLevel[EvCarRange.Medium]!!,
+            consumption = consumptions.getValue(EvCarRange.Medium),
+            batteryCurve = batteryCurves.getValue(EvCarRange.Medium),
+            chargingConnector = chargingConnectors.getValue(EvCarRange.Medium),
+            chargeLevel = chargeLevel.getValue(EvCarRange.Medium),
         )
 
         val ShortRangeCar = EvCarsProperties(
-            consumption = consumptions[EvCarRange.Short]!!,
-            batteryCurve = batteryCurves[EvCarRange.Short]!!,
-            chargingConnector = chargingConnectors[EvCarRange.Short]!!,
-            chargeLevel = chargeLevel[EvCarRange.Short]!!,
+            consumption = consumptions.getValue(EvCarRange.Short),
+            batteryCurve = batteryCurves.getValue(EvCarRange.Short),
+            chargingConnector = chargingConnectors.getValue(EvCarRange.Short),
+            chargeLevel = chargeLevel.getValue(EvCarRange.Short),
         )
 
         val LargeRangeCar = EvCarsProperties(
-            consumption = consumptions[EvCarRange.Large]!!,
-            batteryCurve = batteryCurves[EvCarRange.Large]!!,
-            chargingConnector = chargingConnectors[EvCarRange.Large]!!,
-            chargeLevel = chargeLevel[EvCarRange.Large]!!,
+            consumption = consumptions.getValue(EvCarRange.Large),
+            batteryCurve = batteryCurves.getValue(EvCarRange.Large),
+            chargingConnector = chargingConnectors.getValue(EvCarRange.Large),
+            chargeLevel = chargeLevel.getValue(EvCarRange.Large),
         )
     }
 }

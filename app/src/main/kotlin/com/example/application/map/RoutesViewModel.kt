@@ -31,9 +31,9 @@ import com.tomtom.sdk.routing.RoutePlanner
 import com.tomtom.sdk.routing.RoutePlanningCallback
 import com.tomtom.sdk.routing.RoutePlanningResponse
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.options.Itinerary
 import com.tomtom.sdk.routing.options.RoutePlanningOptions
+import com.tomtom.sdk.routing.options.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.route.Route
 import com.tomtom.sdk.routing.route.RouteId
 import com.tomtom.sdk.routing.route.RouteStop
@@ -109,8 +109,9 @@ class RoutesViewModel(
         planRoute(
             newRoutePlanningOptions = buildRoutePlanningOptions(
                 itinerary = Itinerary(origin, destination, waypoints),
-                language = Locale.getDefault(),
-            ),
+            ) {
+                language = Locale.getDefault()
+            },
             onRoutePlanningSuccess = onRoutePlanningSuccess,
             onRoutePlanningFailure = onRoutePlanningFailure,
         )

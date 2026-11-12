@@ -28,8 +28,10 @@ import com.example.application.common.PlaceDetails
 import com.example.application.common.ui.RecenterMapStateHolder
 import com.example.application.map.MapScreenViewModel
 import com.example.application.map.RoutesViewModel
+import com.example.application.map.model.MapScreenAction.AcceptBetterRouteProposal
 import com.example.application.map.model.MapScreenAction.CleanRoutePreview
 import com.example.application.map.model.MapScreenAction.ClearMap
+import com.example.application.map.model.MapScreenAction.DismissBetterRouteProposal
 import com.example.application.map.model.MapScreenAction.RecenterMap
 import com.example.application.map.model.MapScreenAction.ShowRoutePreview
 import com.example.application.map.model.MapScreenAction.ShowRoutingFailure
@@ -219,6 +221,7 @@ fun rememberScenarioHolders(
         mapScreenViewModel.nextInstruction,
         mapScreenViewModel.upcomingHorizonElements,
         mapScreenViewModel.laneGuidance,
+        mapScreenViewModel.betterRouteProposal,
         mapScreenUiState.cameraTrackingMode,
         isDeviceInLandscape,
         onSafeAreaTopPaddingUpdate,
@@ -233,6 +236,9 @@ fun rememberScenarioHolders(
             nextInstruction = mapScreenViewModel.nextInstruction,
             horizonElementsFlow = mapScreenViewModel.upcomingHorizonElements,
             laneGuidance = mapScreenViewModel.laneGuidance,
+            betterRouteProposal = mapScreenViewModel.betterRouteProposal,
+            onAcceptBetterRouteProposal = { mapScreenViewModel.dispatchAction(AcceptBetterRouteProposal) },
+            onDismissBetterRouteProposal = { mapScreenViewModel.dispatchAction(DismissBetterRouteProposal) },
             onMapModeToggleClick = { mapScreenViewModel.dispatchAction(ToggleCameraTrackingMode(it)) },
             cameraTrackingMode = mapScreenUiState.cameraTrackingMode,
             isDeviceInLandscape = isDeviceInLandscape,

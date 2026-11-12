@@ -22,6 +22,7 @@ import com.tomtom.sdk.location.LocationProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -41,38 +42,42 @@ class FreeDrivingManager(private val defaultDispatcher: CoroutineDispatcher = Di
 
     private val locationCache = mutableListOf<GeoPoint?>()
 
-    fun getIsDrivingFlow(onGetLocationProvider: () -> LocationProvider?) = flow {
+    fun getIsDrivingFlow(locationProvider: LocationProvider) = locationFlow(locationProvider)
+        .map(::updateIsDriving)
+        .distinctUntilChanged()
+        .flowOn(defaultDispatcher)
+
+    private fun locationFlow(locationProvider: LocationProvider) = flow {
         while (currentCoroutineContext().isActive) {
-            onGetLocationProvider()?.lastKnownLocation?.let { lastKnownLocation ->
-                lastKnownLocation.accuracy?.let {
-                    if (it < ACCURACY_THRESHOLD) {
-                        emit(lastKnownLocation.position)
-                    } else {
-                        emit(null)
-                    }
-                } ?: emit(lastKnownLocation.position)
-            }
+            emitCurrentPosition(locationProvider)
             delay(LOCATION_EVENTS_INTERVAL)
         }
-    }.map { position ->
+    }
+
+    private suspend fun FlowCollector<GeoPoint?>.emitCurrentPosition(locationProvider: LocationProvider) {
+        val lastKnownLocation = locationProvider.lastKnownLocation ?: return
+        val accuracy = lastKnownLocation.accuracy
+        if (accuracy == null || accuracy < ACCURACY_THRESHOLD) {
+            emit(lastKnownLocation.position)
+        } else {
+            emit(null)
+        }
+    }
+
+    private fun updateIsDriving(position: GeoPoint?): Boolean {
         if (locationCache.size >= MAX_CACHE_SIZE) {
             locationCache.removeAt(0)
         }
         locationCache.add(position)
 
         if (position != null) {
-            isDriving =
-                locationCache.any { cachedLocation ->
-                    if (cachedLocation != null) {
-                        position.distanceTo(cachedLocation) > THRESHOLD_DISTANCE_METERS
-                    } else {
-                        false
-                    }
-                }
+            isDriving = locationCache.any { cachedLocation ->
+                cachedLocation != null && position.distanceTo(cachedLocation) > THRESHOLD_DISTANCE_METERS
+            }
         }
 
-        isDriving
-    }.distinctUntilChanged().flowOn(defaultDispatcher)
+        return isDriving
+    }
 
     companion object {
         private val LOCATION_EVENTS_INTERVAL = 1.seconds.toJavaDuration()

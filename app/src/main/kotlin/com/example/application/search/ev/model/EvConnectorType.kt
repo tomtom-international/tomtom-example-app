@@ -32,47 +32,47 @@ class EvConnectorType private constructor(
     companion object {
         private val connectorProperties = hashMapOf(
             ConnectorType.StandardHouseholdCountrySpecific to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_standard_household,
             ),
             ConnectorType.Iec62196Type1 to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_type1,
             ),
             ConnectorType.Iec62196Type1Ccs to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_type1_combo,
             ),
             ConnectorType.Iec62196Type2CableAttached to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_type2_cable,
             ),
             ConnectorType.Iec62196Type2Outlet to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_type2,
             ),
             ConnectorType.Iec62196Type2Ccs to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_type2_combo,
             ),
             ConnectorType.Iec62196Type3 to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_type3,
             ),
             ConnectorType.Chademo to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_chademo,
             ),
             ConnectorType.Gbt20234Part2 to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_china_part2,
             ),
             ConnectorType.Gbt20234Part3 to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_china_part3,
             ),
             ConnectorType.Tesla to Pair(
-                R.drawable.outline_outlet_24px,
+                R.drawable.outline_outlet_32px,
                 R.string.demo_search_ev_label_connector_type_option_tesla,
             ),
         )
@@ -80,7 +80,7 @@ class EvConnectorType private constructor(
         fun fromType(connectorType: ConnectorType): EvConnectorType {
             val (imageVector, connectorDescription) = connectorProperties[connectorType]
                 ?: Pair(
-                    R.drawable.outline_outlet_24px,
+                    R.drawable.outline_outlet_32px,
                     R.string.demo_search_ev_label_connector_type_option_unknown,
                 )
             return EvConnectorType(connectorType, imageVector, connectorDescription)

@@ -26,7 +26,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.application.common.extension.onFailureIgnoreCancellation
 import com.example.application.settings.data.SettingsRepository
-import com.example.application.settings.data.toUserConsent
+import com.example.onboarding.TelemetryConsentLevel
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.telemetry.UserConsent
 import kotlinx.coroutines.CoroutineDispatcher
@@ -122,7 +122,7 @@ class MainViewModel(
         }
 
         if (!TomTomSdk.isInitialized) {
-            onTomTomSdkInitialize(deploymentMode) { consentLevel.toUserConsent() }
+            onTomTomSdkInitialize(deploymentMode) { TelemetryConsentLevel.fromStorageKey(consentLevel).toUserConsent() }
         }
     }
 

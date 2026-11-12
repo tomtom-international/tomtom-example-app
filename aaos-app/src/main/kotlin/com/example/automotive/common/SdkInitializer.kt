@@ -24,11 +24,16 @@ import com.tomtom.sdk.common.configuration.buildSdkConfiguration
 import com.tomtom.sdk.datamanagement.nds.update.BetaNdsStoreUpdateApi
 import com.tomtom.sdk.datamanagement.nds.update.NdsStoreAutomaticUpdatesConfiguration
 import com.tomtom.sdk.init.TomTomSdk
+import com.tomtom.sdk.navigation.BetaNavigationConfigurationApi
+import com.tomtom.sdk.navigation.guidance.AnnouncementMode
+import com.tomtom.sdk.navigation.replanning.BetterProposalAcceptanceMode
+import com.tomtom.sdk.navigation.replanning.DeviationReplanningMode
 import com.tomtom.sdk.telemetry.UserConsent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * Handles TomTom SDK initialization including map extraction and configuration.
@@ -90,7 +95,7 @@ class SdkInitializer(
 
     private fun regionStoreExists() = mapDir.isValidMapDir()
 
-    @OptIn(BetaNdsStoreUpdateApi::class)
+    @OptIn(BetaNdsStoreUpdateApi::class, BetaNavigationConfigurationApi::class)
     private fun initializeTomTomSdk(telemetryConsent: suspend () -> UserConsent) {
         if (TomTomSdk.isInitialized) {
             Log.i(TAG, "SDK already initialized, skipping initialization")
@@ -110,6 +115,12 @@ class SdkInitializer(
                             allRegions = NdsStoreAutomaticUpdatesConfiguration.AllRegions()
                         }
                     }
+                },
+                navigationConfiguration = {
+                    betterProposalAcceptanceMode = BetterProposalAcceptanceMode.Automatic
+                    deviationReplanningMode = DeviationReplanningMode.Automatic
+                    replanRouteInterval = 5.minutes
+                    guidanceAnnouncementMode = AnnouncementMode.Comprehensive
                 },
             ),
         )

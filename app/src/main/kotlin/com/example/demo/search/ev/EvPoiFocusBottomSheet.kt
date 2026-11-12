@@ -45,6 +45,7 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,7 +57,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.application.common.BOTTOMSHEET_PADDING_TOP
@@ -73,7 +77,11 @@ import com.example.application.search.ev.model.EvConnectorType
 import com.example.application.search.ev.model.EvNearbyPoiCategory
 import com.tomtom.quantity.Power
 import com.tomtom.sdk.location.poi.ev.Status
+import com.tomtom.sdk.location.poi.time.OpeningHours
 import com.tomtom.sdk.vehicle.ConnectorType
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,6 +119,10 @@ fun EvPoiFocusBottomSheet(
             if (isExpanded) {
                 NearbyPoiList(
                     placeDetails = placeDetails,
+                    modifier = Modifier,
+                )
+                OpeningHoursSection(
+                    openingHours = placeDetails.place.details?.openingHours,
                     modifier = Modifier,
                 )
                 EvChargePointsList(
@@ -305,6 +317,85 @@ private fun EvChargePointsList(
             }
         }
     }
+}
+
+@Composable
+private fun OpeningHoursSection(
+    openingHours: OpeningHours?,
+    modifier: Modifier,
+) {
+    if (openingHours == null) return
+
+    var toggleFullWeekDropdown by rememberSaveable { mutableStateOf(false) }
+    val today = remember { Date() }
+    val locale = Locale.getDefault()
+    val openLabel = stringResource(R.string.demo_search_ev_label_opening_hours_open_24h)
+    val closedLabel = stringResource(R.string.demo_search_ev_label_opening_hours_closed)
+    val todayLabel = stringResource(R.string.demo_search_ev_label_opening_hours_today)
+    val dayOfWeekFormat = remember(locale) { SimpleDateFormat("EEEE", locale) }
+
+    val todayText = remember(openingHours, today, openLabel, closedLabel) {
+        openingHours.formatForDay(today, openLabel, closedLabel, locale)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable { toggleFullWeekDropdown = !toggleFullWeekDropdown },
+        ) {
+            Text(
+                text = stringResource(R.string.demo_search_ev_label_opening_hours),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary,
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 8.dp)
+                    .weight(1f),
+                color = MaterialTheme.colorScheme.secondary,
+            )
+            Icon(
+                imageVector =
+                    if (toggleFullWeekDropdown) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = stringResource(
+                    R.string.demo_search_ev_content_description_opening_hours_arrow,
+                ),
+                tint = MaterialTheme.colorScheme.secondary,
+            )
+        }
+
+        Text(
+            text = buildOpeningHoursDayText(todayLabel, todayText),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+
+        if (toggleFullWeekDropdown) {
+            daysAfterToday(today).forEach { day ->
+                val dayText = openingHours.formatForDay(day, openLabel, closedLabel, locale)
+                Text(
+                    text = buildOpeningHoursDayText(dayOfWeekFormat.format(day), dayText),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+        }
+    }
+}
+
+private fun buildOpeningHoursDayText(
+    dayLabel: String,
+    hoursText: String,
+) = buildAnnotatedString {
+    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(dayLabel) }
+    append(": $hoursText")
 }
 
 @Composable

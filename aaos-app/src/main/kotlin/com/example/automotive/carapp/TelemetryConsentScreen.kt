@@ -24,37 +24,37 @@ import androidx.car.app.model.ListTemplate
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import com.example.automotive.R
-import com.example.automotive.settings.data.model.ConsentLevel
+import com.example.automotive.settings.data.model.TelemetryConsentLevel
 
 /**
  * Screen that presents the telemetry consent options to the user on first launch.
  * Uses a [ListTemplate] so there is no restriction on the number of selectable items.
  *
  * @param carContext CarContext from the Car App Library
- * @param onConsentSelected Callback invoked with the chosen [ConsentLevel]
+ * @param onConsentSelected Callback invoked with the chosen [TelemetryConsentLevel]
  */
 class TelemetryConsentScreen(
     carContext: CarContext,
-    private val onConsentSelected: (ConsentLevel) -> Unit,
+    private val onConsentSelected: (TelemetryConsentLevel) -> Unit,
 ) : Screen(carContext) {
     override fun onGetTemplate(): Template {
         val itemList = ItemList.Builder()
             .addItem(
                 Row.Builder()
                     .setTitle(carContext.getString(R.string.template_label_telemetry_consent_off))
-                    .setOnClickListener { onConsentSelected(ConsentLevel.OFF) }
+                    .setOnClickListener { onConsentSelected(TelemetryConsentLevel.OFF) }
                     .build(),
             )
             .addItem(
                 Row.Builder()
                     .setTitle(carContext.getString(R.string.template_label_telemetry_consent_location_only))
-                    .setOnClickListener { onConsentSelected(ConsentLevel.LOCATION_ONLY) }
+                    .setOnClickListener { onConsentSelected(TelemetryConsentLevel.LOCATION_ONLY) }
                     .build(),
             )
             .addItem(
                 Row.Builder()
                     .setTitle(carContext.getString(R.string.template_label_telemetry_consent_on))
-                    .setOnClickListener { onConsentSelected(ConsentLevel.ON) }
+                    .setOnClickListener { onConsentSelected(TelemetryConsentLevel.ON) }
                     .build(),
             )
             .build()

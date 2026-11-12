@@ -32,9 +32,9 @@ import com.tomtom.sdk.routing.RoutePlanner
 import com.tomtom.sdk.routing.RoutePlanningCallback
 import com.tomtom.sdk.routing.RoutePlanningResponse
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.options.Itinerary
 import com.tomtom.sdk.routing.options.ItineraryPoint
+import com.tomtom.sdk.routing.options.buildRoutePlanningOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -104,7 +104,7 @@ class RoutingWithWaypointsViewModel(
 
         val routePlanningOptions = buildRoutePlanningOptions(
             itinerary = itinerary,
-        )
+        ) {}
 
         routePlanJob = routePlanner.planRoute(
             routePlanningOptions = routePlanningOptions,

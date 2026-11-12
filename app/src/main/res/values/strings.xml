@@ -128,6 +128,11 @@ limitations under the License.
     <string name="demo_search_ev_label_connector_type_option_type3">Type 3 (IEC 62196–2)</string>
     <string name="demo_search_ev_label_connector_type_option_unknown">Unknown connector</string>
     <string name="demo_search_ev_label_nearby_poi">Nearby POIs</string>
+    <string name="demo_search_ev_label_opening_hours">Opening hours</string>
+    <string name="demo_search_ev_label_opening_hours_open_24h">Open 24 hours</string>
+    <string name="demo_search_ev_label_opening_hours_closed">Closed</string>
+    <string name="demo_search_ev_label_opening_hours_today">Today</string>
+    <string name="demo_search_ev_content_description_opening_hours_arrow">Show opening hours for the week</string>
     <string name="demo_search_ev_label_state_option_available">Available</string>
     <string name="demo_search_ev_label_state_option_occupied">Occupied</string>
     <string name="demo_search_ev_label_state_option_out_of_service">Out of service</string>
@@ -152,6 +157,11 @@ limitations under the License.
     <string name="demo_search_subtitle">Search features</string>
     <string name="demo_search_title">Search</string>
 
+    <string name="guidance_better_route_button_accept">Accept</string>
+    <string name="guidance_better_route_button_dismiss">Dismiss</string>
+    <string name="guidance_better_route_content_description_icon">Better route available</string>
+    <string name="guidance_better_route_label_better_route">Better route found</string>
+    <string name="guidance_better_route_label_time_saved">Save %1$d min</string>
     <string name="guidance_button_exit">Exit</string>
     <string name="guidance_content_description_next_instruction_panel_poi">Next Panel Instruction</string>
 
@@ -206,9 +216,12 @@ limitations under the License.
 
     <string name="route_preview_button_drive">Drive</string>
 
+    <string name="search_content_description_access_gateway_poi">Access gateway</string>
     <string name="search_content_description_cafe_poi">Cafe</string>
+    <string name="search_content_description_entry_poi">Entry</string>
     <string name="search_content_description_gas_station_poi">Gas station</string>
     <string name="search_content_description_hotel_poi">Hotel</string>
+    <string name="search_content_description_open_parking_poi">Open parking</string>
     <string name="search_content_description_park_poi">Park</string>
     <string name="search_content_description_parking_poi">Parking garage</string>
     <string name="search_content_description_public_amenity_poi">Public amenity</string>
@@ -217,6 +230,8 @@ limitations under the License.
     <string name="search_content_description_search">Search</string>
     <string name="search_content_description_search_result">Location</string>
     <string name="search_content_description_shop_poi">Shop</string>
+    <string name="search_content_description_station_access_poi">Station access</string>
+    <string name="search_content_description_terminal_poi">Terminal</string>
     <string name="search_error_empty_results">No results for this input</string>
     <string name="search_error_failed">Search failed</string>
     <string name="search_error_message">Error</string>
@@ -227,5 +242,6 @@ limitations under the License.
     <string name="settings_label_telemetry_consent_off">Off</string>
     <string name="settings_label_telemetry_consent_location_only">Location only</string>
     <string name="settings_label_telemetry_consent_on">On</string>
+
     <string name="settings_title">Settings</string>
 </resources>

@@ -211,7 +211,10 @@ private fun BottomPanel(
 
             LazyColumn(modifier = Modifier.fillMaxHeight()) {
                 items(items = searchResults) { searchResult ->
-                    SearchResultItem(item = searchResult, onSearchResultClick = {})
+                    SearchResultItem(
+                        item = searchResult,
+                        onSearchResultClick = {},
+                    )
                 }
             }
         }

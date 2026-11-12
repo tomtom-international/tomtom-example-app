@@ -33,9 +33,6 @@ data class UpcomingHorizonElements(
         @get:StringRes
         abstract val descriptionResource: Int
 
-        @get:StringRes
-        open val fallbackDelayResId: Int? = null
-
         open val delayMinutes: Long? = null
 
         fun formattedDistance(): String? = distance

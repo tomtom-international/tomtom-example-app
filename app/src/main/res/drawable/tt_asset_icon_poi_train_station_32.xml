@@ -1,0 +1,35 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M19.992,21.979C20.545,21.979 20.992,21.531 20.992,20.979C20.992,20.427 20.545,19.979 19.992,19.979C19.44,19.979 18.992,20.427 18.992,20.979C18.992,21.531 19.44,21.979 19.992,21.979Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M11.986,22.009C12.539,22.009 12.986,21.562 12.986,21.009C12.986,20.456 12.539,20.009 11.986,20.009C11.433,20.009 10.986,20.456 10.986,21.009C10.986,21.562 11.433,22.009 11.986,22.009Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M16.974,8.97H14.986C14.433,8.97 13.986,8.523 13.986,7.97C13.986,7.417 14.433,6.97 14.986,6.97H16.974C17.527,6.97 17.974,7.417 17.974,7.97C17.974,8.523 17.527,8.97 16.974,8.97Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M24.989,22.982V9.996C24.989,6.689 22.299,4 18.993,4H12.997C9.69,4 7,6.689 7,9.996V22.982C7,24.085 7.898,24.982 9,24.982H10.569L7.293,28.257C6.903,28.648 6.903,29.281 7.293,29.671C7.489,29.867 7.745,29.964 8,29.964C8.256,29.964 8.512,29.867 8.707,29.671L9.396,28.983L22.56,28.981L23.268,29.689C23.463,29.884 23.719,29.982 23.975,29.982C24.231,29.982 24.487,29.884 24.682,29.689C25.073,29.298 25.073,28.666 24.682,28.275L21.388,24.982H22.989C24.091,24.982 24.989,24.085 24.989,22.982ZM20.56,26.981L11.396,26.983L13.397,24.982H18.56L20.56,26.981ZM9,18.974H22.99L22.991,22.982H9V18.974ZM12.997,6H18.993C21.196,6 22.989,7.793 22.989,9.996L9,9.997C9,7.794 10.793,6 12.997,6ZM22.99,16.974H9V11.997H22.989L22.99,16.974Z"
+      android:fillColor="#FFFFFF"
+      android:fillType="evenOdd"/>
+</vector>

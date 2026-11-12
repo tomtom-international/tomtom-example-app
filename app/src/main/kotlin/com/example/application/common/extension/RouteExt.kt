@@ -20,6 +20,7 @@ import com.example.application.common.formatDistance
 import com.tomtom.sdk.location.GeoLocation
 import com.tomtom.sdk.navigation.progress.RouteProgress
 import com.tomtom.sdk.routing.route.Route
+import java.time.Instant
 import java.time.Instant.now
 import java.time.format.DateTimeFormatter
 
@@ -37,8 +38,9 @@ fun Route.formattedDepartureTimeWithDate(): String {
     return "$time, $date"
 }
 
-fun RouteProgress.formattedRemainingTime(): String =
-    now().plusSeconds(remainingTime.inWholeSeconds).toEpochMilli().asFormattedTime()
+fun RouteProgress.arrivalTime(): Instant = now().plusSeconds(remainingTime.inWholeSeconds)
+
+fun RouteProgress.formattedRemainingTime(): String = arrivalTime().toEpochMilli().asFormattedTime()
 
 fun Route.formattedDistance(): String = formatDistance(summary.length)
 

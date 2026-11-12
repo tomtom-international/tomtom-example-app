@@ -23,7 +23,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.application.settings.data.SettingsRepository
-import com.example.application.settings.data.toUserConsent
+import com.example.onboarding.TelemetryConsentLevel
 import com.tomtom.sdk.telemetry.Telemetry
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +53,7 @@ class SettingsViewModel(
     fun updateTelemetryConsentLevel(index: Int) {
         viewModelScope.launch {
             settingsRepository.updateTelemetryConsentLevel(index)
-            Telemetry.setConsent(index.toUserConsent())
+            Telemetry.setConsent(TelemetryConsentLevel.fromStorageKey(index).toUserConsent())
         }
     }
 

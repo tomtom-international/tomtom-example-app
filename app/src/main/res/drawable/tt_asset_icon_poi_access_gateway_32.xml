@@ -1,0 +1,44 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M27.352,5.757L27.596,6.727C27.73,7.262 27.405,7.806 26.869,7.94C26.333,8.075 25.79,7.749 25.656,7.213L25.412,6.244C25.278,5.708 25.603,5.165 26.139,5.031C26.674,4.896 27.217,5.221 27.352,5.757Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M9,10.502C9,11.33 9.672,12.002 10.5,12.002C11.328,12.002 12,11.33 12,10.502C12,9.674 11.328,9.002 10.5,9.002C9.672,9.002 9,9.674 9,10.502Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M5,10.502V22.002C5,22.555 5.447,23.002 6,23.002H15C15.553,23.002 16,22.555 16,22.002V10.502C16,7.47 13.532,5.002 10.5,5.002C7.468,5.002 5,7.47 5,10.502ZM14,10.502V21.002H7V10.502C7,8.572 8.57,7.002 10.5,7.002C12.43,7.002 14,8.572 14,10.502Z"
+      android:fillColor="#FFFFFF"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M4,25.002C3.447,25.002 3,25.449 3,26.002C3,26.555 3.447,27.002 4,27.002H28C28.553,27.002 29,26.555 29,26.002C29,25.449 28.553,25.002 28,25.002H4Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M25,15.002C25,14.449 25.447,14.002 26,14.002C26.553,14.002 27,14.449 27,15.002V22.002C27,22.555 26.553,23.002 26,23.002C25.447,23.002 25,22.555 25,22.002V15.002Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M17.652,8.192C17.519,7.656 17.844,7.113 18.379,6.978C18.915,6.844 19.458,7.169 19.593,7.705L19.836,8.674C19.971,9.21 19.646,9.753 19.109,9.888C18.574,10.022 18.03,9.697 17.897,9.162L17.652,8.192Z"
+      android:fillColor="#FFFFFF"/>
+  <path
+      android:pathData="M22.259,6.004C21.723,6.139 21.398,6.682 21.532,7.217L21.776,8.188C21.91,8.723 22.453,9.048 22.989,8.914C23.525,8.779 23.85,8.236 23.716,7.7L23.472,6.731C23.338,6.194 22.794,5.869 22.259,6.004Z"
+      android:fillColor="#FFFFFF"/>
+</vector>

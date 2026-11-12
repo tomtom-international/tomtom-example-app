@@ -27,7 +27,7 @@ import com.example.automotive.carapp.cluster.ClusterNavigationSession
 import com.example.automotive.common.HostValidatorFactory
 import com.example.automotive.common.SdkInitializer
 import com.example.automotive.settings.data.LocalSettingsRepository
-import com.example.automotive.settings.data.model.ConsentLevel
+import com.example.automotive.settings.data.model.TelemetryConsentLevel
 import com.tomtom.sdk.init.TomTomSdk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +64,7 @@ class NavigationService : CarAppService() {
 
     private val settingsRepository by lazy { LocalSettingsRepository(dataStore) }
 
-    fun onConsentSelected(level: ConsentLevel) {
+    fun onConsentSelected(level: TelemetryConsentLevel) {
         serviceScope.launch {
             settingsRepository.updateConsentLevel(level)
             consentRequired.value = false
@@ -79,8 +79,8 @@ class NavigationService : CarAppService() {
         }
         try {
             sdkInitializer.initializeSdk {
-                settingsRepository.settings.first().consentLevel?.toUserConsent()
-                    ?: ConsentLevel.OFF.toUserConsent()
+                settingsRepository.settings.first().telemetryConsentLevel?.toUserConsent()
+                    ?: TelemetryConsentLevel.OFF.toUserConsent()
             }
             sdkInitialized.value = true
         } catch (error: IllegalStateException) {
@@ -108,7 +108,7 @@ class NavigationService : CarAppService() {
             Log.d(TAG, "Creating CarNavigationSession")
 
             serviceScope.launch {
-                val consentLevel = settingsRepository.settings.first().consentLevel
+                val consentLevel = settingsRepository.settings.first().telemetryConsentLevel
                 if (consentLevel == null) {
                     consentRequired.value = true
                 } else {

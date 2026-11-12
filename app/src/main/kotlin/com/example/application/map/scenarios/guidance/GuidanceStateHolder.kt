@@ -37,6 +37,9 @@ import kotlinx.coroutines.flow.StateFlow
  * @param nextInstruction: stream of next-instruction data for the top panel.
  * @param horizonElementsFlow: stream of upcoming horizon alerts to render.
  * @param laneGuidance: stream of lane guidance updates.
+ * @param betterRouteProposal: stream of the better route proposal awaiting the driver's decision, if any.
+ * @param onAcceptBetterRouteProposal: callback switching the trip to the proposed better route.
+ * @param onDismissBetterRouteProposal: callback hiding the proposal and keeping the current route.
  * @param onMapModeToggleClick: callback toggling camera tracking mode.
  * @param cameraTrackingMode: current camera tracking mode.
  * @param isDeviceInLandscape: whether the device is currently in landscape orientation.
@@ -53,6 +56,9 @@ class GuidanceStateHolder(
     val nextInstruction: StateFlow<NextInstruction?>,
     val horizonElementsFlow: StateFlow<UpcomingHorizonElements?>,
     val laneGuidance: StateFlow<LaneGuidance?>,
+    val betterRouteProposal: StateFlow<BetterRouteProposal?>,
+    val onAcceptBetterRouteProposal: () -> Unit,
+    val onDismissBetterRouteProposal: () -> Unit,
     val onMapModeToggleClick: (Boolean) -> Unit,
     val cameraTrackingMode: CameraTrackingMode,
     val isDeviceInLandscape: Boolean,

@@ -1,0 +1,26 @@
+<!--
+Copyright 2026 TomTom International BV.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M12.798,6.297C12.268,5.994 11.629,5.95 11.063,6.176L10.342,6.465C9.069,6.974 8.678,8.579 9.559,9.615L12.433,13.55L8.643,15.066L6.631,13.126L6.604,13.103C6.039,12.633 5.262,12.51 4.58,12.783L4.555,12.793L2.896,13.565C1.647,14.087 1.265,15.679 2.15,16.711L5.313,20.402C6.745,22.072 9.099,22.611 11.114,21.729L15,20.029L15,26.958C14.888,28.495 16.498,29.584 17.889,28.888L18.554,28.556C19.24,28.213 19.769,27.619 20.031,26.898L20.045,26.86L22.811,16.764L28,14.818C29.812,14.138 30.637,12.038 29.771,10.307C29.045,8.855 27.363,8.158 25.823,8.671L19.138,10.9L12.845,6.324L12.798,6.297ZM11.084,8.322L11.799,8.036L18.227,12.71L18.274,12.737C18.667,12.962 19.137,13.008 19.567,12.865L26.456,10.569C27.051,10.37 27.702,10.64 27.982,11.201C28.317,11.87 27.998,12.683 27.297,12.945L21.829,14.996C21.441,15.142 21.136,15.45 20.994,15.839L20.98,15.877L18.14,26.246C18.049,26.472 17.878,26.658 17.659,26.767L16.995,27.1L17,27.05L17,16.971L10.312,19.897C9.103,20.426 7.691,20.103 6.832,19.101L3.668,15.41L3.694,15.399L5.322,14.642L7.333,16.58L7.361,16.603C7.918,17.068 8.682,17.194 9.359,16.934L9.371,16.929L14.344,14.939L15.816,14.449C16.34,14.274 16.623,13.708 16.448,13.184C16.274,12.66 15.708,12.377 15.184,12.551L14.377,12.82L11.118,8.36L11.084,8.322Z"
+      android:fillColor="#FFFFFF"
+      android:fillType="evenOdd"/>
+</vector>

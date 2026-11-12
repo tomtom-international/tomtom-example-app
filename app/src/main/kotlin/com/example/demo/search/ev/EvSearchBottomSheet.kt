@@ -81,6 +81,8 @@ private val evSearchSheetHeight
         WindowInsets.statusBars.asPaddingValues().calculateTopPadding() -
         (BOTTOMSHEET_PADDING_TOP).dp
 
+private const val PREVIEW_CHARGING_SPEED_FILTER_DESCRIPTION = "Charging Speed"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvSearchBottomSheet(

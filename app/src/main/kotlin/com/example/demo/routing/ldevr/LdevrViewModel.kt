@@ -29,9 +29,9 @@ import com.tomtom.sdk.routing.RoutePlanner
 import com.tomtom.sdk.routing.RoutePlanningCallback
 import com.tomtom.sdk.routing.RoutePlanningResponse
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.buildEvRoutePlanningOptions
 import com.tomtom.sdk.routing.options.ChargingOptions
 import com.tomtom.sdk.routing.options.Itinerary
+import com.tomtom.sdk.routing.options.buildEvRoutePlanningOptions
 import com.tomtom.sdk.routing.route.RouteId
 import com.tomtom.sdk.vehicle.Vehicle
 import com.tomtom.sdk.vehicle.provider.VehicleProvider
@@ -90,7 +90,7 @@ class LdevrViewModel(
         val routePlanningOptions = buildEvRoutePlanningOptions(
             itinerary = Itinerary(TOMTOM_AMSTERDAM_OFFICE, PARIS),
             chargingOptions = chargingOptions,
-        )
+        ) {}
 
         routePlanJob = routePlanner.planRoute(
             routePlanningOptions = routePlanningOptions,

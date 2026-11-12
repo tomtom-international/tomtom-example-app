@@ -31,11 +31,11 @@ import com.tomtom.sdk.routing.RoutePlanner
 import com.tomtom.sdk.routing.RoutePlanningCallback
 import com.tomtom.sdk.routing.RoutePlanningResponse
 import com.tomtom.sdk.routing.RoutingFailure
-import com.tomtom.sdk.routing.buildEvRoutePlanningOptions
-import com.tomtom.sdk.routing.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.options.ChargingOptions
 import com.tomtom.sdk.routing.options.Itinerary
 import com.tomtom.sdk.routing.options.ItineraryPoint
+import com.tomtom.sdk.routing.options.buildEvRoutePlanningOptions
+import com.tomtom.sdk.routing.options.buildRoutePlanningOptions
 import com.tomtom.sdk.routing.options.calculation.PlanningTime
 import com.tomtom.sdk.routing.route.RouteId
 import com.tomtom.sdk.vehicle.Vehicle
@@ -148,7 +148,7 @@ class RouteWithTimingViewModel(
                 routePlanningOptions = buildEvRoutePlanningOptions(
                     itinerary = itinerary,
                     chargingOptions = chargingOptions,
-                ),
+                ) {},
                 callback,
             )
         } else {
@@ -156,7 +156,7 @@ class RouteWithTimingViewModel(
             routePlanJob = routePlanner.planRoute(
                 routePlanningOptions = buildRoutePlanningOptions(
                     itinerary = itinerary,
-                ),
+                ) {},
                 callback,
             )
         }

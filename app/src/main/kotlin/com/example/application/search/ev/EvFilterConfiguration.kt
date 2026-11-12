@@ -165,7 +165,7 @@ val evFilterCategories: Map<EvFilter, EvFilterCategory> = hashMapOf(
                 status = Status.Available,
             ),
             StatusEvFilterOption(
-                imageVector = R.drawable.outline_block_24px,
+                imageVector = R.drawable.outline_block_32px,
                 filterOptionDescription = R.string.demo_search_ev_label_state_option_occupied,
                 status = Status.Occupied,
             ),
@@ -175,14 +175,14 @@ val evFilterCategories: Map<EvFilter, EvFilterCategory> = hashMapOf(
                 status = Status.OutOfService,
             ),
             StatusEvFilterOption(
-                imageVector = R.drawable.outline_bookmark_24px,
+                imageVector = R.drawable.outline_bookmark_32px,
                 filterOptionDescription = R.string.demo_search_ev_label_state_option_reserved,
                 status = Status.Reserved,
             ),
         ),
     ),
     EvFilter.ACCESS_TYPE to EvFilterCategory(
-        imageVector = R.drawable.outline_public_24px,
+        imageVector = R.drawable.outline_public_32px,
         filterDescription = R.string.demo_search_ev_title_access_type_category,
         allowsMultipleOptions = true,
         filterOptions = listOf(

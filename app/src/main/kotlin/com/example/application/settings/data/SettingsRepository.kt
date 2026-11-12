@@ -17,18 +17,10 @@ limitations under the License.
 package com.example.application.settings.data
 
 import com.example.application.settings.data.model.Settings
-import com.tomtom.sdk.telemetry.UserConsent
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
     val settings: Flow<Settings>
 
     suspend fun updateTelemetryConsentLevel(value: Int)
-}
-
-fun Int.toUserConsent(): UserConsent = when (this) {
-    0 -> UserConsent.TelemetryOff
-    1 -> UserConsent.LocationOnly
-    2 -> UserConsent.TelemetryOn
-    else -> UserConsent.TelemetryOff
 }

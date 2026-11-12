@@ -177,7 +177,7 @@ class MapSurfaceCallback(
         )
 
         if (zoomDelta.isFinite()) {
-            cameraController.applyZoomDelta(zoomDelta, animate = true)
+            cameraController.applyZoomDelta(zoomDelta, animate = false)
         }
     }
 

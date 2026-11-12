@@ -36,7 +36,7 @@ val PlaceDetails.locationDetails: String
         ?: this.place.address.locationDetails.trim()
 
 val PlaceDetails.name: String
-    get() = this.place.details?.names?.firstOrNull() ?: this.place.address.locationName
+    get() = this.renderedPoiName ?: this.place.details?.names?.firstOrNull() ?: this.place.address.locationName
 
 val PlaceDetails.chargePointAvailability: MutableMap<ConnectorType, Map<Power, List<Status?>>>
     get() {

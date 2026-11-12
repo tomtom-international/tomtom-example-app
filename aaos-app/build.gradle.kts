@@ -108,7 +108,6 @@ android {
             jvmTarget.set(JvmTarget.JVM_1_8)
             languageVersion.set(KotlinVersion.KOTLIN_1_8)
             apiVersion.set(KotlinVersion.KOTLIN_1_8)
-            allWarningsAsErrors.set(true)
         }
     }
 

@@ -22,11 +22,10 @@ import androidx.car.app.ScreenManager
 import androidx.car.app.model.MessageTemplate
 import androidx.car.app.model.Template
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.automotive.R
-import com.example.automotive.settings.data.model.ConsentLevel
+import com.example.automotive.settings.data.model.TelemetryConsentLevel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
@@ -37,8 +36,9 @@ import kotlinx.coroutines.launch
  * Initial loading screen for AAOS application.
  *
  * Displays a loading spinner while waiting for the consent state to be read from DataStore and
- * for the SDK to initialize. On [Lifecycle.Event.ON_CREATE], launches a coroutine that waits for
- * [consentRequired] to emit a non-null value, shows [TelemetryConsentScreen] if needed, then
+ * for the SDK to initialize. On [androidx.lifecycle.Lifecycle.Event.ON_CREATE], launches a
+ * coroutine that waits for [consentRequired] to emit a non-null value, shows
+ * [TelemetryConsentScreen] if needed, then
  * suspends until SDK initialization succeeds or fails. Only on success is [buildMainScreen]
  * invoked, which guarantees [MainViewModel] is never created before the SDK is ready. On failure
  * this screen renders the initialization error instead.
@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 class LoadingScreen(
     carContext: CarContext,
     private val consentRequired: StateFlow<Boolean?>,
-    private val onConsentSelected: (ConsentLevel) -> Unit,
+    private val onConsentSelected: (TelemetryConsentLevel) -> Unit,
     private val sdkInitialized: StateFlow<Boolean>,
     private val initializationError: StateFlow<String?>,
     private val buildMainScreen: () -> MainScreen,

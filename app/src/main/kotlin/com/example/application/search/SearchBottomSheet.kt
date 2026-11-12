@@ -224,16 +224,16 @@ private fun SearchBottomSheetPreview() {
                         latitude = 37.7749,
                         longitude = -122.4194,
                     ),
-                    name = "Gas Station",
+                    name = PREVIEW_PLACE_NAME,
                     address = Address(
-                        freeformAddress = "123 Main St, Springfield, USA",
+                        freeformAddress = PREVIEW_FREEFORM_ADDRESS,
                         countrySecondarySubdivision = "Springfield",
                         municipality = "Springfield",
                         countryCodeIso3 = "USA",
                     ),
                 ),
             ),
-            distance = "2.5 km",
+            distance = PREVIEW_DISTANCE,
         )
     }
 
@@ -458,16 +458,16 @@ private fun SearchResultListPreview() {
                         latitude = 37.7749,
                         longitude = -122.4194,
                     ),
-                    name = "Gas Station",
+                    name = PREVIEW_PLACE_NAME,
                     address = Address(
-                        freeformAddress = "123 Main St, Springfield, USA",
+                        freeformAddress = PREVIEW_FREEFORM_ADDRESS,
                         countrySecondarySubdivision = "Springfield",
                         municipality = "Springfield",
                         countryCodeIso3 = "USA",
                     ),
                 ),
             ),
-            distance = "2.5 km",
+            distance = PREVIEW_DISTANCE,
         )
     }
 
@@ -513,14 +513,16 @@ fun SearchResultItem(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                text = item.placeDetails.locationDetails,
-                modifier = modifier.padding(top = 4.dp),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (item.placeDetails.locationDetails.isNotEmpty()) {
+                Text(
+                    text = item.placeDetails.locationDetails,
+                    modifier = modifier.padding(top = 4.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         Text(
             textAlign = TextAlign.Right,
@@ -533,6 +535,9 @@ fun SearchResultItem(
 }
 
 private const val LOCATION_DESCRIPTION_COLUMN_WEIGHT = 0.8f
+private const val PREVIEW_FREEFORM_ADDRESS = "123 Main St, Springfield, USA"
+private const val PREVIEW_PLACE_NAME = "Gas Station"
+private const val PREVIEW_DISTANCE = "2.5 km"
 
 @PreviewLightDark
 @Composable
@@ -547,16 +552,16 @@ private fun SearchResultItemPreview() {
                             latitude = 37.7749,
                             longitude = -122.4194,
                         ),
-                        name = "Gas Station",
+                        name = PREVIEW_PLACE_NAME,
                         address = Address(
-                            freeformAddress = "123 Main St, Springfield, USA",
+                            freeformAddress = PREVIEW_FREEFORM_ADDRESS,
                             countrySecondarySubdivision = "Springfield",
                             municipality = "Springfield",
                             countryCodeIso3 = "USA",
                         ),
                     ),
                 ),
-                distance = "2.5 km",
+                distance = PREVIEW_DISTANCE,
             ),
             onSearchResultClick = {},
             modifier = Modifier,

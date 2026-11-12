@@ -36,8 +36,8 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import com.example.automotive.carapp.cluster.ClusterData
 import com.example.automotive.map.MapSurfaceCallback
-import com.example.automotive.settings.data.model.ConsentLevel
-import com.example.automotive.vehicle.VehicleRepository
+import com.example.automotive.settings.data.model.TelemetryConsentLevel
+import com.example.automotive.vehicle.AndroidCarVehicleProvider
 import com.tomtom.sdk.init.TomTomSdk
 import com.tomtom.sdk.init.createReverseGeocoder
 import com.tomtom.sdk.init.createRoutePlanner
@@ -59,7 +59,7 @@ class CarNavigationSession(
     private val sdkInitialized: StateFlow<Boolean>,
     private val initializationError: StateFlow<String?>,
     private val consentRequired: StateFlow<Boolean?>,
-    private val onConsentSelected: (ConsentLevel) -> Unit,
+    private val onConsentSelected: (TelemetryConsentLevel) -> Unit,
     private val clusterData: ClusterData,
 ) : Session(), SavedStateRegistryOwner, ViewModelStoreOwner, DefaultLifecycleObserver {
     private val appManager: AppManager by lazy { carContext.getCarService(AppManager::class.java) }
@@ -85,7 +85,7 @@ class CarNavigationSession(
                         navigation = TomTomSdk.navigation,
                         locationProvider = TomTomSdk.locationProvider,
                         navigationManager = carContext.getCarService(NavigationManager::class.java),
-                        vehicleRepository = VehicleRepository(carContext),
+                        vehicleProvider = AndroidCarVehicleProvider(carContext),
                         clusterData = clusterData,
                     )
                 }

@@ -28,11 +28,13 @@ data class SearchPoiConfiguration(
 
 @DrawableRes
 fun getPoiIcon(categoryId: StandardCategoryId?): Int = poiOptions[categoryId]?.imageVector
-    ?: R.drawable.location_on_24px
+    ?: extendedPoiOptions[categoryId]?.imageVector
+    ?: R.drawable.location_on_32px
 
 @StringRes
 fun getPoiDescriptionString(categoryId: StandardCategoryId): Int =
     poiOptions.getOrDefault(categoryId, null)?.contentDescription
+        ?: extendedPoiOptions.getOrDefault(categoryId, null)?.contentDescription
         ?: R.string.search_content_description_search_result
 
 val poiOptions: HashMap<StandardCategoryId, SearchPoiConfiguration> = hashMapOf(
@@ -55,5 +57,33 @@ val poiOptions: HashMap<StandardCategoryId, SearchPoiConfiguration> = hashMapOf(
     StandardCategoryId.Hotel to SearchPoiConfiguration(
         R.drawable.tt_asset_icon_hotelmotel_fill_32,
         R.string.search_content_description_hotel_poi,
+    ),
+)
+
+val extendedPoiOptions: HashMap<StandardCategoryId, SearchPoiConfiguration> = hashMapOf(
+    // Terminal (Airline Access) Poi configuration
+    StandardCategoryId.AirlineAccess to SearchPoiConfiguration(
+        R.drawable.tt_asset_icon_poi_airport_32,
+        R.string.search_content_description_terminal_poi,
+    ),
+    // Entry Point Poi configuration
+    StandardCategoryId.EntryPoint to SearchPoiConfiguration(
+        R.drawable.location_on_32px,
+        R.string.search_content_description_entry_poi,
+    ),
+    // Access Gateway Poi configuration
+    StandardCategoryId.AccessGateway to SearchPoiConfiguration(
+        R.drawable.tt_asset_icon_poi_access_gateway_32,
+        R.string.search_content_description_access_gateway_poi,
+    ),
+    // Station Access Poi configuration
+    StandardCategoryId.StationAccess to SearchPoiConfiguration(
+        R.drawable.tt_asset_icon_poi_train_station_32,
+        R.string.search_content_description_station_access_poi,
+    ),
+    // Parking Poi configuration
+    StandardCategoryId.OpenParkingArea to SearchPoiConfiguration(
+        R.drawable.tt_asset_icon_parking_fill_32,
+        R.string.search_content_description_open_parking_poi,
     ),
 )

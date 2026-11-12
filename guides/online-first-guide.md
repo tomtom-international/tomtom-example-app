@@ -18,7 +18,7 @@ Enable Airplane Mode on your device to simulate a scenario where no new map data
 
 Move to the location where the offline maps have been downloaded. Navigate to the Amsterdan region within your app and zoom out to see the boundaries of the offline map.
 
-![Amsterdam Map](assets/amsterdam-map.png)
+<img src="assets/amsterdam-map.png" width="250" alt="Amsterdam Map">
 
 ## Explore Map Features Offline
 
@@ -28,4 +28,4 @@ Check for Points of Interest (POIs) such as landmarks, restaurants, or gas stati
 
 Create and simulate routes within the offline map area.
 
-![Route in Amsterdam](assets/route-in-amsterdam.png)
+<img src="assets/route-in-amsterdam.png" width="250" alt="Route in Amsterdam">

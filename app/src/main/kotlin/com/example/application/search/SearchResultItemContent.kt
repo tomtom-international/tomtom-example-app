@@ -34,7 +34,7 @@ data class SearchResultItemContent(
 fun SearchResult.toSearchResultItemContent() = SearchResultItemContent(
     iconId = place.details?.let {
         getPoiIcon(it.categoryIds.firstOrNull()?.standard)
-    } ?: R.drawable.location_on_24px,
+    } ?: R.drawable.location_on_32px,
     placeDetails = PlaceDetails(place),
     distance = distance?.let { formatDistance(it) } ?: "",
 )
@@ -48,7 +48,7 @@ fun EvSearchResult.toSearchResultItemContent(geoBias: GeoPoint? = null) = Search
 fun Place.toSearchResultItemContent() = SearchResultItemContent(
     iconId = details?.let {
         getPoiIcon(it.categoryIds.firstOrNull()?.standard)
-    } ?: R.drawable.location_on_24px,
+    } ?: R.drawable.location_on_32px,
     placeDetails = PlaceDetails(this),
     distance = "",
 )

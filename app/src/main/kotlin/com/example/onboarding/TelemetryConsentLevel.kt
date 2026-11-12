@@ -18,14 +18,28 @@ package com.example.onboarding
 
 import androidx.annotation.StringRes
 import com.example.R
+import com.tomtom.sdk.telemetry.UserConsent
 
 /**
- * Represents the user's telemetry consent level for privacy settings.
+ * Type-safe representation of the user's telemetry consent choice.
+ * [storageKey] is the integer persisted in DataStore for backward compatibility.
  */
 enum class TelemetryConsentLevel(
     @StringRes val labelRes: Int,
+    val storageKey: Int,
 ) {
-    OFF(R.string.onboarding_privacy_option_no_telemetry),
-    LOCATION_ONLY(R.string.onboarding_privacy_option_location_only),
-    FULL(R.string.onboarding_privacy_option_full_telemetry),
+    OFF(R.string.onboarding_privacy_option_no_telemetry, 0),
+    LOCATION_ONLY(R.string.onboarding_privacy_option_location_only, 1),
+    ON(R.string.onboarding_privacy_option_full_telemetry, 2),
+    ;
+
+    fun toUserConsent(): UserConsent = when (this) {
+        OFF -> UserConsent.TelemetryOff
+        LOCATION_ONLY -> UserConsent.LocationOnly
+        ON -> UserConsent.TelemetryOn
+    }
+
+    companion object {
+        fun fromStorageKey(key: Int): TelemetryConsentLevel = values().firstOrNull { it.storageKey == key } ?: OFF
+    }
 }

@@ -93,14 +93,10 @@ object OnboardMapAssetsExtractor {
             return
         }
         Log.i(TAG, "deleting $target")
-        if (target.isFile) {
-            if (!target.delete()) {
-                Log.w(TAG, "Failed to delete file $target")
-            }
-        } else if (target.isDirectory) {
-            if (!target.deleteRecursively()) {
-                Log.w(TAG, "Failed to delete directory $target")
-            }
+        if (target.isFile && !target.delete()) {
+            Log.w(TAG, "Failed to delete file $target")
+        } else if (target.isDirectory && !target.deleteRecursively()) {
+            Log.w(TAG, "Failed to delete directory $target")
         }
     }
 
